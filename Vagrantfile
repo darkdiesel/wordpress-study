@@ -34,7 +34,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-  config.vm.network "forwarded_port", guest: 80, host: 8174
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  config.vm.network "forwarded_port", guest: 80, host: 8174, id: "http", auto_correct: true
   config.vm.network "forwarded_port", guest: 22, host: 2200, id: "ssh", auto_correct: true
 
   # Create a forwarded port mapping which allows access to a specific port
@@ -44,6 +46,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
   config.vm.network "private_network", ip: MACHINE_IP
 
   # Create a public network, which generally matched to bridged network.
@@ -51,46 +55,52 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # your network.
   # config.vm.network "public_network"
 
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  config.vm.synced_folder "./vagrant", "/vagrant", type: "virtualbox"
+  config.vm.synced_folder "./data", "/vagrant_data", type: "virtualbox"
+  config.vm.synced_folder "./",  "/var/www/" + MACHINE_NAME, type: "virtualbox",
+      owner: "vagrant",
+      group: "www-data",
+      mount_options: ["dmode=775,fmode=664"]
+
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
 
   config.vm.define MACHINE_NAME + "." + OS_NAME do |machine|
 
-    # Vagrant Host Name
-    machine.vm.hostname = MACHINE_NAME + "." + BASE_DOMAIN
+      machine.vm.hostname = MACHINE_NAME + "." + BASE_DOMAIN
 
-    # Share an additional folder to the guest VM. The first argument is
-    # the path on the host to the actual folder. The second argument is
-    # the path on the guest to mount the folder. And the optional third
-    # argument is a set of non-required options.
-    # config.vm.synced_folder "../data", "/vagrant_data"
+      machine.vm.provider "virtualbox" do |vb|
+        # Display the VirtualBox GUI when booting the machine
+        vb.gui = true
 
-    machine.vm.synced_folder "./vagrant", "/vagrant", type: "virtualbox"
-    machine.vm.synced_folder "./data", "/vagrant_data", type: "virtualbox"
-    machine.vm.synced_folder "./", "/var/www/wordpress-study.loc", type: "virtualbox",
-        owner: "vagrant",
-        group: "www-data",
-        mount_options: ["dmode=775,fmode=664"]
+        # Customize the amount of memory on the VM:
+        vb.memory = "1024"
 
+        # Vagrant Machine Name
+        vb.name = MACHINE_NAME + "." + BASE_DOMAIN
 
-    machine.vm.provider "virtualbox" do |vb|
-      # Display the VirtualBox GUI when booting the machine
-      vb.gui = true
-
-      # Customize the amount of memory on the VM:
-      vb.memory = "1024"
-
-      # Vagrant Machine Name
-      vb.name = MACHINE_NAME + "." + BASE_DOMAIN
-
-      vb.customize ["modifyvm", :id, "--memory", "1024"]
-      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    end
+        vb.customize ["modifyvm", :id, "--memory", "1024"]
+        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      end
   end
-
-  # View the documentation for the provider you are using for more
-  # information on available options.
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
