@@ -1,0 +1,363 @@
+# Translation of Themes - BOSS in German
+# This file is distributed under the same license as the Themes - BOSS package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2018-08-03 00:41:17+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: de\n"
+"Project-Id-Version: Themes - BOSS\n"
+
+#. Theme Name of the plugin/theme
+msgid "BOSS"
+msgstr "BOSS"
+
+#. Template Name of the plugin/theme
+msgid "Page without Sidebar"
+msgstr "Seite ohne Seitenleiste"
+
+#. Template Name of the plugin/theme
+msgid "Full Width Image"
+msgstr "Bild über volle Breite"
+
+#: template-image-2.php:23 template-image-3.php:23 template-image.php:24
+msgid "Please set a featured image for this page to display an image here!<br />Try to keep its file size below 350kbyte for faster loading!"
+msgstr "Bitte setze hier ein passendes Bild für diese Seite um ein Bild anzuzeigen!Please set a featured image for this page to display an image here!<br />Versuch die Dateigröße unter 350kbyte zu halten um schnelleres Laden zu ermöglichen!"
+
+#: searchform.php:7
+msgid "SEARCH"
+msgstr "SUCHEN"
+
+#: search.php:28
+msgid "Search results are listed below for keyword:"
+msgstr "Die Suchergebnisse für das nachfolgende Suchwort werden unten aufgeführt:"
+
+#: search.php:26
+msgid "SEARCH RESULTS"
+msgstr "SUCHERGEBNISSE"
+
+#: inc/widget_areas.php:87
+msgid "Footer Widget Area #4"
+msgstr "Widget-Bereich im Footer #4"
+
+#: inc/widget_areas.php:76
+msgid "Footer Widget Area #3"
+msgstr "Widget-Bereich im Footer #3"
+
+#: inc/widget_areas.php:65
+msgid "Footer Widget Area #2"
+msgstr "Widget-Bereich im Footer #2"
+
+#: inc/widget_areas.php:56 inc/widget_areas.php:67 inc/widget_areas.php:78
+#: inc/widget_areas.php:89
+msgid "Widget area for footer"
+msgstr "Widget-Bereich für den Footer"
+
+#: inc/widget_areas.php:54
+msgid "Footer Widget Area #1"
+msgstr "Widget-Bereich im Footer #1"
+
+#: inc/widget_areas.php:45
+msgid "Sidebar for Search page"
+msgstr "Seitenleiste für die Suchen-Seite"
+
+#: inc/widget_areas.php:43
+msgid "Search Sidebar"
+msgstr "Suchen-Seitenleiste"
+
+#: inc/widget_areas.php:33
+msgid "Sidebar for all Archives, Categories, Tags pages"
+msgstr "Seitenleiste für alle Archiv-, Kategorie- und Tags-Seiten"
+
+#: inc/widget_areas.php:31
+msgid "Archives Sidebar"
+msgstr "Archiv-Seitenleiste"
+
+#: inc/widget_areas.php:22
+msgid "Sidebar for all pages"
+msgstr "Seitenleiste für alle Seiten"
+
+#: inc/widget_areas.php:20
+msgid "Pages Sidebar"
+msgstr "Seiten-Seitenleiste"
+
+#: inc/widget_areas.php:11
+msgid "Sidebar for all posts"
+msgstr "Seitenleiste für alle Posts"
+
+#: inc/widget_areas.php:9
+msgid "Posts Sidebar"
+msgstr "Beitrags-Seitenleiste"
+
+#: inc/customizer.php:221
+msgid "Email"
+msgstr "E-Mail"
+
+#: inc/customizer.php:214
+msgid "Tumblr"
+msgstr "Tumblr"
+
+#: inc/customizer.php:207
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
+
+#: inc/customizer.php:200
+msgid "Delicous"
+msgstr "Delicous"
+
+#: inc/customizer.php:193
+msgid "Digg"
+msgstr "Digg"
+
+#: inc/customizer.php:186
+msgid "Reddit"
+msgstr "Reddit"
+
+#: inc/customizer.php:179
+msgid "Pinterest"
+msgstr "Pinterest"
+
+#: inc/customizer.php:172
+msgid "LinkedIN"
+msgstr "LinkedIN"
+
+#: inc/customizer.php:165
+msgid "Google+"
+msgstr "Google+"
+
+#: inc/customizer.php:158
+msgid "Twitter"
+msgstr "Twitter"
+
+#: inc/customizer.php:151
+msgid "Facebook"
+msgstr "Facebook"
+
+#: inc/customizer.php:146
+msgid "Select which sharing icons should appear below posts!"
+msgstr "Wähle aus, welche Teilen-Symbole unter den Posts erscheinen sollen!"
+
+#: inc/customizer.php:144
+msgid "Post Sharing"
+msgstr "Beiträge teilen"
+
+#: inc/customizer.php:132
+msgid "Footer icons - Email"
+msgstr "Footer Symbole - E-Mail"
+
+#: inc/customizer.php:125
+msgid "Footer icons - Twitter"
+msgstr "Footer Symbole - Twitter"
+
+#: inc/customizer.php:118
+msgid "Footer icons - RSS"
+msgstr "Footer Symbole - RSS"
+
+#: inc/customizer.php:111
+msgid "Footer icons - Pinterest"
+msgstr "Footer Symbole - Pinterest"
+
+#: inc/customizer.php:104
+msgid "Footer icons - LinkedIN"
+msgstr "Footer Symbole - LinkedIN"
+
+#: inc/customizer.php:97
+msgid "Footer icons - Instagram"
+msgstr "Footer Symbole - Instagram"
+
+#: inc/customizer.php:90
+msgid "Footer icons - Google+"
+msgstr "Footer Symbole - Google+"
+
+#: inc/customizer.php:83
+msgid "Footer icons - Facebook"
+msgstr "Footer Symbole - Facebook"
+
+#: inc/customizer.php:76
+msgid "Footer icons - Dribbble"
+msgstr "Footer Symbole - Dribbble"
+
+#: inc/customizer.php:69
+msgid "Footer icons - Behance"
+msgstr "Footer Symbole - Behance"
+
+#: inc/customizer.php:48
+msgid "Left"
+msgstr "Links"
+
+#: inc/customizer.php:47
+msgid "Right"
+msgstr "Rechts"
+
+#: inc/customizer.php:43
+msgid "Default sidebar position"
+msgstr "Standard Position der Seitenleiste"
+
+#: inc/customizer.php:32
+msgid "Sidebar & Footer"
+msgstr "Seitenleiste & Footer"
+
+#: inc/customizer.php:16
+msgid "Main color scheme"
+msgstr "Haupt-Farbschema"
+
+#: header.php:18
+msgid "This website requires JavaScript!</strong> Please enable JavaScript in your browser and reload the page!"
+msgstr "Diese Webseite benötigt JavaScript!</strong> Bitte aktiviere JavaScript in deinem Browser und lade die Seite erneut!"
+
+#: functions.php:235
+msgid "Reply"
+msgstr "Antworten"
+
+#: functions.php:227
+msgid " (Edit)"
+msgstr "(Bearbeiten)"
+
+#: functions.php:226
+msgid "%1$s., %2$s"
+msgstr "%1$s., %2$s"
+
+#: functions.php:30
+msgid "Footer Menu"
+msgstr "Footer-Menü"
+
+#: functions.php:29
+msgid "Primary Menu"
+msgstr "Hauptmenü"
+
+#: footer.php:142
+msgid "loading"
+msgstr "Wird geladen"
+
+#: footer.php:110
+msgid "A WORDPRESS THEME BY "
+msgstr "EIN WORDPRESS THEME VON"
+
+#: content-single.php:68
+msgid "Tags"
+msgstr "Schlagwörter"
+
+#: content-blog.php:78 content-single.php:60 page.php:46
+#: template-image-2.php:63 template-image-3.php:52 template-image.php:64
+#: template-no-sidebar.php:31
+msgid "<strong>Pages:</strong>"
+msgstr "<strong>Seiten:</strong>"
+
+#: content-blog.php:53 content-search.php:17 content-single.php:46
+msgid "Untitled"
+msgstr "Unbenannt"
+
+#: content-blog.php:40 content-single.php:34
+msgid "% comments"
+msgstr "% Kommentar(e)"
+
+#: content-blog.php:40 content-single.php:34
+msgid "1 comment"
+msgstr "1 Kommentar"
+
+#: content-blog.php:40 content-single.php:34
+msgid "0 comment"
+msgstr "0 Kommentar(e)"
+
+#: content-blog.php:39 content-search.php:26 content-single.php:33
+msgid ", "
+msgstr ", "
+
+#: content-blog.php:34 content-single.php:28
+msgid "Sticky"
+msgstr "Oben gehalten"
+
+#: comments.php:59
+msgid "WEBSITE"
+msgstr "WEBSITE"
+
+#: comments.php:58
+msgid "EMAIL"
+msgstr "E-MAIL"
+
+#: comments.php:57
+msgid "NAME"
+msgstr "NAME"
+
+#: comments.php:55
+msgid "SUBMIT"
+msgstr "SENDEN"
+
+#: comments.php:51
+msgid "LEAVE A REPLY "
+msgstr "HINTERLASSE EINEN KOMMENTAR"
+
+#: comments.php:42
+msgid "Thank you for submitting your comment!"
+msgstr "Vielen Dank für Ihren Kommentar!"
+
+#: comments.php:33 content-single.php:155
+msgid "NEXT"
+msgstr "Weiter"
+
+#: comments.php:32 content-single.php:154
+msgid "PREVIOUS"
+msgstr "Zurück"
+
+#: comments.php:16
+msgid "COMMENTS"
+msgstr "KOMMENTAR(E)"
+
+#: archive.php:64 index.php:64 search.php:61
+msgid "Next Page &nbsp;<i class=\"fa fa-angle-right\"></i>"
+msgstr "Nächste Seite &nbsp;<i class=\"fa fa-angle-right\"></i>"
+
+#: archive.php:60 index.php:60 search.php:57
+msgid "PAGE %d OF %d"
+msgstr "SEITE %d VON %d"
+
+#: archive.php:56 index.php:56 search.php:53
+msgid "<i class=\"fa fa-angle-left\"></i>&nbsp; Previous Page "
+msgstr "<i class=\"fa fa-angle-left\"></i>&nbsp; Vorherige Seite "
+
+#: archive.php:30
+msgid "AUTHOR ARCHIVES"
+msgstr "AUTOR ARCHIV"
+
+#: archive.php:28
+msgid "ARCHIVE"
+msgstr "ARCHIVE"
+
+#: archive.php:26
+msgid "TAGGED POSTS"
+msgstr "GETAGGTE BEITRÄGE"
+
+#: archive.php:24
+msgid "CATEGORY"
+msgstr "KATEGORIE"
+
+#: 404.php:18
+msgid "The page you're looking for is not available!<br />Maybe you want to try a search?"
+msgstr "Die gesuchte Seite ist nicht verfügbar!<br />Möchten Sie vielleicht die Suche verwenden?"
+
+#: 404.php:18
+msgid "Sorry!"
+msgstr "Entschuldigung!"
+
+#: 404.php:17
+msgid "PAGE NOT FOUND"
+msgstr "SEITE NICHT GEFUNDEN"
+
+#: 404.php:16
+msgid "ERROR #404"
+msgstr "FEHLER #404"
+
+#. Author URI of the plugin/theme
+msgid "http://divpusher.com/"
+msgstr "http://divpusher.com/"
+
+#. Author of the plugin/theme
+msgid "DIVPusher"
+msgstr "DIVPusher"
+
+#. Theme URI of the plugin/theme
+msgid "http://divpusher.com/themes/boss-free/"
+msgstr "http://divpusher.com/themes/boss-free/"
