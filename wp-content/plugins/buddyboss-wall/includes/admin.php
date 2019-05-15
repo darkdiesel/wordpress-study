@@ -26,12 +26,13 @@ class BuddyBoss_Wall_Admin
 	 *
 	 * @var array
 	 */
-	public $options = array();
-	
+	public	$options = array();
+	private $plugin_settings_tabs = array();
+
 	private $network_activated = false,
 			$plugin_slug = 'bb-buddyboss-wall',
 			$menu_hook = 'admin_menu',
-			$settings_page = 'options-general.php',
+			$settings_page = 'buddyboss-settings',
 			$capability = 'manage_options',
 			$form_action = 'options.php',
 			$plugin_settings_url;
@@ -116,7 +117,7 @@ class BuddyBoss_Wall_Admin
 			return;
 		}
 
-		$this->plugin_settings_url = admin_url( 'options-general.php?page=' . $this->plugin_slug );
+		$this->plugin_settings_url = admin_url( 'admin.php?page=' . $this->plugin_slug );
 
 		$this->network_activated = $this->is_network_activated();
 
@@ -126,7 +127,7 @@ class BuddyBoss_Wall_Admin
 			$this->menu_hook = 'network_admin_menu';
 
 			// Main settings page - parent page
-			$this->settings_page = 'settings.php';
+			//$this->settings_page = 'settings.php';
 
 			// Main settings page - Capability
 			$this->capability = 'manage_network_options';
@@ -135,7 +136,7 @@ class BuddyBoss_Wall_Admin
 			$this->form_action = 'edit.php?action=' . $this->plugin_slug;
 
 			// Plugin settings page url
-			$this->plugin_settings_url = network_admin_url('settings.php?page=' . $this->plugin_slug);
+			$this->plugin_settings_url = network_admin_url('admin.php?page=' . $this->plugin_slug);
 		}
 
 		//if the plugin is activated network wide in multisite, we need to process settings form submit ourselves
@@ -144,15 +145,17 @@ class BuddyBoss_Wall_Admin
 		}
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', array($this, 'register_support_settings' ) );
+		add_action( $this->menu_hook, array( $this, 'register_buddyboss_menu_page' ) );
 		add_action( $this->menu_hook, array( $this, 'admin_menu' ) );
 
 		add_filter( 'plugin_action_links', array( $this, 'add_action_links' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'add_action_links' ), 10, 2 );
 	}
-	
+
 	/**
 	 * Check if the plugin is activated network wide(in multisite).
-	 * 
+	 *
 	 * @return boolean
 	 */
 	private function is_network_activated() {
@@ -179,6 +182,8 @@ class BuddyBoss_Wall_Admin
 	 */
 	public function admin_init()
 	{
+		$this->plugin_settings_tabs['buddyboss_wall_plugin_options'] = 'General';
+
 		register_setting( 'buddyboss_wall_plugin_options', 'buddyboss_wall_plugin_options', array( $this, 'plugin_options_validate' ) );
 		add_settings_section( 'general_section', __( 'General Settings', 'buddyboss-wall' ), array( $this, 'section_general' ), __FILE__ );
 		// add_settings_section( 'style_section', 'Style Settings', array( $this, 'section_style' ), __FILE__ );
@@ -186,9 +191,25 @@ class BuddyBoss_Wall_Admin
 		//general options
 		add_settings_field( 'enabled', __( 'Enable Wall Component', 'buddyboss-wall' ), array( $this, 'setting_enabled' ), __FILE__, 'general_section' );
         add_settings_field( 'all-members', __( 'Available to all members', 'buddyboss-wall' ), array( $this, 'setting_available_to_allmembers' ), __FILE__, 'general_section' );
-        add_settings_field( 'activity-posted-text', __( 'Activity post text:', 'buddyboss-wall' ), array( $this, 'setting_activity_posted_text' ), __FILE__, 'general_section' );
-        add_settings_field( 'enabled-wall-privacy', __( 'Enable Wall Privacy', 'buddyboss-wall' ), array( $this, 'setting_enabled_wall_privacy' ), __FILE__, 'general_section' );
-        add_settings_field( 'enabled_link_preview', __( 'Enable Link Preview', 'buddyboss-wall' ), array( $this, 'setting_enabled_link_preview' ), __FILE__, 'general_section' );
+        add_settings_field( 'activity-posted-text', __( 'Activity post text', 'buddyboss-wall' ), array( $this, 'setting_activity_posted_text' ), __FILE__, 'general_section' );
+        add_settings_field( 'activity-like-text', __( 'Activity Like text', 'buddyboss-wall' ), array( $this, 'setting_activity_like_text' ), __FILE__, 'general_section' );
+        add_settings_field( 'enabled-wall-privacy', __( 'Wall Privacy', 'buddyboss-wall' ), array( $this, 'setting_enabled_wall_privacy' ), __FILE__, 'general_section' );
+        add_settings_field( 'disable_everyone_option', __( 'Wall Privacy Options', 'buddyboss-wall' ), array( $this, 'setting_disable_everyone_option' ), __FILE__, 'general_section' );
+        add_settings_field( 'enabled_link_preview', __( 'Link Preview', 'buddyboss-wall' ), array( $this, 'setting_enabled_link_preview' ), __FILE__, 'general_section' );
+        add_settings_field( 'default_profile_tab', __( 'Default Profile Tab', 'buddyboss-wall' ), array( $this, 'setting_default_profile_tab' ), __FILE__, 'general_section' );
+	}
+
+	function register_support_settings() {
+		$this->plugin_settings_tabs[ 'buddyboss_wall_support_options' ] = __('Support','buddyboss-wall');
+
+		register_setting( 'buddyboss_wall_support_options', 'buddyboss_wall_support_options' );
+		add_settings_section( 'section_support', ' ', array( &$this, 'section_support_desc' ), 'buddyboss_wall_support_options' );
+	}
+
+	function section_support_desc() {
+		if ( file_exists( dirname( __FILE__ ) . '/help-support.php' ) ) {
+			require_once( dirname( __FILE__ ) . '/help-support.php' );
+		}
 	}
 
 	/**
@@ -201,7 +222,7 @@ class BuddyBoss_Wall_Admin
 	public function admin_menu()
 	{
 		add_submenu_page(
-				$this->settings_page, 'BuddyBoss Wall', 'BuddyBoss Wall', $this->capability, $this->plugin_slug, array( $this, 'options_page' )
+				$this->settings_page, 'BuddyBoss Wall', 'Wall', $this->capability, $this->plugin_slug, array( $this, 'options_page' )
 		);
 	}
 
@@ -215,6 +236,21 @@ class BuddyBoss_Wall_Admin
 	public function network_admin_menu()
 	{
 		return $this->admin_menu();
+	}
+
+	/**
+	 * Resister BuddyBoss Menu Page
+	 */
+	public function register_buddyboss_menu_page() {
+
+		if ( ! empty( $GLOBALS['admin_page_hooks']['buddyboss-settings'] ) ) return;
+
+		// Set position with odd number to avoid confict with other plugin/theme.
+		add_menu_page( 'BuddyBoss', 'BuddyBoss', 'manage_options', 'buddyboss-settings', '', buddyboss_wall()->assets_url . '/images/logo.svg', 64.99 );
+
+		// To remove empty parent menu item.
+		add_submenu_page( 'buddyboss-settings', 'BuddyBoss', 'BuddyBoss', 'manage_options', 'buddyboss-settings' );
+		remove_submenu_page( 'buddyboss-settings', 'buddyboss-settings' );
 	}
 
 	/**
@@ -247,27 +283,46 @@ class BuddyBoss_Wall_Admin
 	 */
 	public function options_page()
 	{
+		$tab = isset( $_GET['tab'] ) ? $_GET['tab'] : __FILE__;
 	?>
 		<div class="wrap">
 			<h2><?php _e( 'BuddyBoss Wall', 'buddyboss-wall' ); ?></h2>
+			<?php $this->plugin_options_tabs(); ?>
 			<form action="<?php echo $this->form_action; ?>" method="post">
-				
+
 				<?php
 					if ( $this->network_activated && isset($_GET['updated']) ) {
 						echo "<div class='updated'><p>" . __('Settings updated.', 'buddyboss-wall') . "</p></div>";
 					}
 				?>
-				
-				<?php settings_fields('buddyboss_wall_plugin_options'); ?>
-				<?php do_settings_sections(__FILE__); ?>
 
-				<p class="submit">
-					<input name="bboss_g_s_settings_submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
-				</p>
+				<?php
+				if ( 'buddyboss_wall_plugin_options' == $tab || empty($_GET['tab']) ) {
+					settings_fields( 'buddyboss_wall_plugin_options' );
+					do_settings_sections( __FILE__ ); ?>
+					<p class="submit">
+						<input name="bboss_g_s_settings_submit" type="submit" class="button-primary" value="<?php echo esc_attr( __('Save Changes', 'buddyboss-wall') ); ?>" />
+					</p><?php
+				} else {
+					settings_fields( $tab );
+					do_settings_sections( $tab );
+				} ?>
+
 			</form>
 		</div>
 
 	<?php
+	}
+
+	function plugin_options_tabs() {
+		$current_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'buddyboss_wall_plugin_options';
+
+		echo '<h2 class="nav-tab-wrapper">';
+		foreach ( $this->plugin_settings_tabs as $tab_key => $tab_caption ) {
+			$active = $current_tab == $tab_key ? 'nav-tab-active' : '';
+			echo '<a class="nav-tab ' . $active . '" href="?page=' . $this->plugin_slug . '&tab=' . $tab_key . '">' . $tab_caption . '</a>';
+		}
+		echo '</h2>';
 	}
 
 	public function add_action_links( $links, $file ) {
@@ -277,7 +332,7 @@ class BuddyBoss_Wall_Admin
 		}
 
 		$mylinks = array(
-			'<a href="' . esc_url( $this->plugin_settings_url ) . '">' . __( "Settings", "bb-buddyboss-wall" ) . '</a>',
+			'<a href="' . esc_url( $this->plugin_settings_url ) . '">' . __( "Settings", "buddyboss-wall" ) . '</a>',
 		);
 		return array_merge( $links, $mylinks );
 	}
@@ -304,7 +359,7 @@ class BuddyBoss_Wall_Admin
 		wp_redirect( $redirect_url );
 		die();
 	}
-	
+
 	/**
 	 * General settings section
 	 *
@@ -332,9 +387,9 @@ class BuddyBoss_Wall_Admin
 	 */
 	public function plugin_options_validate( $input )
 	{
-		$input['enabled'] = sanitize_text_field( $input['enabled'] );
-		$input['enabled-wall-privacy'] = sanitize_text_field( $input['enabled-wall-privacy'] );
-		$input['enabled_link_preview'] = sanitize_text_field( $input['enabled_link_preview'] );
+		$input['enabled']              = isset( $input['enabled'] ) ? sanitize_text_field( $input['enabled'] ) : '';
+		$input['enabled-wall-privacy'] = isset( $input['enabled-wall-privacy'] ) ? sanitize_text_field( $input['enabled-wall-privacy'] ) : '';
+		$input['enabled_link_preview'] = isset( $input['enabled_link_preview'] ) ? sanitize_text_field( $input['enabled_link_preview'] ) : '';
 
 		return $input; // return validated input
 	}
@@ -411,7 +466,7 @@ class BuddyBoss_Wall_Admin
 
         _e('Allow members to set privacy options when they post.', 'buddyboss-wall');
     }
-    
+
     /**
      * Setting > enabled link preview
      *
@@ -421,13 +476,29 @@ class BuddyBoss_Wall_Admin
      */
     public function setting_enabled_link_preview() {
         $value = $this->option( 'enabled_link_preview' );
-        
+
         $checked = $value ? ' checked="checked" ' : '';
         echo "<input ".$checked." id='enabled_link_preview' name='buddyboss_wall_plugin_options[enabled_link_preview]' type='checkbox' />  ";
 
         _e('Allow link previews in activity posts.', 'buddyboss-wall');
     }
-	
+
+    /**
+     * Setting > disbale everyone privacy option
+     *
+     * @since BuddyBoss Wall (1.2.3)
+     *
+     * @uses BuddyBoss_Wall_Admin::option() Get plugin option
+     */
+    public function setting_disable_everyone_option() {
+        $value = $this->option( 'disable_everyone_option' );
+
+        $checked = $value ? ' checked="checked" ' : '';
+        echo "<input ".$checked." id='disable_everyone_option' name='buddyboss_wall_plugin_options[disable_everyone_option]' type='checkbox' />  ";
+
+        _e('Disable the "Everyone" privacy option.', 'buddyboss-wall');
+    }
+
     /**
      * Setting > Activity posted text
      *
@@ -442,7 +513,7 @@ class BuddyBoss_Wall_Admin
        if( !$value ){
 			$value = 'yes';
 		}
-		
+
 		$options = array(
 			'yes'	=> __( 'You', 'buddyboss-wall' ),
 			'no'	=> __( 'Username', 'buddyboss-wall' )
@@ -451,161 +522,64 @@ class BuddyBoss_Wall_Admin
 			$checked = $value == $option ? ' checked' : '';
 			echo '<label><input type="radio" name="buddyboss_wall_plugin_options[activity-posted-text]" value="'. $option . '" '. $checked . '>' . $label . '</label>&nbsp;&nbsp;';
 		}
-		
+
 		echo '<p class="description">' . __( 'In your wall, show activity posted by \'You\' or \'Username\'.', 'buddyboss-wall' ) . '</p>';
     }
-	
-	/**
-	 * Setting > iPad Theme
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 */
-	public function setting_ipad_theme()
-	{
-		$value = $this->option( 'ipad-theme' );
 
-		$checked = '';
+    /**
+     * Setting > default subnav
+     *
+     * @since BuddyBoss Wall (1.2.3)
+     *
+     * @uses BuddyBoss_Wall_Admin::option() Get plugin option
+     */
+    public function setting_default_profile_tab()
+    {
+        $value = $this->option( 'setting_default_profile_tab' );
 
-		if ( $value )
-		{
-			$checked = ' checked="checked" ';
+       if( !$value ){
+			$value = 'wall';
 		}
 
-		echo "<input ".$checked." id='ipad-theme' name='buddyboss_wall_plugin_options[ipad-theme]' type='checkbox' />  ";
-
-		_e('Enable mobile theme on iPad.', 'buddyboss-wall');
-	}
-
-	/**
-	 * Setting > Choose Theme
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 * @uses wp_get_themes() Get themes
-	 * @uses _e() Echo and localize text
-	 */
-	public function setting_theme()
-	{
-		$themeop = $this->option( 'theme' );
-
-		$themes = wp_get_themes();
-
-		$base = array( 'iphone', 'bootpress' );
-
-		foreach ( $themes as $index => $data )
-		{
-			if ( !in_array( $data['Template'], $base ) )
-			{
-				unset($themes[$index]);
-			}
+		$options = array(
+			'wall'	=> __( 'Wall', 'buddyboss-wall' ),
+			'newsfeed'	=> __( 'News Feed', 'buddyboss-wall' )
+		);
+		foreach( $options as $option=>$label ){
+			$checked = $value == $option ? ' checked' : '';
+			echo '<label><input type="radio" name="buddyboss_wall_plugin_options[setting_default_profile_tab]" value="'. $option . '" '. $checked . '>' . $label . '</label>&nbsp;&nbsp;';
 		}
 
-		$data = json_decode( $themeop );
-		$themer = $data->theme;
+		echo '<p class="description">' . __( 'Select the default Wall tab on profiles.', 'buddyboss-wall' ) . '</p>';
+    }
 
-		echo "<select id='theme' name='buddyboss_wall_plugin_options[theme]'>";
+    /**
+     * Setting > Activity like text
+     *
+     * @since BuddyBoss Wall (1.2.1)
+     *
+     * @uses BuddyBoss_Wall_Admin::option() Get plugin option
+     */
+    public function setting_activity_like_text()
+    {
+        $value = $this->option( 'activity-like-text' );
 
-		foreach( $themes as $theme => $data  )
-		{
-			$id = $theme;
-
-			$ar = array(
-				'theme' => $theme,
-				'template' => $data['Template']
-			);
-
-			$val = json_encode($ar);
-
-			$selected = ( $themer == $id ) ? 'selected="selected"' : '';
-
-			echo "<option value=$val $selected>$theme</option>" ;
-		}
-		echo "</select>  ";
-
-		_e( 'Choose a theme for mobile phones.', 'buddyboss-wall' );
-	}
-
-	/**
-	 * Setting > Theme Style
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 */
-	public function setting_theme_style()
-	{
-		$value = $this->option( 'theme-style' );
-
-		$checked  = '';
-		$checked2 = '';
-
-		if ( $value === 'default' )
-		{
-			$checked  = ' checked="checked" ';
+       if( !$value ){
+			$value = 'yes';
 		}
 
-		if ( $value === 'dark' )
-		{
-			$checked2 = ' checked="checked" ';
+		$options = array(
+			'yes'	=> __( 'You', 'buddyboss-wall' ),
+			'no'	=> __( 'Username', 'buddyboss-wall' )
+		);
+		foreach( $options as $option=>$label ){
+			$checked = $value == $option ? ' checked' : '';
+			echo '<label><input type="radio" name="buddyboss_wall_plugin_options[activity-like-text]" value="'. $option . '" '. $checked . '>' . $label . '</label>&nbsp;&nbsp;';
 		}
 
-		echo "<input ". $checked  ." type='radio' id='theme-style-default' name='buddyboss_wall_plugin_options[theme-style]' value='default' />   Default      ";
-		echo "<input ". $checked2 ." type='radio' id='theme-style-dark' name='buddyboss_wall_plugin_options[theme-style]' value='dark' />   Dark";
-	}
+		echo '<p class="description">' . __( 'In your wall, show activity liked by \'You\' or \'Username\'.', 'buddyboss-wall' ) . '</p>';
+    }
 
-	/**
-	 * Setting > Toolbar Color
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 */
-	public function setting_toolbar_color()
-	{
-		$value = $this->option( 'toolbar-color' );
-
-		echo "<input id='toolbar-color' name='buddyboss_wall_plugin_options[toolbar-color]' size='20' type='text' value='$value' />";
-	}
-
-	/**
-	 * Setting > Theme Style
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 */
-	public function setting_background_color()
-	{
-		$value = $this->option( 'background-color' );
-
-		echo "<input id='background-color' name='buddyboss_wall_plugin_options[background-color]' size='20' type='text' value='$value' />";
-	}
-
-	/**
-	 * Setting > Theme Style
-	 *
-	 * @since BuddyBoss Wall (1.0.0)
-	 *
-	 * @uses BuddyBoss_Wall_Admin::option() Get plugin option
-	 * @uses wp_enqueue_media() Enqueue WP media attachment libs
-	 * @uses admin_url() Get WP admin URL
-	 * @uses _e() Echo and localize text
-	 */
-	public function setting_touch_icon()
-	{
-		wp_enqueue_media();
-
-		$text = $this->option( 'touch-icon' );
-
-		$admin = admin_url() . 'media-new.php';
-
-		echo "<input id='touch-icon' name='buddyboss_wall_plugin_options[touch-icon]' size='40' type='text' value='$text' />  ";
-		echo "<input type='button' class='button' name='buddyboss-wall-touch-icon' id='buddyboss-wall-touch-icon' value='Upload' />";
-		_e('   image size must be 114 x 114 px', 'buddyboss-wall');
-	}
 }
 // End class BuddyBoss_Wall_Admin
 

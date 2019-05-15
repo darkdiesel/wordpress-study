@@ -8,7 +8,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * 
+ *
  */
 function buddyboss_wall_check_mentions_notifications()
 {
@@ -90,12 +90,12 @@ function buddyboss_wall_read_filter( $action )
 
     // Insert the time since.
     $time_since = apply_filters_ref_array( 'bp_activity_time_since', array( '<span class="time-since">' . bp_core_time_since( $activities_template->activity->date_recorded ) . '</span>', &$activities_template->activity ) );
-    
+
     // if group component then pass blank time_since
     if($current_activity->component === 'groups'){
         $time_since = '';
     }
-    
+
     // Insert the permalink
     if ( !bp_is_single_activity() )
       $content = apply_filters_ref_array( 'bp_activity_permalink', array( sprintf( '%1$s <a href="%2$s" class="view activity-time-since" title="%3$s">%4$s</a>', $content, bp_activity_get_permalink( $activities_template->activity->id, $activities_template->activity ), esc_attr__( 'View Discussion', 'buddypress' ), $time_since ), &$activities_template->activity ) );
@@ -104,7 +104,7 @@ function buddyboss_wall_read_filter( $action )
 
     return apply_filters( 'buddyboss_wall_activity_action', $content );
   }
-  
+
   return $action;
 }
 
@@ -137,13 +137,31 @@ function buddyboss_wall_input_filter( &$activity ) {
   // Our conditional will make sure that the object is empty. The object is
   // always empty when we're posting in our activity or someone else's (wall),
   // so to be forward thinking it's best to check for an empty object rather
-  // than if $object !== 'groups'
+  // than if $object !== 'groups'.
+  //
+  // In Nouveau template pack $object will be always "user" when we're posting on the
+  // our or someone else's wall
   //
   // This way future plugin conflicts will be resolved, because a plugin can
   // define an object like "clan" and we'd run into the same problems.
   //
-  $is_wall_action = bp_is_current_component( 'activity' ) && empty( $object )
-                    && ! empty( $_POST['action'] ) && $_POST['action'] === 'post_update';
+
+	$theme_compat_id = bp_get_theme_compat_id();
+
+  	if ( 'legacy' === $theme_compat_id ) {
+
+		$is_wall_action = bp_is_current_component( 'activity' )
+			&& empty( $object )
+			&& ! empty( $_POST['action'] )
+			&& $_POST['action'] === 'post_update';
+
+	} elseif ( 'nouveau' === $theme_compat_id ) {
+
+		$is_wall_action = bp_is_current_component( 'activity' )
+			&& 'user' === $object
+			&& ! empty( $_POST['action'] )
+			&& $_POST['action'] === 'post_update';
+	}
 
   if ( !empty($activity->content) && ( $is_wall_action || $bp->current_action == 'forum' ) )
   {
@@ -176,12 +194,17 @@ function buddyboss_wall_input_filter( &$activity ) {
   	 *
   	 *		- it should be '%INITIATOR% posted an update ...'
   	 */
-  	$activity_target_user_id = $tgt->id;
+
+    //Set activity target id
+    if ( isset( $tgt->id ) ) {
+      $activity_target_user_id = $tgt->id;
+    }
+
   	//key value pairs of userid=>username
   	$mentioned = bp_activity_find_mentions($activity->content);
-	
+
   	$len = !empty($mentioned) ? count($mentioned) : 0;
-	
+
   	//is it a mention?
   	if( $len>0 ){
   		//yes its a mention
@@ -252,12 +275,14 @@ function buddyboss_wall_post_update()
 
   if ( !is_user_logged_in() ) {
     echo '-1';
-    return false;
+      // Default status
+    die();
   }
 
   if ( empty( $_POST['content'] ) ) {
     echo '-1<div id="message" class="error"><p>' . __( 'Please enter some content to post.', 'buddyboss-wall' ) . '</p></div>';
-    return false;
+      // Default status
+    die();
   }
 
   $activity_id = false;
@@ -266,7 +291,8 @@ function buddyboss_wall_post_update()
   {
     if ( ! bp_is_my_profile() && bp_is_user() )
     {
-      $content = "@". bp_get_displayed_user_username()." ".$_POST['content'];
+      $content = "@". bp_get_displayed_user_username()."\n";
+      $content .= $_POST['content'];
     }
     else {
       $content = $_POST['content'];
@@ -288,7 +314,8 @@ function buddyboss_wall_post_update()
   if ( ! $activity_id )
   {
     echo '-1<div id="message" class="error"><p>' . __( 'There was a problem posting your update, please try again.', 'buddyboss-wall' ) . '</p></div>';
-    return false;
+    // Default status
+    die();
   }
 
   if ( bp_has_activities ( 'include=' . $activity_id ) ) : ?>
@@ -296,6 +323,117 @@ function buddyboss_wall_post_update()
   <?php bp_get_template_part( 'activity/entry' ) ?>
   <?php endwhile; ?>
   <?php endif;
+  die();
+}
+
+
+/**
+ * Processes Activity updates received via a POST request.
+ *
+ * @since 3.0.0
+ *
+ * @return string JSON reply
+ */
+function buddyboss_wall_nouveau_ajax_post_update() {
+	$bp = buddypress();
+
+	if ( ! is_user_logged_in() || empty( $_POST['_wpnonce_post_update'] ) || ! wp_verify_nonce( $_POST['_wpnonce_post_update'], 'post_update' ) ) {
+		wp_send_json_error();
+	}
+
+	if ( empty( $_POST['content'] ) ) {
+		wp_send_json_error(
+			array(
+				'message' => __( 'Please enter some content to post.', 'buddypress' ),
+			)
+		);
+	}
+
+	$activity_id = 0;
+	$item_id     = 0;
+	$object      = '';
+	$is_private  = false;
+
+	// Try to get the item id from posted variables.
+	if ( ! empty( $_POST['item_id'] ) ) {
+		$item_id = (int) $_POST['item_id'];
+	}
+
+	// Try to get the object from posted variables.
+	if ( ! empty( $_POST['object'] ) ) {
+		$object = sanitize_key( $_POST['object'] );
+
+		// If the object is not set and we're in a group, set the item id and the object
+	} elseif ( bp_is_group() ) {
+		$item_id = bp_get_current_group_id();
+		$object  = 'group';
+		$status  = groups_get_current_group()->status;
+	}
+
+	if ( 'user' === $object && bp_is_active( 'activity' ) ) {
+
+		if ( ! bp_is_my_profile() && bp_is_user() )
+		{
+			$content = "@". bp_get_displayed_user_username()." ".$_POST['content'];
+		}
+		else {
+			$content = $_POST['content'];
+		}
+
+		$activity_id = bp_activity_post_update( array( 'content' => $content ) );
+
+	} elseif ( 'group' === $object ) {
+		if ( $item_id && bp_is_active( 'groups' ) ) {
+			// This function is setting the current group!
+			$activity_id = groups_post_update(
+				array(
+					'content'  => $_POST['content'],
+					'group_id' => $item_id,
+				)
+			);
+
+			if ( empty( $status ) ) {
+				if ( ! empty( $bp->groups->current_group->status ) ) {
+					$status = $bp->groups->current_group->status;
+				} else {
+					$group  = groups_get_group( array( 'group_id' => $group_id ) );
+					$status = $group->status;
+				}
+
+				$is_private = 'public' !== $status;
+			}
+		}
+
+	} else {
+		/** This filter is documented in bp-activity/bp-activity-actions.php */
+		$activity_id = apply_filters( 'bp_activity_custom_update', false, $object, $item_id, $_POST['content'] );
+	}
+
+	if ( empty( $activity_id ) ) {
+		wp_send_json_error(
+			array(
+				'message' => __( 'There was a problem posting your update. Please try again.', 'buddypress' ),
+			)
+		);
+	}
+
+	ob_start();
+	if ( bp_has_activities( array( 'include' => $activity_id, 'show_hidden' => $is_private ) ) ) {
+		while ( bp_activities() ) {
+			bp_the_activity();
+			bp_get_template_part( 'activity/entry' );
+		}
+	}
+	$acivity = ob_get_contents();
+	ob_end_clean();
+
+	wp_send_json_success( array(
+		'id'           => $activity_id,
+		'message'      => sprintf( __( 'Update posted <a href="%s" class="just-posted">View activity</a>', 'buddypress' ), esc_url( bp_activity_get_permalink( $activity_id ) ) ),
+		'activity'     => $acivity,
+		'is_private'   => apply_filters( 'bp_nouveau_ajax_post_update_is_private', $is_private ),
+		'is_directory' => bp_is_activity_directory(),
+	) );
 }
 
 /**
@@ -320,6 +458,32 @@ function buddyboss_wall_mark_activity_favorite()
   $resp['like_count'] = (int) bp_activity_get_meta( (int)$_POST['id'], 'favorite_count' );
 
   echo json_encode( $resp );
+
+  exit;
+}
+
+/**
+ * Mark an activity as a favourite via a POST request.
+ *
+ * @return string HTML
+ * @since BuddyBoss Wall (1.0.0)
+ */
+function buddyboss_wall_nouveau_mark_activity_favorite()
+{
+  // Bail if not a POST action
+  if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+    return;
+
+  if ( bp_activity_add_user_favorite( $_POST['id'] ) )
+    $resp['content'] = __( 'Unlike', 'buddyboss-wall' );
+  else
+    $resp['content'] = __( 'Like', 'buddyboss-wall' );
+
+  $is_a_comment = isset( $_POST['item_type'] ) && $_POST['item_type']=='comment';
+  $resp['num_likes'] = get_wall_add_likes_comments( (int)$_POST['id'], true, $is_a_comment );
+  $resp['fav_count'] = (int) bp_activity_get_meta( (int)$_POST['id'], 'favorite_count' );
+
+  echo wp_send_json_success( $resp );
 
   exit;
 }
@@ -350,25 +514,79 @@ function buddyboss_wall_unmark_activity_favorite() {
   exit;
 }
 
+/**
+ * Un-favourite an activity via a POST request.
+ *
+ * @return string HTML
+ * @since BuddyBoss Wall (1.0.0)
+ */
+function buddyboss_wall_nouveau_unmark_activity_favorite() {
+  // Bail if not a POST action
+  if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+    return;
+
+  if ( bp_activity_remove_user_favorite( $_POST['id'] ) )
+    $resp['content'] = __( 'Like', 'buddyboss-wall' );
+  else
+    $resp['content'] = __( 'Unlike', 'buddyboss-wall' );
+
+  $is_a_comment = isset( $_POST['item_type'] ) && $_POST['item_type']=='comment';
+  $resp['num_likes'] = get_wall_add_likes_comments( (int)$_POST['id'], true, $is_a_comment );
+  $resp['fav_count'] = (int) bp_activity_get_meta( (int)$_POST['id'], 'favorite_count' );
+
+  echo wp_send_json_success( $resp );
+
+  exit;
+}
+
 function buddyboss_wall_remove_original_update_functions()
 {
-  /* actions */
-  if ( buddyboss_wall()->is_enabled() )
-  {
-    // Remove actions related to posting and likes
-    remove_action( 'wp_ajax_post_update', 'bp_dtheme_post_update' );
-    remove_action( 'wp_ajax_post_update', 'bp_legacy_theme_post_update' );
-    remove_action( 'wp_ajax_activity_mark_fav',   'bp_legacy_theme_mark_activity_favorite' );
-    remove_action( 'wp_ajax_activity_mark_unfav', 'bp_legacy_theme_unmark_activity_favorite' );
+	$theme_package_id = bp_get_theme_compat_id();
 
-    // Add our custom actions to handle posting and likes
-    add_action( 'wp_ajax_activity_mark_unfav', 'buddyboss_wall_unmark_activity_favorite' );
-    add_action( 'wp_ajax_activity_mark_fav', 'buddyboss_wall_mark_activity_favorite' );
-    add_action( 'wp_ajax_post_update', 'buddyboss_wall_post_update' );
+	/* actions */
+  if ( buddyboss_wall()->is_enabled() ) {
 
-    // Add action for read more links to handle embeds,
-    // this was left out of BP's legacy theme support
-    add_action( 'bp_legacy_theme_get_single_activity_content', 'bp_dtheme_embed_read_more' );
+      if ( 'legacy' === $theme_package_id ) {
+          // Remove
+		  remove_action( 'wp_ajax_activity_mark_fav',   'bp_legacy_theme_mark_activity_favorite' );
+		  remove_action( 'wp_ajax_activity_mark_unfav', 'bp_legacy_theme_unmark_activity_favorite' );
+
+		  // Add
+		  add_action( 'wp_ajax_activity_mark_unfav', 'buddyboss_wall_unmark_activity_favorite' );
+		  add_action( 'wp_ajax_activity_mark_fav', 'buddyboss_wall_mark_activity_favorite' );
+
+		  // Remove actions related to posting and likes
+		  remove_action( 'wp_ajax_post_update', 'bp_dtheme_post_update' );
+		  remove_action( 'wp_ajax_post_update', 'bp_legacy_theme_post_update' );
+
+		  // Add our custom actions to handle posting and likes
+		  add_action( 'wp_ajax_post_update', 'buddyboss_wall_post_update' );
+
+		  // Add action for read more links to handle embeds,
+		  // this was left out of BP's legacy theme support
+		  add_action( 'bp_legacy_theme_get_single_activity_content', 'bp_dtheme_embed_read_more' );
+
+	  } elseif ( 'nouveau' === $theme_package_id ) {
+		  // Remove
+		  remove_action( 'wp_ajax_activity_mark_fav',   'bp_nouveau_ajax_mark_activity_favorite' );
+		  remove_action( 'wp_ajax_activity_mark_unfav', 'bp_nouveau_ajax_unmark_activity_favorite' );
+
+		  // Add
+		  add_action( 'wp_ajax_activity_mark_fav', 'buddyboss_wall_nouveau_mark_activity_favorite' );
+		  add_action( 'wp_ajax_activity_mark_unfav', 'buddyboss_wall_nouveau_unmark_activity_favorite' );
+		  add_filter( 'bp_nouveau_get_activity_entry_buttons', 'buddyboss_wall_likes_count_span', 10, 2 );
+
+		  // Remove actions related to posting and likes
+		  remove_action( 'wp_ajax_post_update', 'bp_dtheme_post_update' );
+		  remove_action( 'wp_ajax_post_update', 'bp_nouveau_ajax_post_update' );
+
+		  // Add our custom actions to handle posting and likes
+		  add_action( 'wp_ajax_post_update', 'buddyboss_wall_nouveau_ajax_post_update' );
+
+		  // Add action for read more links to handle embeds,
+		  // this was left out of BP's legacy theme support
+		  add_action( 'bp_nouveau_get_single_activity_content', 'bp_dtheme_embed_read_more' );
+	  }
   }
 }
 add_action( 'bp_init', 'buddyboss_wall_remove_original_update_functions', 9999 );
@@ -403,13 +621,17 @@ function buddyboss_wall_cancel_bp_has_activities()
 {
   return false;
 }
-function buddyboss_wall_qs_filter( $qs )
-{
+function buddyboss_wall_qs_filter( $qs, $object ) {
   global $bp, $buddyboss_wall, $buddyboss_ajax_qs;
 
   $buddyboss_ajax_qs = $qs;
 
   $action = $bp->current_action;
+
+  // Bail out if not activity ajax querystring
+  if ( 'activity' != $object ) {
+      return $qs;
+  }
 
   if ( $action != "just-me" && $action != "news-feed" )
   {
@@ -421,8 +643,8 @@ function buddyboss_wall_qs_filter( $qs )
 
   // see if we have a page string
   $page = 1;
-  if ( preg_match("/page=\d+/", $qs, $m) )
-    $page = intval(str_replace("page=", "", $m[0])); // if so grab the number
+  if ( preg_match("/^page=(\d+)/", $qs, $m) || preg_match("/&page=(\d+)/", $qs, $m) )
+    $page = intval($m[1]); // if so grab the number
 
   $activities = $action === 'just-me'
               ? $buddyboss_wall->component->get_wall_activities( $page ) // load wall activities for this page
@@ -433,6 +655,9 @@ function buddyboss_wall_qs_filter( $qs )
     add_filter( 'bp_has_activities', 'buddyboss_wall_cancel_bp_has_activities' );
   }
 
+  // Remove spams
+  add_filter('bp_before_activity_get_specific_parse_args', 'buddyboss_wall_exclude_spam_activities', 10, 1 );
+
   $nqs = "include=$activities";
 
   // fix the issue- Private Groups do Not Display in News Feed
@@ -441,6 +666,16 @@ function buddyboss_wall_qs_filter( $qs )
   }
 
   return $nqs;
+}
+
+/**
+ * Exclude spam activity from the wall and new feed
+ * @param $args
+ * @return mixed
+ */
+function buddyboss_wall_exclude_spam_activities( $args ) {
+    $args['spam'] = 'ham_only';
+    return $args;
 }
 
 /**
@@ -465,7 +700,7 @@ function buddyboss_wall_format_mention_notification( $notification, $at_mention_
 {
   // Default activity link
   $activity_link = trailingslashit( bp_loggedin_user_domain() . bp_get_activity_slug() );
-  
+
   // If there's a global activity page, link user to mentions tab
   // We check for this query string in wall-functions.php
   if ( bp_activity_has_directory() )
@@ -597,15 +832,36 @@ function buddyboss_wall_replace_placeholders_with_url( $action, $activity ){
 }
 
 /**
- * add 'like/favorite' button on activity comments
+ * Add 'like/favorite' button on activity comments
  */
 function buddyboss_wall_comments_add_like(){
+	$theme_compat_id = bp_get_theme_compat_id();
+
 	if( is_user_logged_in() ):
+
+		// Open generic-button div
+		if( 'nouveau' === $theme_compat_id ) {
+			echo '<div class="generic-button" style="margin-left: 5px;">';
+		}
+
 		if ( !bp_get_comment_is_favorite() ) : ?>
-			<a href="<?php bp_comment_favorite_link(); ?>" class="acomment-like fav-comment bp-secondary-action" title="<?php esc_attr_e( 'Mark as Favorite', 'buddypress' ); ?>" onclick="return budyboss_wall_comment_like_unlike(this);"><?php _e( 'Favorite', 'buddypress' ); ?></a>
+
+			<a href="<?php bp_comment_favorite_link(); ?>" class="acomment-like fav-comment bp-secondary-action" title="<?php esc_attr_e( 'Mark as Favorite', 'buddypress' ); ?>" onclick="return budyboss_wall_comment_like_unlike(this);">
+				<?php _e( 'Favorite', 'buddypress' ); ?>
+				<!-- <span class="likes-count"><?php echo bp_activity_get_meta( bp_get_activity_comment_id(), 'favorite_count' ); ?></span> -->
+			</a>
 		<?php else : ?>
-			<a href="<?php bp_comment_unfavorite_link(); ?>" class="acomment-like unfav-comment bp-secondary-action" title="<?php esc_attr_e( 'Remove Favorite', 'buddypress' ); ?>" onclick="return budyboss_wall_comment_like_unlike(this);"><?php _e( 'Remove Favorite', 'buddypress' ); ?></a>
+			<a href="<?php bp_comment_unfavorite_link(); ?>" class="acomment-like unfav-comment bp-secondary-action" title="<?php esc_attr_e( 'Remove Favorite', 'buddypress' ); ?>" onclick="return budyboss_wall_comment_like_unlike(this);">
+				<?php _e( 'Remove Favorite', 'buddypress' ); ?>
+				<!-- <span class="likes-count"><?php echo bp_activity_get_meta( bp_get_activity_comment_id(), 'favorite_count' ); ?></span> -->
+			</a>
 		<?php endif;
+
+		// Close generic-button div
+		if( 'nouveau' === $theme_compat_id ) {
+			echo '</div><!-- .generic-button -->';
+		}
+
 	endif;
 }
 add_action( 'bp_activity_comment_options', 'buddyboss_wall_comments_add_like' );
@@ -632,4 +888,52 @@ function buddyboss_wall_comments_display_likes(){
 	}
 }
 add_action( 'bp_activity_comment_options', 'buddyboss_wall_comments_display_likes', 999 );
-?>
+
+/**
+ * Catch access to certain activity type( friends, groups, mention )
+ * and redirect accordingly to news-feeds.
+ */
+function bb_wall_redirect_to_feeds() {
+  global $bp;
+
+  if ( ! empty( $bp->current_component )  && BP_ACTIVITY_SLUG == $bp->current_component
+       && in_array( $bp->current_action, array( 'friends', 'groups' ) ) ) {
+
+    $news_feed_url = $bp->loggedin_user->domain.'/'.BP_ACTIVITY_SLUG.'/news-feed/';
+    wp_redirect( $news_feed_url );
+  }
+
+}
+
+add_action( 'bp_template_redirect', 'bb_wall_redirect_to_feeds' );
+
+/**
+ * Catch access to certain activity type( mention )
+ * and redirect accordingly to wall
+ */
+function bb_wall_redirect_to_wall() {
+  global $bp;
+
+  if ( ! empty( $bp->current_component )  && BP_ACTIVITY_SLUG == $bp->current_component
+       && in_array( $bp->current_action, array( 'mentions' ) ) ) {
+
+    $wall_url = $bp->loggedin_user->domain;
+    wp_redirect( $wall_url );
+  }
+
+}
+
+add_action( 'bp_template_redirect', 'bb_wall_redirect_to_wall' );
+
+/**
+ * Append activity likes count next to the like button
+ * in the BuddyPress Noaveau Template pack
+ * @param $buttons
+ * @param $activity_id
+ * @return mixed
+ */
+function buddyboss_wall_likes_count_span( $buttons, $activity_id ) {
+	$like_count = (int)bp_activity_get_meta( $activity_id, 'favorite_count', true );
+	$buttons['activity_favorite']['link_text'] .= '<span class="likes-count">' . max( $like_count, 0 ) . '</span>';
+	return $buttons;
+}

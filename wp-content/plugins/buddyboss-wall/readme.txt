@@ -1,640 +1,257 @@
-/*--------------------------------------------------------------
-INSTALLATION
---------------------------------------------------------------*/
-
-= From your WordPress dashboard =
-
--BuddyPress-
-
-1. Visit 'Plugins > Add New'
-2. Search for 'BuddyPress'
-3. Activate BuddyPress from your Plugins page
-
--BuddyBoss Wall-
-
-1. Go to 'Plugins > Add New'
-2. Click 'Add New'
-3. Upload this plugin (as a ZIP file)
-4. Activate this plugin
-5. Go to 'Settings > BuddyBoss Wall'
-6. Have fun!
-
-Instructions: http://www.buddyboss.com/tutorials/
-Support: http://www.buddyboss.com/support-forums/
-Release Notes: http://www.buddyboss.com/release-notes/
-
-
-/*--------------------------------------------------------------
-CHANGELOG
---------------------------------------------------------------*/
-/*--------------------------------------------------------------
-1.2.1 - August 18, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	New admin option to disable URL previews
-
-BUG FIXES:
-
-	Prevent URL preview from interfering with popular oEmbed providers
-	URL preview images now link to website rather than image path in uploads directory
-	URL preview links now open in new tab
-	Fixed issues with decoding unusual characters in URL preview title
-	Improved URL preview styling
-	Improved the "Cancel" button in URL preview
-	Removed privacy options for activity posts under private/hidden groups
-	Replace 'Favorite' with 'Like' everywhere except when the textdomain is bbPress
-	Fixed activity post text option for multisite
-	Fixed issues with wall posting when Friends Component is disabled
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-wall.css
-	/assets/css/buddyboss-wall.min.css
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-filters.php
-	/includes/wall-functions.php
-	/includes/wall-privacy.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-1.2.0 - July 9, 2015
---------------------------------------------------------------*/
-
-FEATURES: 
-
-	Admin option to choose between "You" or [username] for Wall posts
-	Option to not use an image in URL preview (close button)
-	Swedish translations updated, credits to Anton Andreasson
-
-BUG FIXES:
-
-	URL preview image size optimization
-	Fixed like and comment on replies formatting
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-wall.css
-	/assets/css/buddyboss-wall.min.css
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-functions.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	/languages/buddyboss-wall-sv_SE.po
-	/languages/buddyboss-wall-sv_SE.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-1.1.9 - June 24, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Posted link auto-loads thumbnail and excerpt from website
-
-BUG FIXES:
-
-	Fixed Private Groups not displaying in News Feed
-	Fixed Most Liked Activity widget omitting Activity with more than 9 Likes
-	Removed error notices
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-wall.css
-	/assets/css/buddyboss-wall.min.css
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	buddyboss-wall.php
-	/includes/main-class.php
-	/inludes/url-scraper-php/website_parser.php (added)
-	/includes/wall-class.php
-	/includes/wall-functions.php			
-	/includes/wall-hooks.php
-	/includes/wall-privacy.php
-	/includes/widgets.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-1.1.8 - May 8, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Added French language files, credits to Jean-Pierre Michaud
-
-BUG FIXES:
-
-	Fixed Most Liked Widget not displaying
-	Fixed language translation issues
-	Fixed "My likes" tab count
-	Removed incorrect error message when Friends Component is disabled
-	Removed incorrect update notice on Multisite
-	Patched XSS security vulnerability
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-hooks.php
-	/includes/wall-privacy.php
-	/includes/widgets.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	/languages/buddyboss-wall-fr_FR.po
-	/languages/buddyboss-wall-fr_FR.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.7 - April 24, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed post syntax when posting on other user's Wall
-	Better directory path logic for multisite
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-hooks.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.6 - April 21, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Better support for Multisite activation
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.5 - April 14, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Updated Italian language files, credits to Massimiliano Napoli
-
-BUG FIXES:
-
-	Fixed slow query on Members directory with privacy enabled
-	Added support for custom user-meta tables
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/wall-functions.php
-	/includes/wall-privacy.php
-	/languages/buddyboss-wall-it_IT.po
-	/languages/buddyboss-wall-it_IT.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.4 - April 9, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Added "Group Members" privacy filter for old posts in Groups
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-wall-privacy.js
-	/assets/js/buddyboss-wall-privacy.min.js
-	buddyboss-wall.php
-	/includes/wall-class.php
-	/includes/wall-privacy.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.3 - April 9, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Added Privacy filters for activity posts
-	Added Italian language files, credits to Massimiliano Napoli
-
-BUG FIXES:
-
-	Fixed "Load More" duplicate post display issue
-	Fixed translation issue for "wrote on" and "mentioned"
-
-CHANGED FILES:
-	
-	/assets/css/buddyboss-wall.css
-	/assets/css/buddyboss-wall.min.css
-	/assets/js/buddyboss-wall-privacy.js (added)
-	/assets/js/buddyboss-wall-privacy.min.js (added)
-	buddyboss-wall.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-hooks.php
-	/includes/wall-privacy.php (added)
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	/languages/buddyboss-wall-it_IT.po (added)
-	/languages/buddyboss-wall-it_IT.mo (added)
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-1.1.2 - December 24, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Adding quick link to "Settings" in plugin list
-
-BUG FIXES:
-
-	Fixed double timestamp bug when posting into Groups
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/wall-hooks.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0+
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-1.1.1 - November 22, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Added body class "buddyboss-wall-active" for custom styling
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/wall-class.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.1.0 - November 13, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-	
-	@mention Notifications now link to Mentions tab on Activity index
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-functions.php
-	/includes/wall-hooks.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.9 - October 30, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed Friend activity in the News Feed
-	Fixed Group activity in the News Feed
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/wall-class.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.8 - October 27, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed Notifications in WordPress Toolbar not clearing when clicked
-	Fixed News Feed errors when BuddyPress Friends Compontent is disabled
-	Fixed Wall post replies overriding the original poster
-	Fixed conflict with "Bump to Top" plugin
-	Improved photo upload text on Members directory
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	/includes/wall-class.php
-	/includes/wall-functions.php
-	/includes/wall-hooks.php
-	/includes/widgets.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.7 - October 13, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed replies showing 'Error getting likes'
-	Fixed replies showing 'Like' link when logged out
-	Fixed certain timestamps not displaying hyperlink
-	Fixed Group activity text structure
-	Fixed Like text getting removed when liking/unliking a parent activity
-	Fixed 'Favorites' translation on Activity index 'My Likes' tab
-	Fixed user mentioning another user displaying that they mentioned themself
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-wall.css
-	/assets/css/buddyboss-wall.min.css
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	buddyboss-wall.php
-	/includes/wall-class.php
-	/includes/wall-filters.php
-	/includes/wall-hooks.php
-	/includes/wall-template.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.6 - October 6, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed 'My Likes' tab disappearing on main Activity index
-
-CHANGED FILES:
-
-	buddyboss-wall.php
-	includes/main-class.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1	
-
-/*--------------------------------------------------------------
-1.0.5 - October 4, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed plugin update 'version details' conflict (for future updates)
-	Removed question mark from "Write something to Username?"
-	Added translations for BuddyBoss Wall admin settings page
-	Added empty index.php file to prevent bots from viewing contents
-
-CHANGED FILES:
-
-	buddyboss-wall.php (new)
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/wall-class.php
-	index.php (new)
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	loader.php (removed)
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1
-
-/*--------------------------------------------------------------
-1.0.4 - September 24, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	The Wall, News Feed, and My Likes tabs are now translatable
-	Now displaying 'Deleted User' text in activity post if user deletes account
-	Fixed errors on Activity page in WordPress admin
-	Rewrote wall input filter function, fixed issues with wall posts and user mentions
-
-CHANGED FILES:
-
-	/includes/wall-class.php
-	/includes/wall-hooks.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	loader.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1
-
-/*--------------------------------------------------------------
-1.0.3 - Septembet 2, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed %INITIATOR% wrote on %TARGET% wall bug
-	Fixed post conflict with rtMedia plugin
-
-UPDATES:
-
-	Updated Russian language files, credits to Ivan Dyakov
-
-CHANGED FILES:
-
-	/includes/wall-hooks.php
-	/languages/buddyboss-wall-ru_RU.po
-	/languages/buddyboss-wall-ru_RU.mo
-	loader.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0, 2.1 beta
-
-/*--------------------------------------------------------------
-1.0.2 - August 27, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed "What's New" text showing the wrong group name in post form
-	Changed "Like" button default title attribute to "Like this"
-	Added translation for title attribute of "Like" button
-	Added translations for Wall, News Feed, My Likes tabs
-
-CHANGED FILES:
-
-	/includes/main-class.php
-	/includes/wall-class.php
-	/includes/wall-filters.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	loader.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0, 2.1 beta
-
-/*--------------------------------------------------------------
-1.0.1 - August 22, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	You can now "Like" replies to activity posts
-	Updated Swedish translations, credits to Anton Andreasson
-
-BUG FIXES:
-
-	Fixed blank subnav appearing on first Like
-	Fixed Like button causing 'Mentions' tab to double in height and width
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-wall.js
-	/assets/js/buddyboss-wall.min.js
-	/includes/wall-class.php
-	/includes/wall-functions.php
-	/includes/wall-hooks.php
-	/includes/wall-template.php
-	/languages/buddyboss-wall-en_US.po
-	/languages/buddyboss-wall-en_US.mo
-	/languages/buddyboss-wall-sv_SE.po
-	/languages/buddyboss-wall-sv_SE.mo
-	loader.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0+
-
-/*--------------------------------------------------------------
-1.0.0 - August 18, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Initial Release
-	Post content to other user's profiles
-	See a "News Feed" from your friends and groups
-	"Like" your favorite content
-	"Most Liked Activity" widget
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0+
-
+=== BuddyBoss Wall ===
+Contributors: buddyboss
+Requires at least: 3.8
+Tested up to: 5.0
+Stable tag: 1.3.7
+License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+
+Get the power of Facebook on BuddyPress! Your users can post Wall updates, interact with their friends, and "Like" their favorite content.
+
+== Description ==
+
+Turn your BuddyPress activity stream into a super interactive "Wall" that your users will instantly understand how to use after years of experience on Facebook. Let your users write on each other’s Walls and "Like" each other’s posts. Add user photo uploading with our tightly integrated BuddyBoss Media plugin.
+
+== Installation ==
+
+1. Make sure BuddyPress is activated.
+2. Visit 'Plugins > Add New'
+3. Click 'Upload Plugin'
+4. Upload the file 'buddyboss-wall.zip'
+5. Activate BuddyBoss Wall from your Plugins page.
+
+= Configuration =
+
+1. Enable 'Activity Streams' at 'Settings > BuddyPress > Components'
+2. Visit 'Settings > BuddyBoss Wall' and select your desired options.
+
+== Changelog ==
+
+= 1.3.7 =
+* Fix - BuddyBoss menu tab fix when BuddyBoss Wall activated
+
+= 1.3.6 =
+* Tweak - Updated fontawesome library 
+* Fix - Removed notification of user's own like activity   
+* Fix - Removed hidden setting tab from sub-site when BB Wall active on network site
+* Fix - PHP notices when saving plugin settings
+
+= 1.3.5 =
+* Tweak - Fontawesome 5.0 upgrade
+* Fix - BuddyPress template stack location fix
+* Fix - Wall Support Tab leads to "Not Allowed" page
+* Fix - Image URL does not "Resolve" in preview
+* Fix - Post youtube video links on my friends wall not working
+* Fix - Various PHP warning/notices fix
+
+= 1.3.4 =
+* Fix - Fixed BuddyPress Nouveau template pack compatibility
+* Fix - All members are not showing in the like text sometime
+* Fix - Updated adminbar menu ids to match with the bp sub nav slugs
+* Fix - RTL support added
+* Fix - Javascript error Invalid regular expression: /^*/: Nothing to repeat
+* Fix - "Read more" functionality in activity update when adding Long text and URL.
+* Fix - URL scrapping fix
+* Fix - Add protocol to the preview image url if its missing
+* Fix - Remove link preview when link has been removed from whats new box
+
+= 1.3.3 =
+* Tweak - Redirect user on the Wall tab if try to access the activity Mentions tab
+* Fix - Prevent duplicate activity in New feed on loading more activities
+* Fix - Fixed activity privacy compatibility issue when BuddyPress Activity Plus plugin active
+* Fix - Remove spam user's activity from the Wall
+* Fix - Fixed compatibility with the BuddyPress Featured Members plugin
+* Fix - Fixed consistently showing admin notice to activate Activity Stream component even if it is active
+* Fix - Missing translation for activity like text
+* Fix - Fixed number “0” appears next to the previous activity after a new activity is submitted
+* Fix - Various notices/warnings.
+* Dev - Fixed PHP 7.1 fatal error
+* Dev - Added new filter buddyboss_wall_get_visibility_lists
+
+= 1.3.2 =
+* Enhancement – License Module
+
+= 1.3.1 =
+* Fix - Activity pagination not working on "load more"
+
+= 1.3.0 =
+* Fix - Incorrect slug when News Feed is set as default Wall tab
+* Fix - Invalid regular expression at /includes/wall-hooks.php
+* Fix - Formatting with site preview in activity streams
+* Fix - Sitewide Activity Stream not visible if News Feed is selected from Settings
+* Fix - On activity page when clicking on groups or mentions leads to a 404 error
+* Fix - The hover response when multiple people like something not working correctly
+* Fix - The Widget "Most Liked Activity" is not displaying for all the users on BuddyPress pages
+* Fix - PHP notices
+* Localization - Russian translations updated, credits to Airat Halitov
+
+= 1.2.7 =
+* Tweak - Word cap on meta description being pulled automatically with preview url
+* Fix - Liked content notification not clearing
+* Fix - 404 error on Wall when News Feed is set as default
+* Fix - Admin notice added when Activity component is not active
+* Fix - Show admin notice if BuddyPress is not active
+* Fix - PHP notices
+* Fix - Deleting activity post, the attached images should be deleted
+* Fix - Not able to translate the primary member profile "wall" label
+* Fix - Better method for loading FontAwesome
+
+= 1.2.6 =
+* New - Added Notification for Liked Content
+* Tweak - Moved settings tab into BuddyBoss menu
+* Tweak - Added Fontawesome handle
+* Fix - Warning: Invalid argument supplied for foreach
+* Fix - BP Reorder Tabs conflict
+* Fix - Privacy buttons setting not working after changing navigation tab
+* Fix - Duplicate notifications
+* Fix - Multiple post like notifications
+* Fix - Show activity action if content is empty in notification
+* Fix - Initially setting privacy should default to Everyone if not set
+* Fix - Minor CSS issues
+
+= 1.2.5 =
+* Fix - missing translations
+* Fix - disable photo upload button when posted link has image
+* Fix - Like text and media upload button disable issue
+
+= 1.2.4 =
+* Bug fix: "Error getting likes"
+* Added nofollow for embedded link content
+* CSS fix for reply
+
+= 1.2.3 =
+* Switched to new Updater system
+* Standard readme.txt format
+* Added setting for Activity Like text
+* Added setting to disable the Everyone privacy option
+* Added setting to toggle the default Wall tab to News Feed
+* Bug fix: out of memory error while displaying any member list
+* Bug fix: some members displaying no activity
+
+= 1.2.2 =
+* Fixed friend's private/hidden group activity from showing up on the news-feed
+
+= 1.2.1 =
+* New admin option to disable URL previews
+* Prevent URL preview from interfering with popular oEmbed providers
+* URL preview images now link to website rather than image path in uploads directory
+* URL preview links now open in new tab
+* Fixed issues with decoding unusual characters in URL preview title
+* Improved URL preview styling
+* Improved the "Cancel" button in URL preview
+* Removed privacy options for activity posts under private/hidden groups
+* Replace 'Favorite' with 'Like' everywhere except when the textdomain is bbPress
+* Fixed activity post text option for multisite
+* Fixed issues with wall posting when Friends Component is disabled
+
+= 1.2.0 =
+* Admin option to choose between "You" or [username] for Wall posts
+* Option to not use an image in URL preview (close button)
+* Swedish translations updated, credits to Anton Andreasson
+* URL preview image size optimization
+* Fixed like and comment on replies formatting
+
+= 1.1.9 =
+* Posted link auto-loads thumbnail and excerpt from website
+* Fixed Private Groups not displaying in News Feed
+* Fixed Most Liked Activity widget omitting Activity with more than 9 Likes
+* Removed error notices
+
+= 1.1.8 =
+* Added French language files, credits to Jean-Pierre Michaud
+* Fixed Most Liked Widget not displaying
+* Fixed language translation issues
+* Fixed "My likes" tab count
+* Removed incorrect error message when Friends Component is disabled
+* Removed incorrect update notice on Multisite
+* Patched XSS security vulnerability
+
+= 1.1.7 =
+* Fixed post syntax when posting on other user's Wall
+* Better directory path logic for multisite
+
+= 1.1.6 =
+* Better support for Multisite activation
+
+= 1.1.5 =
+* Updated Italian language files, credits to Massimiliano Napoli
+* Fixed slow query on Members directory with privacy enabled
+* Added support for custom user-meta tables
+
+= 1.1.4 =
+* Added "Group Members" privacy filter for old posts in Groups
+
+= 1.1.3 =
+* Added Privacy filters for activity posts
+* Added Italian language files, credits to Massimiliano Napoli
+* Fixed "Load More" duplicate post display issue
+* Fixed translation issue for "wrote on" and "mentioned"
+
+= 1.1.2 =
+* Adding quick link to "Settings" in plugin list
+* Fixed double timestamp bug when posting into Groups
+
+= 1.1.1 =
+* Added body class "buddyboss-wall-active" for custom styling
+
+= 1.1.0 =
+* @mention Notifications now link to Mentions tab on Activity index
+
+= 1.0.9 =
+* Fixed Friend activity in the News Feed
+* Fixed Group activity in the News Feed
+
+= 1.0.8 =
+* Fixed Notifications in WordPress Toolbar not clearing when clicked
+* Fixed News Feed errors when BuddyPress Friends Compontent is disabled
+* Fixed Wall post replies overriding the original poster
+* Fixed conflict with "Bump to Top" plugin
+* Improved photo upload text on Members directory
+
+= 1.0.7 =
+* Fixed replies showing 'Error getting likes'
+* Fixed replies showing 'Like' link when logged out
+* Fixed certain timestamps not displaying hyperlink
+* Fixed Group activity text structure
+* Fixed Like text getting removed when liking/unliking a parent activity
+* Fixed 'Favorites' translation on Activity index 'My Likes' tab
+* Fixed user mentioning another user displaying that they mentioned themself
+
+= 1.0.6 =
+* Fixed 'My Likes' tab disappearing on main Activity index
+
+= 1.0.5 =
+* Fixed plugin update 'version details' conflict (for future updates)
+* Removed question mark from "Write something to Username?"
+* Added translations for BuddyBoss Wall admin settings page
+* Added empty index.php file to prevent bots from viewing contents
+
+= 1.0.4 =
+* The Wall, News Feed, and My Likes tabs are now translatable
+* Now displaying 'Deleted User' text in activity post if user deletes account
+* Fixed errors on Activity page in WordPress admin
+* Rewrote wall input filter function, fixed issues with wall posts and user mentions
+
+= 1.0.3 =
+* Fixed %INITIATOR% wrote on %TARGET% wall bug
+* Fixed post conflict with rtMedia plugin
+* Updated Russian language files, credits to Ivan Dyakov
+
+= 1.0.2 =
+* Fixed "What's New" text showing the wrong group name in post form
+* Changed "Like" button default title attribute to "Like this"
+* Added translation for title attribute of "Like" button
+* Added translations for Wall, News Feed, My Likes tabs
+
+= 1.0.1 =
+* You can now "Like" replies to activity posts
+* Updated Swedish translations, credits to Anton Andreasson
+* Fixed blank subnav appearing on first Like
+* Fixed Like button causing 'Mentions' tab to double in height and width
+
+= 1.0.0 =
+* Initial Release
+* Post content to other user's profiles
+* See a "News Feed" from your friends and groups
+* "Like" your favorite content
+* "Most Liked Activity" widget

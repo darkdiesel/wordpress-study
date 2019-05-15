@@ -94,9 +94,11 @@ class BuddyBoss_Most_Liked_Activity_Widget extends WP_Widget
 		$this->word_count = $instance['wordcount'];
 
 		$params = array(
-			'per_page'			   => $instance['count'],
-			'display_comments' => false,
-			'meta_query'		   => array(
+			'user_id' 			=> false,
+			'scope'				=> false,
+			'per_page'			=> $instance['count'],
+			'display_comments' 	=> false,
+			'meta_query'		=> array(
 				array(
 					'key'		=> 'favorite_count'
 				)
@@ -153,7 +155,7 @@ class BuddyBoss_Most_Liked_Activity_Widget extends WP_Widget
 		 ORDER BY a.date_recorded DESC LIMIT 0, 5
 		 */
 		global $wpdb;
-        $result_sql = str_replace( 'ORDER BY a.date_recorded', 'ORDER BY CAST('. $wpdb->prefix .'bp_activity_meta.meta_value AS SIGNED)', $sql );
+        $result_sql = str_replace( 'ORDER BY a.date_recorded', 'ORDER BY CAST('. $wpdb->base_prefix .'bp_activity_meta.meta_value AS SIGNED)', $sql );
         //echo $result_sql; exit;
 		return $result_sql;
 	}

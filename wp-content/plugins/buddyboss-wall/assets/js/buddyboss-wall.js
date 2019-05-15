@@ -30,7 +30,7 @@ window.Code = window.Code || {};
 window.Code.BuddyBoss_Wall_Util = ( function( window, $, opt, undefined ) {
 
   var Util = {
-    state: opt,
+    state:  typeof BP_DTheme === 'object'  ? $.extend( {}, opt, BP_DTheme ) : opt,
     lang: function( key ) {
       var key = key || 'undefined key!';
       return opt[key] || 'Language key missing for: ' + key;
@@ -119,8 +119,10 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
 			e.preventDefault();
 			jQuery( '#bb-url-scrapper-img-holder' ).hide();
 			jQuery( '#bb-url-scrapper-img-hidden' ).val( '' );
-		} );
-		
+            // enable photo upload button if image is cancelled from posted link
+            jQuery('#buddyboss-media-add-photo-button').prop('disabled', false);
+        } );
+
 		jQuery( "#bbcloselinksuggestion" ).click( function ( e ) {
 			e.preventDefault();
 			jQuery( '.bb-url-scrapper-container' ).hide();
@@ -160,7 +162,7 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
       Wall.setup_form();
 
       Wall.setup_comments();
-      
+
       if( state.enabled_link_preview ){
         Wall.setup_link_previews();
       }
@@ -197,16 +199,16 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
         is_like_action: is_like_action
       });
       /**/
-		
+
 	if ( is_update_action && state.enabled_link_preview ) {
 		target = $( '#bb-url-scrapper-url' ).html().length;
-		
+
 		if( target > 0) {
 			options.data += "&bb_link_url=" + encodeURIComponent( $( "#bb-url-scrapper-url-hidden" ).val() ); // URL link preview
 			options.data += "&bb_link_title=" + encodeURIComponent( $( "#bb-url-scrapper-title-hidden" ).val() );  // URL link preview
 			options.data += "&bb_link_img=" + encodeURIComponent( $( '#bb-url-scrapper-img-hidden' ).val() ); // URL link preview
 			options.data += "&bb_link_description=" + encodeURIComponent( $( "#bb-url-scrapper-description-hidden" ).val() );  // URL link preview
-			
+
 			//Removing the preview box
 			$( '.bb-url-scrapper-container' ).hide();
 			$( '#bb-url-no-scrapper' ).val( "1" ); // URL link preview
@@ -217,9 +219,9 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
 			$( '#bb-url-scrapper-url' ).text( '' );
 			$( '#bb-url-scrapper-url-hidden' ).val( '' );
 			$( '#bb-url-scrapper-img' ).css( 'backgroundImage', '' );
-			
+
 		}
-		
+
 	}
 
       if ( is_like_action && act_id > 0 ) {
@@ -313,8 +315,8 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
         /**/
 
         // Take care of replacing the button with like/unlike
-        button.html(but_text);
-        button.attr('title', 'fav' == type ? BP_DTheme.remove_fav : BP_DTheme.mark_as_fav);
+        button.html(but_text + ' ' + '<span class="likes-count">' + responseJSON.like_count + '</span>');
+        button.attr('title', 'fav' == type ? state.remove_fav : state.mark_as_fav);
         button.fadeIn(200);
 
         // Remove existing like text, might be replaced if this isn't an unlike
@@ -359,13 +361,13 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
 
       if ( 'fav' == type ) {
         var bp_default_like_count_str = jq('.item-list-tabs ul #activity-favorites span').html();
-		
+
 		if ( bp_default_like_count_str != undefined ) {
 			bp_default_like_count = Number( bp_default_like_count_str.replace(/,/g, '') ) + 1;
 		}
 
         if ( !jq('.item-list-tabs #activity-favorites').length )
-          jq('.item-list-tabs ul li#activity-mentions').before( '<li id="activity-favorites"><a href="#" class="localized">' + BP_DTheme.my_favs + ' <span>0</span></a></li>');
+          jq('.item-list-tabs ul li#activity-mentions').before( '<li id="activity-favorites"><a href="#" class="localized">' + state.my_favs + ' <span>0</span></a></li>');
 
 	  if( is_a_comment ){
 	      target.removeClass('fav-comment');
@@ -381,11 +383,11 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
       else {
 
         var bp_default_like_count_str = jq('.item-list-tabs ul #activity-favorites span').html();
-		
+
 		if ( bp_default_like_count_str != undefined ) {
 			bp_default_like_count = Number( bp_default_like_count_str.replace(/,/g, '') ) - 1;
 		}
-		
+
 	if( is_a_comment ){
 	    target.removeClass('unfav-comment');
 	    target.addClass('fav-comment');
@@ -461,49 +463,17 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
 	$( document ).ready( function () {
 		Wall.setup();
 
+		// String.prototype.startsWith = function ( str ) {
+		// 	return ( this.match( "^" + str ) == str )
+		// };
 
-		// start -  fetch URL on activity
-		jQuery.ajax = ( function ( _ajax ) {
-			var protocol = location.protocol,
-					hostname = location.hostname,
-					exRegex = RegExp( protocol + '//' + hostname ),
-					YQL = 'http' + ( /^https/.test( protocol ) ? 's' : '' ) + '://query.yahooapis.com/v1/public/yql?callback=?',
-					query = 'select * from html where url="{URL}" and xpath="*"';
-
-			function isExternal( url ) {
-				return ! exRegex.test( url ) && /:\/\//.test( url )
-			}
-
-			return function ( o ) {
-				var url = o.url;
-				if ( /get/i.test( o.type ) && ! /json/i.test( o.dataType ) && isExternal( url ) ) {
-					o.url = YQL;
-					o.dataType = 'json';
-					o.data = {
-						q: query.replace( '{URL}', url + ( o.data ? ( /\?/.test( url ) ? '&' : '?' ) + jQuery.param( o.data ) : '' ) ),
-						format: 'xml'
-					};
-					if ( ! o.success && o.complete ) {
-						o.success = o.complete;
-						delete o.complete
-					}
-					o.success = ( function ( _success ) {
-						return function ( data ) {
-							if ( _success ) {
-								_success.call( this, {
-									responseText: ( data.results[0] || '' ).replace( /<script[^>]+?\/>|<script(.|\s)*?\/script>/gi, '' )
-								}, 'success' )
-							}
-						}
-					} )( o.success )
-				}
-				return _ajax.apply( this, arguments )
-			}
-		} )( jQuery.ajax );
-
-		String.prototype.startsWith = function ( str ) {
-			return ( this.match( "^" + str ) == str )
-		};
+        // startWith polyfill
+        //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+        if (!String.prototype.startsWith) {
+            String.prototype.startsWith = function(search, pos) {
+                return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+            };
+        }
 	} );
 
   var API = {
@@ -564,8 +534,8 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
     Tooltips.initTooltips();
 
     // Localization, we need to override some BP_Dtheme variables
-    if ( BP_DTheme && state ) {
-      $.extend( BP_DTheme, state );
+    if ( 'object' === typeof BP_DTheme && state ) {
+      $.extend( {}, BP_DTheme, state );
     }
   }
 
@@ -639,7 +609,7 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
   }
   jQuery(document).ready(function(){
     if( Tooltips.load_tooltips===true )
-	Tooltips.initTooltips();
+    Tooltips.init();
  });
 }
 (
@@ -651,7 +621,7 @@ window.Code.BuddyBoss_Wall = ( function( window, $, util, undefined ) {
 function budyboss_wall_comment_like_unlike(target){
     jq = jQuery;
     target = jq(target);
-
+    var state = window.Code.BuddyBoss_Wall_Util.state;
    /* Favoriting activity stream items */
     if ( target.hasClass('fav-comment') || target.hasClass('unfav-comment') ) {
 	    var type = target.hasClass('fav-comment') ? 'fav' : 'unfav';
@@ -671,7 +641,7 @@ function budyboss_wall_comment_like_unlike(target){
 
 		    target.fadeOut( 200, function() {
 			    jq(this).html(response);
-			    jq(this).attr('title', 'fav' == type ? BP_DTheme.remove_fav : BP_DTheme.mark_as_fav);
+			    jq(this).attr('title', 'fav' == type ? state.remove_fav : state.mark_as_fav);
 			    jq(this).fadeIn(200);
 		    });
 
@@ -734,6 +704,7 @@ function bb_url_scrapeURL( urlText ) {
     if( '' === urlString ) {
         jQuery( '#bb-url-scrapper' ).hide();
         jQuery( '.bb-url-scrapper-container' ).hide();
+        bb_reset_url_preview();
         return;
     } else {
         bb_load_url_preview( urlString );
@@ -755,7 +726,7 @@ function bb_url_getUrlData( urlString ) {
     jQuery('#whats-new-submit input').prop('disabled', true);
     jQuery( '.bb-url-scrapper-container' ).show();
     jQuery( '.bb-url-scrapper-loading' ).show();
-    jQuery( '#bb-url-scrapper' ).hide();
+   //jQuery( '#bb-url-scrapper' ).hide();
     jQuery( '#bb-url-error' ).hide();
     var ajaxdata = {
         action: 'bb_url_parser',
@@ -768,7 +739,9 @@ function bb_url_getUrlData( urlString ) {
         dataType: 'json',
         success: function ( res ) {
             jQuery('#whats-new-submit input').prop('disabled', false);
-            if ( res.title == "" ) {
+            jQuery('#buddyboss-media-add-photo-button').prop('disabled', false);
+            jQuery('#bb-url-scrapper-img-holder').show();
+            if ( res.title == "" && res.images === '' ) {
                 jQuery( '.bb-url-scrapper-container' ).hide();
                 return;
             }
@@ -793,11 +766,15 @@ function bb_url_getUrlData( urlString ) {
                 jQuery( '#bb-url-scrapper-title-hidden' ).val( title );
                 jQuery( '#bb-url-scrapper-url' ).text( urlString );
                 jQuery( '#bb-url-scrapper-url-hidden' ).val( urlString );
-                jQuery( '#bb-url-scrapper-description' ).text( res.description );
+                jQuery( '#bb-url-scrapper-description' ).html( res.description );
                 jQuery( '#bb-url-scrapper-description-hidden' ).val( res.description );
                 jQuery.each( res.images, function ( index, value ) {
                     bb_url_imgSrcArray.push( value );
                 } );
+                // disable photo upload button if there is image available in posted link
+                if (bb_url_imgSrcArray.length != 0) {
+                    jQuery('#buddyboss-media-add-photo-button').prop('disabled', true);
+                }
             } else {
                 jQuery( '#bb-url-error' ).text( res.error );
                 jQuery( '.bb-url-scrapper-container' ).hide();
@@ -831,3 +808,20 @@ function bb_url_getUrl( prefix, urlText ) {
     }
     return urlString;
 } // end -  fetch URL on activity
+
+/**
+ * Reset the link preview container to its default state
+ */
+function bb_reset_url_preview() {
+
+    jQuery( '#bb-url-scrapper' ).hide();
+    jQuery( '.bb-url-scrapper-container' ).hide();
+
+    jQuery( '#bb-url-scrapper-description' ).text( '' );
+    jQuery( '#bb-url-scrapper-description-hidden' ).val( '' );
+    jQuery( '#bb-url-scrapper-title' ).text( '' );
+    jQuery( '#bb-url-scrapper-title-hidden' ).val( '' );
+    jQuery( '#bb-url-scrapper-url' ).text( '' );
+    jQuery( '#bb-url-scrapper-url-hidden' ).val( '' );
+    jQuery( '#bb-url-scrapper-img' ).css( 'backgroundImage', '' );
+}

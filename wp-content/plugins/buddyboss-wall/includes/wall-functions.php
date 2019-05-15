@@ -11,14 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Sets a cookie and redirects to activity page so the mentions tab
  * will be selected. Used for linking users that click on the new
  * mentions notification in the WP menu.
- * 
+ *
  * @since   BuddyBoss Wall (1.0.9)
  * @return  void
  */
 function buddyboss_wall_check_force_mentions_tab()
 {
   // Check if BP activity component is active, if the directory is active and if we need to activate @mentions tab
-  if ( empty( $_REQUEST['buddyboss_wall_mentions_tab'] ) || (int)$_REQUEST['buddyboss_wall_mentions_tab'] !== 1 
+  if ( empty( $_REQUEST['buddyboss_wall_mentions_tab'] ) || (int)$_REQUEST['buddyboss_wall_mentions_tab'] !== 1
        || ! bp_is_active( 'activity' ) || ! bp_activity_has_directory() )
   {
     return;
@@ -39,7 +39,7 @@ function buddyboss_wall_check_force_mentions_tab()
 
 /**
  * Clear at mention notifications for logged in user
- * 
+ *
  * @return  void
  */
 function buddyboss_wall_clear_at_mentions_notifications()
@@ -99,7 +99,7 @@ function buddyboss_wall_is_my_friend( $id = null )
 
   if( !bp_is_active('friends') )
 	  return null;
-  
+
   // Defaults to checking for if the displayed user is
   // the logged in user's friend if no uder $id is passed.
   if ( $id === null )
@@ -236,10 +236,10 @@ function buddyboss_wall_prepare_user_likes( $activities_template )
   }
 
   // Add profile links and display names
-  foreach ( $user_result as $user )
-  {
-    $users[ $user->ID ]['profile'] = bp_core_get_user_domain( $user->ID );
-    $users[ $user->ID ]['name']    = $user->display_name;
+  foreach ( $user_result as $user ) {
+      $user_id = isset( $user->ID ) ? $user->ID : $user->id;
+      $users[ $user_id ]['profile'] = bp_core_get_user_domain( $user_id );
+      $users[ $user_id ]['name']    = $user->display_name;
   }
 
   $like_activity_ids = array();
@@ -247,14 +247,16 @@ function buddyboss_wall_prepare_user_likes( $activities_template )
   foreach( $users as $user_id => $user_data )
   {
     $liked_activities = $user_data['likes'];
-
-    foreach( $liked_activities as $liked_activity_id )
-    {
-      if ( empty( $likes_to_users[ $liked_activity_id ] )
-           || ! in_array( $user_id, $likes_to_users[ $liked_activity_id ] ) )
-      {
-        $likes_to_users[ $liked_activity_id ][] = $user_id;
-      }
+    if (is_array($liked_activities) || is_object($liked_activities))
+	 {
+        foreach( $liked_activities as $liked_activity_id )
+        {
+          if ( empty( $likes_to_users[ $liked_activity_id ] )
+               || ! in_array( $user_id, $likes_to_users[ $liked_activity_id ] ) )
+          {
+            $likes_to_users[ $liked_activity_id ][] = $user_id;
+          }
+        }
     }
   }
 
@@ -273,7 +275,7 @@ function buddyboss_wall_refetch_users_who_liked( $activity_id ){
 
 	/* @todo: fix this */
 	$activity_ids = array($activity_id);
-	
+
     $sql  = "SELECT user_id,meta_value FROM {$wpdb->usermeta}
             WHERE meta_key = 'bp_favorite_activities'
             AND user_id != $loggedin_user_id
@@ -319,10 +321,10 @@ function buddyboss_wall_refetch_users_who_liked( $activity_id ){
     }
 
   // Add profile links and display names
-  foreach ( $user_result as $user )
-  {
-    $users[ $user->ID ]['profile'] = bp_core_get_user_domain( $user->ID );
-    $users[ $user->ID ]['name']    = $user->display_name;
+  foreach ( $user_result as $user ) {
+      $user_id = isset( $user->ID ) ? $user->ID : $user->id;
+      $users[ $user_id ]['profile'] = bp_core_get_user_domain( $user_id );
+      $users[ $user_id ]['name']    = $user->display_name;
   }
 
   return $users;
@@ -364,7 +366,7 @@ function bb_url_parser_callback(){
 			$parser->content = $body['body'];
 
 			$meta_tags = $parser->getMetaTags( false );
-			
+
 			if( is_array( $meta_tags ) && !empty( $meta_tags ) ){
 				foreach( $meta_tags as $tag ){
 					if( is_array( $tag ) && !empty( $tag ) ){
@@ -388,7 +390,19 @@ function bb_url_parser_callback(){
 			if( empty( $images ) ){
 				$images = $parser->getImageSources( false );
 			}
+			// Generate Image URL Previews
+			if ( empty( $images ) ) {
+				$content_type = wp_remote_retrieve_header( $body, 'content-type' );
+				if ( false !== strpos( $content_type, 'image' ) ) {
+					$images = array( $url );
+				}
+			}
+
 			$json_data['title'] = $title;
+
+            $bb_link_description_read_more = ' <a href="' . esc_url( $url ) . '" target="_blank" rel="nofollow">'. __( 'Read more', 'buddyboss-wall' ) .'...</a>';
+            $description = mb_strimwidth( $description, 0, 400, $bb_link_description_read_more );
+
 			$json_data['description'] = $description;
 			$json_data['images'] = $images;
 			$json_data['error'] = '';
@@ -404,10 +418,24 @@ function bb_url_parser_callback(){
 
 add_action( 'bp_activity_after_save', 'bb_bp_activity_url_preview' );
 function bb_bp_activity_url_preview( &$activity ) {
-			
+	global $activity_id, $wpdb, $bp;
+
+    $activity_id = $activity->id;
+
 	if ( isset( $_POST[ 'bb_link_url' ] ) && $_POST[ 'bb_link_url' ] != '' ) {
-		
-		$updated_content .= '<div class="bb_final_link">';
+
+        // Disable activity embeds by making links clickable
+        // We do not want site to have activity embeds enabled when activity has link preview by the wall plugin
+        $wpdb->update( $bp->activity->table_name,
+            array(
+                'content' => make_clickable( $activity->content ),
+            ),
+            array(
+                'id' => $activity_id
+            )
+        );
+
+		$updated_content = '<div class="bb_final_link">';
 		if ( isset($_POST[ 'bb_link_img' ]) &&  $_POST[ 'bb_link_img' ] != '' ) {
 			$image_url = bb_wall_media_sideload_image($_POST[ 'bb_link_img' ]);
             if( $image_url && !is_wp_error( $image_url ) ){
@@ -417,28 +445,42 @@ function bb_bp_activity_url_preview( &$activity ) {
             }
 		}
 		$updated_content .= '<div class="bb_link_contents">';
-		$updated_content .= '<span class="bb_link_preview_title"><a href="' . esc_url( $_POST[ 'bb_link_url' ] ) . '" target="_blank">' . addslashes( $_POST[ 'bb_link_title' ] ) . '</a></span>';
+		$updated_content .= '<span class="bb_link_preview_title"><a href="' . esc_url( $_POST[ 'bb_link_url' ] ) . '" target="_blank" rel="nofollow">' . addslashes( $_POST[ 'bb_link_title' ] ) . '</a></span>';
 		$updated_content .= '<span class="bb_link_preview_body">' . addslashes( $_POST[ 'bb_link_description' ] ) . '</span>';
 		$updated_content .= '</div>';
 		$updated_content .= '</div>';
 		$updated_content .= '<br/>';
 
-		bp_activity_update_meta( $activity->id, 'bb_bp_activity_text', $updated_content );
-		
+		bp_activity_update_meta( $activity_id, 'bb_bp_activity_text', $updated_content );
 	}
 }
+
+/**
+ * Deleted activity stream, the attached image/images
+ * @param $args
+ */
+function bb_bp_activity_url_preview_media_delete( $args ) {
+
+  $attachment_id = bp_activity_get_meta( $args['id'], 'bb_bp_activity_media' );
+
+  if ( ! empty ( $attachment_id ) ) {
+    wp_delete_attachment( $attachment_id );
+  }
+}
+
+add_action( 'bp_before_activity_delete', 'bb_bp_activity_url_preview_media_delete', 10, 1 );
 
 add_action('bp_get_activity_content_body','bb_bp_activity_url_filter');
 function bb_bp_activity_url_filter($content) {
     //if link preview is disabled, dont do anything.
 	if( !buddyboss_wall()->option( 'enabled_link_preview' ) )
         return $content;
-    
+
 	global $activities_template;
-	
+
 	$curr_id = isset( $activities_template->current_activity ) ? $activities_template->current_activity : '';
-    $act_id = isset( $activities_template->activities[$curr_id]->id ) ? (int)$activities_template->activities[$curr_id]->id : '';
-	
+    $act_id = isset( $activities_template->activities[$curr_id]->id ) ? (int)$activities_template->activities[$curr_id]->id : 0;
+
 	// Check for activity ID in $_POST if this is a single
     // activity request from a [read more] action
 	if ( $act_id === 0 && ! empty( $_POST['activity_id'] ) )
@@ -451,20 +493,20 @@ function bb_bp_activity_url_filter($content) {
       $activity = ! empty( $activity_array['activities'][0] ) ? $activity_array['activities'][0] : false;
       $act_id = (int)$activity->id;
     }
-	
+
 	// This should never happen, but if it does, bail.
     if ( $act_id === 0 ) { return $content; }
-	
+
 	$url_preview_html = bp_activity_get_meta( $act_id, 'bb_bp_activity_text', true );
 
 	if ( empty( $url_preview_html ) ) {
 		return $content;
 	}
-	
+
 	$content .= stripslashes( $url_preview_html );
-	
+
 	return $content;
-	
+
 }
 
 /**
@@ -481,9 +523,15 @@ function bb_wall_media_sideload_image( $file ) {
 		// Set variables for storage, fix file filename for query strings.
 		preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches );
 		$file_array = array();
-		$file_array['name'] = basename( $matches[0] );
+
+        if ( empty( $matches ) ) {
+          return;
+        }
+
+        $file_array['name'] = basename( $matches[0] );
 
 		// Download file to temp location.
+        $file = preg_replace('/^:*?\/\//', $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,strpos( $_SERVER["SERVER_PROTOCOL"],'/'))).'://',  $file );
 		$file_array['tmp_name'] = download_url( $file );
 
 		// If error storing temporarily, return the error.
@@ -518,10 +566,13 @@ function bb_wall_media_sideload_image( $file ) {
  * @return int|object The ID of the attachment or a WP_Error on failure
  */
 function bb_wall_media_handle_sideload($file_array, $post_data = array()) {
+  global $activity_id;;
+
+
 	$overrides = array('test_form'=>false);
 
 	$time = current_time( 'mysql' );
-	if ( $post = get_post( $post_id ) ) {
+	if ( $post = get_post() ) {
 		if ( substr( $post->post_date, 0, 4 ) > 0 )
 			$time = $post->post_date;
 	}
@@ -554,19 +605,41 @@ function bb_wall_media_handle_sideload($file_array, $post_data = array()) {
 		'post_title' => $title,
 		'post_content' => $content,
 	), $post_data );
-	
+
 
 	// This should never be set as it would then overwrite an existing attachment.
 	if ( isset( $attachment['ID'] ) )
 		unset( $attachment['ID'] );
 
 	// Save the attachment metadata
-	$id = wp_insert_attachment($attachment, $file, $post_id);
+	$id = wp_insert_attachment( $attachment, $file );
 	if ( !is_wp_error($id) )
 		wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
+
+    //Set activity link preview media id
+    bp_activity_update_meta( $activity_id, 'bb_bp_activity_media', $id );
 
 	return $id;
 }
 
+function bb_wall_new_nav_default() {
+
+	$setting_default_profile_tab = buddyboss_wall()->option( 'setting_default_profile_tab' );
+
+    //Bail if default tab is not News Feed or current page part of the profile of the logged-in user
+	if ( 'newsfeed' != $setting_default_profile_tab || ! bp_is_my_profile() ) {
+		return;
+	}
+
+	$bp = buddypress();
+	$args = array(
+		'parent_slug'     => $bp->activity->slug, // Slug of the parent
+		'screen_function' => 'bp_activity_screen_my_activity', // The name of the function to run when clicked
+		'subnav_slug'     => 'news-feed'  // The slug of the subnav item to select when clicked
+	);
+
+	bp_core_new_nav_default($args);
+}
+add_action( 'bp_setup_nav', 'bb_wall_new_nav_default', 999 );
 
 ?>

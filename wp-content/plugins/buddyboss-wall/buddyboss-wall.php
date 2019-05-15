@@ -2,10 +2,10 @@
 /**
  * Plugin Name: BuddyBoss Wall
  * Plugin URI:  http://buddyboss.com/product/buddyboss-wall/
- * Description: BuddyBoss Wall
+ * Description: Turns your BuddyPress activity stream into a super interactive "Wall".
  * Author:      BuddyBoss
  * Author URI:  http://buddyboss.com
- * Version:     1.2.1
+ * Version:     1.3.7
  */
 
 // Exit if accessed directly
@@ -19,7 +19,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 // Codebase version
 if ( ! defined( 'BUDDYBOSS_WALL_PLUGIN_VERSION' ) ) {
-  define( 'BUDDYBOSS_WALL_PLUGIN_VERSION', '1.2.1' );
+  define( 'BUDDYBOSS_WALL_PLUGIN_VERSION', '1.3.7' );
 }
 
 // Database version
@@ -48,6 +48,11 @@ if ( ! defined( 'BUDDYBOSS_WALL_PLUGIN_FILE' ) ) {
   define( 'BUDDYBOSS_WALL_PLUGIN_FILE', __FILE__ );
 }
 
+// Generic API files include
+if ( ! function_exists( 'is_plugin_active' ) ) {
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+}
+
 /**
  * ========================================================================
  * MAIN FUNCTIONS
@@ -62,6 +67,12 @@ if ( ! defined( 'BUDDYBOSS_WALL_PLUGIN_FILE' ) ) {
 function buddyboss_wall_init()
 {
   global $buddyboss_wall;
+
+  if ( ! function_exists('bp_is_active' ) ) {
+    add_action('admin_notices','bb_wall_admin_notice');
+    return;
+  }
+
 
   $main_include  = BUDDYBOSS_WALL_PLUGIN_DIR  . 'includes/main-class.php';
 
@@ -87,13 +98,25 @@ function buddyboss_wall_init()
 add_action( 'plugins_loaded', 'buddyboss_wall_init' );
 
 /**
+ * Show admin notice when BuddyPress is not active
+ */
+function bb_wall_admin_notice() { ?>
+  <div class='error'>
+      <p><?php _e( 'BuddyBoss Wall needs BuddyPress activated!', 'buddyboss-wall' ); ?></p>
+  </div>
+  <?php
+}
+
+/**
  * Widgets include
  */
 $widgets_include = BUDDYBOSS_WALL_PLUGIN_DIR . 'includes/widgets.php';
 if ( file_exists( $widgets_include ) ) {
 	require( $widgets_include );
 
-	add_action( 'widgets_init', create_function( '', 'return register_widget("BuddyBoss_Most_Liked_Activity_Widget");' ) );
+	add_action( 'widgets_init', function() {
+		return register_widget("BuddyBoss_Most_Liked_Activity_Widget");
+	});
 }
 
 /**
@@ -110,7 +133,11 @@ function buddyboss_wall()
 /**
  * Allow automatic updates via the WordPress dashboard
  */
-require_once('includes/vendor/wp-updates-plugin.php');
-new WPUpdatesPluginUpdater_522( 'http://wp-updates.com/api/2/plugin', plugin_basename(__FILE__));
+require_once('includes/buddyboss-plugin-updater.php');
+//new buddyboss_updater_plugin( 'http://update.buddyboss.com/plugin', plugin_basename(__FILE__), 37);
 
-?>
+function bp_tol_init() {
+    define( 'BP_TOL_DIR', dirname( __FILE__ ) );
+    require( BP_TOL_DIR . '/bp-tol.php' );
+}
+add_action( 'bp_include', 'bp_tol_init' );

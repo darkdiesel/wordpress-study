@@ -9,8 +9,24 @@ jq(document).ready( function() {
 	var selected_item_id = jq("select#whats-new-post-in").val();
 
 	jq("select#whats-new-post-in").data('selected', selected_item_id );
+
+	/**
+	 * Insert activity visibility dropdown next to "Post Update" button
+	 * @TODO: Migrate this code in Backbone view
+	 */
+	jq('#whats-new').on( 'focusin', function(e) {
+		setTimeout(function () {
+			var activityVisibility = document.getElementById('activity-visibility');
+			// Ratify that there is no activity-visibility dropdown exists on a page
+			// before inserting one
+			if ( ! activityVisibility ) {
+				document.getElementById('whats-new-submit').insertAdjacentHTML( 'afterbegin', document.getElementById('buddyboss-wall-tpl-activity_visibility').innerHTML );
+			}
+		}, 0 );
+	});
+
 	//if selected item is not 'My profile'
-	if( selected_item_id != undefined && selected_item_id != 0 ){
+	if( 'undefined' != typeof visibility_levels && selected_item_id != undefined && selected_item_id != 0 ){
 		jq('select#bbwall-activity-privacy').replaceWith(visibility_levels.groups);
 	}
 
@@ -18,17 +34,19 @@ jq(document).ready( function() {
 		var old_selected_item_id = jq(this).data('selected');
 		var item_id = jq("#whats-new-post-in").val();
 
-		if(item_id == 0 && item_id != old_selected_item_id){
-			jq('select#bbwall-activity-privacy').replaceWith(visibility_levels.profil);
-		}else{
-			if(item_id != 0 && old_selected_item_id == 0 ){
-				jq('select#bbwall-activity-privacy').replaceWith(visibility_levels.groups);
+		if( 'undefined' != typeof visibility_levels ) {
+			if(item_id == 0 && item_id != old_selected_item_id){
+				jq('select#bbwall-activity-privacy').replaceWith(visibility_levels.profile);
+			}else{
+				if(item_id != 0 && old_selected_item_id == 0 ){
+					jq('select#bbwall-activity-privacy').replaceWith(visibility_levels.groups);
+				}
 			}
 		}
 		jq('select#bbwall-activity-privacy').next().remove();
 		jq(this).data('selected',item_id);
 	});
-	
+
 	/* New posts */
 	jq("input#aw-whats-new-submit").on('click', function() {
 		var button = jq(this);
@@ -57,7 +75,7 @@ jq(document).ready( function() {
 
 		if (typeof bp_get_cookies == 'function')
 			var cookie = bp_get_cookies();
-    	else 
+    	else
     		var cookie = encodeURIComponent(document.cookie);
 
 		jq.post( ajaxurl, {
@@ -115,10 +133,32 @@ jq(document).ready( function() {
 
 });
 
-//Adding the privacy filter form 
+/**
+ * Privacy compatibility with the BuddyPress Activity Plus media activity
+ */
+if ( '1' === BuddyBoss_Wall_Privacy_Vars.is_activity_component &&
+	'1' === BuddyBoss_Wall_Privacy_Vars.is_bpfb_active ) {
+    jq(document).ajaxSend(function ( event, request, settings ) {
+        if ( /action=bpfb_update_activity_contents/.test(settings.data) ) {
+            settings.data += '&visibility='+jq("select#bbwall-activity-privacy").val();
+        }
+    });
+}
+
+//Adding the privacy filter form
 function buddyboss_wall_initiate_privacy_form( link ) {
 	$link = $( link );
-	$form = $( '#form_buddyboss-wall-privacy' );
+
+
+	//privacy edit form
+	if ( 0 == jq( '#form_buddyboss-wall-privacy').length ) {
+		//privacy edit form script template
+		var form_tpl = $('#buddyboss-wall-form-wrapper-tpl').html();
+		$form = jq(form_tpl).find('#form_buddyboss-wall-privacy');
+	} else {
+		$form = jq('#form_buddyboss-wall-privacy');
+	}
+
 	$form_wrapper = $form.parent();
 
 	//slideup comment form
@@ -129,6 +169,9 @@ function buddyboss_wall_initiate_privacy_form( link ) {
 		return false;
 	}
 
+	//Tab should auto close on opening another tab.
+	$('.buddyboss-activity-comments-form').hide();
+
 	$link.closest( '.activity-content' ).after( $form_wrapper );
 
 	//Highlight previously selected option
@@ -136,8 +179,8 @@ function buddyboss_wall_initiate_privacy_form( link ) {
 	$selected_visibilty_group = $link.hasClass( 'buddyboss-group-privacy-filter' );
 
 	if ( (! $selected_visibilty_group && $selected_visibilty === 'grouponly') || !$selected_visibilty ) {
-		$selected_visibilty = 'onlyme';
-	} 
+		$selected_visibilty = 'public';
+	}
 	$form.find( '#bbwall-privacy-selectbox' ).val( $selected_visibilty );
 
 	$form_wrapper.slideDown( 200 );
@@ -146,17 +189,19 @@ function buddyboss_wall_initiate_privacy_form( link ) {
 	//setup form data
 	$form.find( 'input[name="activity_id"]' ).val( $link.data( 'activity_id' ) );
 
+
+
 	return false;
 }
 
-//Closing the privacy filter form 
+//Closing the privacy filter form
 function buddyboss_wall_privacy_close(){
     $form = $('#form_buddyboss-wall-privacy');
     $form_wrapper = $form.parent();
-    
+
     $form_wrapper.slideUp(200);
     bbmedia_move_media_opened = false;
-    
+
     return false;
 }
 
@@ -169,7 +214,7 @@ function buddyboss_wall_submit_privacy() {
 
 	if ( $submit_button.hasClass( 'loading' ) )
 		return false;//previous request hasn't finished yet!
-	
+
 	$animated_loader.css('display','inline-block');
 
 	/**
@@ -198,11 +243,11 @@ function buddyboss_wall_submit_privacy() {
 		url: ajaxurl,
 		data: data,
 		success: function ( response ) {
-			
+
 			$curr_visibility = $form.find( '#bbwall-privacy-selectbox' ).val();
 			$form_wrapper.closest( '.activity' ).find( '.buddyboss_privacy_filter' ).data( 'visibility', $curr_visibility );
 			$animated_loader.hide();
-			
+
 			response = $.parseJSON( response );
 			if ( response.status ) {
 				$form.find( "#message" ).addClass( 'updated' ).html( "<p>" + response.message + "</p>" );
@@ -236,3 +281,5 @@ function buddyboss_wall_privacy_cleanup( $form, remove_activity_item ) {
 		} );
 	}
 }
+
+

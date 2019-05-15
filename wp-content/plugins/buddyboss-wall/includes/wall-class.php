@@ -68,7 +68,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 	 */
 	public function setup_globals( $args = array() )
 	{
-		
+
 	}
 
 	/**
@@ -80,7 +80,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 	{
 		// Add body class
 		add_filter( 'body_class', array( $this, 'body_class' ) );
-		
+
 		// Inject "Whats new" area
 		add_action( 'wp_footer', array( $this, 'script_template_greeting' ) );
 
@@ -105,28 +105,28 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			add_action( 'bp_before_activity_comment', 'buddyboss_wall_add_likes_comments' );
 			if( !is_admin() || ( defined('DOING_AJAX') && DOING_AJAX ) ){
 				//global $activity_template used by the method is not available in backend(wp-admin)
-				//and it generates notices
+		    		//and it generates notices
 				//temporary fix
-				
+
 				$activity_post_text = buddyboss_wall()->option( 'activity-posted-text' );// check for activity post option
 				if ( $activity_post_text == 'yes' ) {
 					add_filter( 'bp_get_activity_action', 'buddyboss_wall_read_filter' );
 				}
-				
+
 				//the second parameter requred by function is not passed in the action call in admin
 				//so this function doesn't work in wp-admin
 				//temporary fix
 				add_filter( 'bp_get_activity_action', 'buddyboss_wall_replace_placeholders_with_url', 11, 2 );
 			}
 			add_filter( 'bp_activity_after_save', 'buddyboss_wall_input_filter', 999 );
-			add_filter( 'bp_ajax_querystring', 'buddyboss_wall_qs_filter', 111 );
+			add_filter( 'bp_ajax_querystring', 'buddyboss_wall_qs_filter', 111, 2 );
 			add_filter( 'bp_activity_multiple_at_mentions_notification', 'buddyboss_wall_format_mention_notification', 10, 5 );
 			add_filter( 'bp_activity_single_at_mentions_notification', 'buddyboss_wall_format_mention_notification', 10, 5 );
-			add_action( 'bp_activity_screen_my_activity', 'bp_activity_reset_my_new_mentions' );
+			//add_action( 'bp_activity_screen_my_activity', 'bp_activity_reset_my_new_mentions' );
 			add_filter( 'bp_has_activities', 'buddyboss_wall_prepare_likes_filter', 10, 3 );
 			add_filter( 'wp_head', 'buddyboss_wall_inline_styles', 10, 3 );
 		}
-		
+
 		$update_menus = $this->option( 'UPDATE_MENUS' );
 
 		// Update menu text, this needs to be in the setup_actions
@@ -134,11 +134,12 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		if ( $update_menus )
 		{
 			add_action( 'wp_before_admin_bar_render', array($this, 'update_wp_menus'), 99 );
-			add_action( 'bp_init', array($this, 'update_bp_menus'), 98 );
-			add_action( 'bp_init', array($this, 'bbg_remove_activity_friends_subnav'), 99 );
+			add_action( 'bp_init', array($this, 'update_bp_menus'), 10 );
+			add_action( 'bp_init', array($this, 'bbg_remove_activity_friends_subnav'), 100 );
 			add_filter( 'bp_get_displayed_user_nav_activity', array($this, 'bbg_replace_activity_link') );
+			add_filter( 'bp_nouveau_get_nav_link_text', array( $this, 'nouveau_rename_activity_link' ), 10, 3 );
 		}
-		
+
 
 		parent::setup_actions();
 	}
@@ -153,7 +154,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		$classes[] = apply_filters( 'buddyboss_wall_body_class', 'buddyboss-wall-active' );
 		return $classes;
 	}
-	
+
 	/**
 	 * Prepare array with translated messages/strings to use in JS
 	 *
@@ -187,13 +188,13 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
             /**
              * list of oembed domains whose urls should be excluded in activity posting url scraping.
              */
-            $excluded_oembed_hosts = apply_filters( 'buddyboss_wall_excluded_oembed_hosts', array( 
+            $excluded_oembed_hosts = apply_filters( 'buddyboss_wall_excluded_oembed_hosts', array(
                 'youtube.com', 'www.youtube.com', 'vimeo.com', 'www.vimeo.com', 'dailymotion.com', 'www.dailymotion.com'
                 ,'youtu.be', 'www.youtu.be',
             ) );
             $app_state['excluded_oembed_hosts'] = $excluded_oembed_hosts;
         }
-        
+
 		return apply_filters( 'buddyboss_wall_app_state', $app_state );
 	}
 
@@ -207,14 +208,21 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		$load_tooltips = $this->option( 'LOAD_TOOLTIPS' );
 
     	// FontAwesome icon fonts. If browsing on a secure connection, use HTTPS.
-		wp_register_style('fontawesome', "//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css", false, null);
-		wp_enqueue_style( 'fontawesome' );
+		// We will only load if our is latest.
+		$recent_fwver	 = (isset( wp_styles()->registered[ "fontawesome" ] )) ? wp_styles()->registered[ "fontawesome" ]->ver : "0";
+		$current_fwver	 = "5.2.0";
+		if ( version_compare( $current_fwver, $recent_fwver, '>' ) ) {
+			wp_deregister_style( 'fontawesome' );
+			wp_register_style( 'fontawesome', "https://use.fontawesome.com/releases/v{$current_fwver}/css/all.css", false, $current_fwver );
+			wp_enqueue_style( 'fontawesome' );
+		}
 
 		if ( $load_css )
 		{
 			// Wall stylesheet.
-//			wp_enqueue_style( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/css/buddyboss-wall.css', array(), '1.2.1', 'all' );
-			wp_enqueue_style( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/css/buddyboss-wall.min.css', array(), '1.2.1', 'all' );
+            $css_file = ( is_rtl() ) ? '/css/buddyboss-wall-rtl.min.css' : '/css/buddyboss-wall.min.css';
+//			wp_enqueue_style( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/css/buddyboss-wall.css', array(), '1.2.7', 'all' );
+			wp_enqueue_style( 'buddyboss-wall-main', buddyboss_wall()->assets_url . $css_file, array(), BUDDYBOSS_WALL_PLUGIN_VERSION, 'all' );
 		}
 
 		// Scripts
@@ -223,13 +231,26 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			wp_enqueue_script( 'buddyboss-wall-tooltip', buddyboss_wall()->assets_url . '/js/jquery.tooltipster.min.js', array( 'jquery' ), '3.0.5', true );
 		}
 
-//        wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.2.1', true );
-        wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall.min.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.2.1', true );
+		$theme_package_id = bp_get_theme_compat_id();
+
+		if ( 'legacy' === $theme_package_id ) {
+        //wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.2.7', true );
+        wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall.min.js', array( 'jquery', 'buddyboss-wall-tooltip' ), BUDDYBOSS_WALL_PLUGIN_VERSION, true );
+        } elseif ( 'nouveau' === $theme_package_id ) {
+//        wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.2.7', true );
+			wp_enqueue_script( 'buddyboss-wall-main', buddyboss_wall()->assets_url . '/js/buddyboss-wall-nouveau.min.js', array( 'jquery', 'buddyboss-wall-tooltip' ), BUDDYBOSS_WALL_PLUGIN_VERSION, true );
+        }
+
 
         if(buddyboss_wall()->is_wall_privacy_enabled())
-		{      
+		{
 //            wp_enqueue_script( 'buddyboss-wall-privacy', buddyboss_wall()->assets_url . '/js/buddyboss-wall-privacy.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.1.4', true );
-        	wp_enqueue_script( 'buddyboss-wall-privacy', buddyboss_wall()->assets_url . '/js/buddyboss-wall-privacy.min.js', array( 'jquery', 'buddyboss-wall-tooltip' ), '1.1.4', true );
+            require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+            wp_enqueue_script( 'buddyboss-wall-privacy', buddyboss_wall()->assets_url . '/js/buddyboss-wall-privacy.js', array( 'jquery', 'buddyboss-wall-tooltip' ), BUDDYBOSS_WALL_PLUGIN_VERSION, true );
+        	wp_localize_script( 'buddyboss-wall-privacy', 'BuddyBoss_Wall_Privacy_Vars', array(
+        	        'is_activity_component' => bp_is_activity_component(),
+                    'is_bpfb_active'        => is_plugin_active('buddypress-activity-plus/bpfb.php')
+            ));
         }
 
 		// Localization
@@ -294,7 +315,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		// But we are on a profile/wall ( bp_current_action() )
 		if ( buddyboss_wall()->is_enabled() && ! bp_is_my_profile() && bp_is_user() )
 		{
-			if ( !bp_is_active( 'friends' ) && !$this->option('all-members') ) {			
+			if ( !bp_is_active( 'friends' ) && !$this->option('all-members') ) {
 				return;
 			}
 
@@ -331,10 +352,10 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 	public function bp_before_activity_entry_comments()
 	{
 		$has_likes  = $this->has_likes( bp_get_activity_id() );
-		$has_access = is_user_logged_in() && bp_activity_can_comment();
-		$count      = bp_activity_get_comment_count();
+//		$has_access = is_user_logged_in() && bp_activity_can_comment();
+//		$count      = bp_activity_get_comment_count();
 
-		if ( $has_likes && ! $count ): ?>
+		if ( $has_likes ): ?>
 
 			<script type="text/html" class="buddyboss-wall-tpl-activity-comments" id="buddyboss-wall-tpl-activity-comments-<?php echo bp_get_activity_id(); ?>">
 				<?php buddyboss_wall_add_likes_comments(); ?>
@@ -351,7 +372,25 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 	public function bbg_replace_activity_link( $value )
 	{
 		$menu_name = $this->option( "MENU_NAME" );
+		$menu_name = __( $menu_name , 'buddyboss-wall' );
 		return str_replace( 'Activity', $menu_name, $value );
+	}
+
+	/**
+	 * RENAME ACTIVITY LINK ON PROFILE WHEN NOUVEAU TEMPLATE PACK ACTIVE
+	 * @param $link_text
+	 * @param $nav_item
+	 * @param $value
+	 * @return mixed
+	 */
+	public function nouveau_rename_activity_link( $link_text, $nav_item, $value ) {
+
+		if ( 'personal' != $value )
+			return $link_text;
+
+		$menu_name = $this->option( "MENU_NAME" );
+		$menu_name = __( $menu_name , 'buddyboss-wall' );
+		return str_replace( 'Activity', $menu_name, $link_text );
 	}
 
 	/**
@@ -367,7 +406,8 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		bp_core_remove_subnav_item( 'activity', 'mentions' );
 		bp_core_remove_subnav_item( 'activity', 'groups' );
 
-		if ( ! bp_is_my_profile() )
+		$activity_slug = bp_get_activity_slug();
+		if ( ! bp_is_my_profile() && bp_is_current_component( $activity_slug ) )
 			bp_core_remove_subnav_item( 'activity', 'favorites' );
 	}
 
@@ -380,6 +420,12 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		global $bp;
 
 		$domain = (!empty($bp->displayed_user->id)) ? $bp->displayed_user->domain : $bp->loggedin_user->domain;
+		$wall_profile_link = $domain . $bp->activity->slug . '/';
+
+		$setting_default_profile_tab = buddyboss_wall()->option( 'setting_default_profile_tab' );
+		if ( 'newsfeed' == $setting_default_profile_tab ) {
+			$wall_profile_link = $domain . $bp->activity->slug . '/';
+		}
 
 		$profile_link = $domain . $bp->activity->slug . '/';
 
@@ -387,14 +433,14 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		bp_core_new_subnav_item( array(
 			'name'            => __( 'Wall', 'buddyboss-wall' ),
 			'slug'            => 'just-me',
-			'parent_url'      => $profile_link,
+			'parent_url'      => $wall_profile_link,
 			'parent_slug'     => $bp->activity->slug,
 			'screen_function' => 'bp_activity_screen_my_activity' ,
 			'position'        => 10
 		) );
 
 		// ADD NEWS FEED TAB
-		if ( bp_is_my_profile() )
+		if ( bp_is_my_profile() || bp_core_can_edit_settings() )
 		{
 			bp_core_new_subnav_item( array(
 				'name'            => __( 'News Feed', 'buddyboss-wall' ),
@@ -432,7 +478,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			add_filter( 'logout_url', array( $this, 'set_newsfeed_logout_url' ) );
 		}
 	}
-	
+
 	public function set_newsfeed_logout_url( $logout_url )
 	{
 		global $bp;
@@ -462,7 +508,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 
 		$domain = $bp->loggedin_user->domain;
 
-		$profile_link = $domain . $bp->activity->slug . '/';
+
 
 		$activity_link = trailingslashit( $domain . $bp->activity->slug );
 
@@ -487,6 +533,12 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			$my_acct->href = trailingslashit( $activity_link );
 			$wp_admin_bar->add_node( $my_acct );
 
+			//Profile > Wall > Wall - link it to the just-me when newsfeed is default profile tab
+			$wall_profile_slug = '';
+			$setting_default_profile_tab = buddyboss_wall()->option( 'setting_default_profile_tab' );
+			if ( 'newsfeed' == $setting_default_profile_tab ) {
+				$wall_profile_slug = 'just-me';
+			}
 
 			// Change 'Activity' to 'Wall'
 			$wp_admin_bar->add_menu( array(
@@ -499,15 +551,15 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			// Personal/Wall
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'my-account-' . $bp->activity->id,
-				'id'     => 'my-account-' . $bp->activity->id . '-wall',
+				'id'     => 'my-account-' . $bp->activity->id . '-just-me',
 				'title'  => __( 'Wall', 'buddyboss-wall' ),
-				'href'   => trailingslashit( $activity_link )
+				'href'   => trailingslashit( $activity_link . $wall_profile_slug )
 			) );
 
 			// News Feed
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'my-account-' . $bp->activity->id,
-				'id'     => 'my-account-' . $bp->activity->id . '-feed',
+				'id'     => 'my-account-' . $bp->activity->id . '-news-feed',
 				'title'  => __( 'News Feed', 'buddyboss-wall' ),
 				'href'   => trailingslashit( $activity_link . 'news-feed' )
 			) );
@@ -538,17 +590,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		global $bp, $wpdb, $buddyboss_ajax_qs;
 
 		$min = ($page>0)? ($page-1) * $per_page : 0;
-		$max = ($page+1) * $per_page;
-		//$per_page = bp_get_activity_per_page();
-		//buddyboss_wall_log(" per page $per_page");
 
-		if (isset($bp->loggedin_user) && isset($bp->loggedin_user->id) && $bp->displayed_user->id == $bp->loggedin_user->id)
-		{
-			$myprofile = true;
-		}
-		else {
-			$myprofile = false;
-		}
 		// $wpdb->show_errors = BUDDYBOSS_DEBUG;
 		$user_id = $bp->displayed_user->id;
 
@@ -597,6 +639,11 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 			$filter_sql = "AND ( $table.type='" . implode( "' OR $table.type='", $filters_clean ) . "' )";
 
 			$where = "WHERE ( $table.user_id = $user_id $filter_sql )";
+		}
+
+		// Private activity should only visible for current logged in users
+		if( bp_loggedin_user_id() != bp_displayed_user_id() ){
+			$where .= ' AND hide_sitewide = 0 ';
 		}
 
 		// Filter where SQL
@@ -679,7 +726,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		if ( function_exists( 'groups_get_user_groups' ) )
 		{
 			$groups = groups_get_user_groups( $user_id, false, false );
-			
+
 			if ( empty( $groups['groups'] ) )
 			{
 				$group_ids = array();
@@ -695,9 +742,9 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		$user_list  = implode( ',', $user_ids );
 		$group_list = implode( ',', $group_ids );
 
-		$groups_object = $bp->groups->id;
+		$groups_object = isset( $bp->groups->id ) ?  $bp->groups->id : '0';
 
-		// @todo: We should check if both friend's component and groups component is 
+		// @todo: We should check if both friend's component and groups component is
 		// active, then check if we have IDs for either and generate a query based
 		// on that information. For now we'll force ID 0 so an empty query doesn't
 		// generate an error
@@ -716,7 +763,7 @@ class BuddyBoss_Wall_BP_Component extends BP_Component
 		$table2 = bp_core_get_table_prefix() . 'bp_activity_meta';
 
 		// Gets friend's updates. If friend's component isn't enabled this returns nothing.
-		$where = "WHERE ( $table.user_id IN ($user_list) AND $table.type != 'activity_comment'  AND $table.type!='last_activity' )";
+		$where = "WHERE ( $table.user_id IN ($user_list) AND $table.type != 'activity_comment' AND $table.type != 'last_activity'  AND $table.hide_sitewide != 1 )";
 
 		// Get's updates from user's groups
 		$group_modifier = "OR ( $table.item_id IN ($group_list) AND $table.component = '$groups_object' ) ";

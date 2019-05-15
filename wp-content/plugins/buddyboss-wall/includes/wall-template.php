@@ -133,18 +133,27 @@ function get_wall_add_likes_comments( $activity_id, $refetch_users_who_liked=fal
 	if( !$users_who_liked ){
 		$users_who_liked = buddyboss_wall_refetch_users_who_liked( $activity_id );
 	}
-	
+
 	if( !$user_likes_this && ( !$users_who_liked || empty( $users_who_liked ) ) ){
         //can occur if user who liked is deleted
         return false;
 	}
 
     $like_txt = $count . ( $user_likes_this ? 'y' : 'n' );
+	$activity_like_text = buddyboss_wall()->option( 'activity-like-text' );
+
+	if ( empty($activity_like_text) ) {
+		$activity_like_text = 'yes'; //Fix for fresh install
+	}
 
     // Only user likes this
-    if ( $count === 1 && $user_likes_this )
+    if ( $count === 1 && $user_likes_this && $activity_like_text == 'yes' )
     {
       $like_txt = __( 'You like this.', 'buddyboss-wall' );
+    }
+    elseif ( $count === 1 && $user_likes_this && $activity_like_text == 'no' )
+    {
+      $like_txt = sprintf( __( '<a href="%s" title="%s">%s</a> likes this', 'buddyboss-wall' ), esc_url( bp_get_loggedin_user_link() ), esc_attr( bp_get_loggedin_user_fullname() ), esc_html( bp_get_loggedin_user_fullname() ) );
     }
     // Show up to two user names (you + 2 others)
     else {
@@ -156,8 +165,16 @@ function get_wall_add_likes_comments( $activity_id, $refetch_users_who_liked=fal
       // Fallback
       $like_txt = __( 'Error getting likes.', 'buddyboss-wall' );
 
-      foreach( $users_who_liked as $user )
-      {
+      foreach( $users_who_liked as $user_id => $user ) {
+
+        if ( empty($user['profile'] ) ) {
+            $user['profile'] = bp_core_get_user_domain($user_id);
+        }
+
+        if ( empty($user['name'] ) ) {
+            $user['name'] = bp_core_get_user_displayname($user_id);
+        }
+
         $user_liked_html = '<a href="'.esc_url( $user['profile'] ).'" title="'.esc_attr( $user['name'] ).'">'.esc_html( $user['name'] ).'</a>';
 
         // For the first two we want the output to show
@@ -178,9 +195,14 @@ function get_wall_add_likes_comments( $activity_id, $refetch_users_who_liked=fal
       // 1 user
       if ( count( $liked_for_display ) === 1 )
       {
-        if ( $user_likes_this )
+        if ( $user_likes_this && $activity_like_text == 'yes' )
         {
           $like_txt = sprintf( __( 'You and %s %s this.', 'buddyboss-wall' ), $liked_for_display[0], $verb_plural );
+        }
+        elseif ( $user_likes_this && $activity_like_text == 'no' )
+        {
+          $user_link_html = '<a href="'. esc_url( bp_get_loggedin_user_link() ) .'" title="'. esc_attr( bp_get_loggedin_user_fullname() ) .'">'. esc_html( bp_get_loggedin_user_fullname() ) .'</a>';
+          $like_txt = sprintf( __( '%s and %s %s this.', 'buddyboss-wall' ), $user_link_html, $liked_for_display[0], $verb_plural );
         }
         else {
           $like_txt = sprintf( __( '%s %s this.', 'buddyboss-wall' ), $liked_for_display[0], $verb_single );
@@ -247,7 +269,7 @@ function get_wall_add_likes_comments( $activity_id, $refetch_users_who_liked=fal
 
 function replies_get_wall_add_likes_comments( $reply_id ){
 	$html = get_wall_add_likes_comments( $reply_id, false, 'acomment-reply-like-content' );
-	
+
 	//make sure its wrappeed in ul tag
 	if( substr( $html, 0, 4 ) !== '<ul>' ){
 		$html = "<ul class='acomment-reply-like-content'>" . $html . "</ul>";

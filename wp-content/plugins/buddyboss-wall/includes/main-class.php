@@ -22,19 +22,25 @@ class BuddyBoss_Wall_Plugin
 	 */
 
 	/**
-	 * Most WordPress/BuddyPress plugin have the includes in the function
+	 * Most BuddyPress plugin have the includes in the function
 	 * method that loads them, we like to keep them up here for easier
 	 * access.
 	 * @var array
 	 */
-	private $main_includes = array(
+	private $bp_includes = array(
 		'wall-class',
 		'wall-functions',
 		'wall-template',
 		'wall-compat',
 		'wall-hooks',
 		'wall-filters',
-        'wall-privacy'
+        'wall-privacy',
+
+	);
+
+	private $main_includes = array(
+		'class-buddyboss-wall-like-notification',
+		'wall-bp-notifications'
 	);
 
 	/**
@@ -181,12 +187,24 @@ class BuddyBoss_Wall_Plugin
 		// Store the instance locally to avoid private static replication
 		static $instance = null;
 
+        $active_component = bp_get_option('bp-active-components');
+
+        // Bail out if activity component is not active
+		if ( ! isset ( $active_component['activity'] ) ) {
+
+			$instance = new BuddyBoss_Wall_Plugin();
+			add_action( 'admin_notices', array( $instance, 'show_notices' ) );
+
+			return $instance;
+		}
+
 		// Only run these methods if they haven't been run previously
 		if ( null === $instance ) {
 			$instance = new BuddyBoss_Wall_Plugin();
 			$instance->setup_globals();
 			$instance->setup_actions();
 			$instance->setup_textdomain();
+			$instance->do_includes( $instance->main_includes );
 		}
 
 		// Always return the instance
@@ -354,7 +372,7 @@ class BuddyBoss_Wall_Plugin
 			return;
 
 		// Hook into BuddyPress init
-			add_action( 'bp_init', array( $this, 'bp_loaded' ),4 );
+		add_action( 'bp_init', array( $this, 'bp_loaded' ),4 );
 			
 	}
 
@@ -454,9 +472,11 @@ class BuddyBoss_Wall_Plugin
 	 */
 	private function load_main()
 	{
-		$this->do_includes( $this->main_includes );
+		$this->do_includes( $this->bp_includes );
 
 		$this->component = new BuddyBoss_Wall_BP_Component();
+		//Override activity component notification callback
+		//buddypress()->activity->notification_callback = 'buddyboss_wall_notification_callback';
 	}
 
 	/* Activate/Deactivation/Uninstall callbacks
@@ -659,13 +679,25 @@ class BuddyBoss_Wall_Plugin
 	{
     ?>
     <div class="updated">
-	    <p><?php _e( 'To use the <strong>BuddyBoss Wall</strong> plugin, please manually update your BuddyBoss theme to version 4.0 or above first. <a href="http://www.buddyboss.com/upgrading-to-buddyboss-4-0/">Read how &rarr;</a>', 'buddyboss-wall' ); ?></p>
+	    <p><?php _e( 'To use the <strong>BuddyBoss Wall</strong> plugin, please manually update your BuddyBoss theme to version 4.0 or above first. <a href="https://www.buddyboss.com/upgrading-to-buddyboss-4-0/">Read how &rarr;</a>', 'buddyboss-wall' ); ?></p>
 	    <p class="submit"><a href="<?php echo esc_url(add_query_arg('disable_wall_legacy_notice', 'true', admin_url('options-general.php?page=buddyboss-wall/includes/admin.php') )); ?>" class="button-primary"><?php _e( 'Disable Notice', 'buddyboss-wall' ); ?></a></p>
     </div>
     <?php
 	}
 
-}
+	/**
+	 * Show relevant notices
+	 *
+	 * @since 2.3
+	 */
+	public function show_notices() {
+
+			echo '<div class="error">';
+			echo '<p>' . sprintf( __( 'Hey! BuddyBoss Wall requires activity component to be enabled. Please enable it in your <a href="%s">BuddyPress Settings</a>.', 'buddyboss-wall' ), admin_url( 'admin.php?page=bp-components' ) ) . '</p>';
+			echo '</div>';
+	}
+
+	}
 // End class BuddyBoss_Wall_Plugin
 
 endif;

@@ -84,7 +84,8 @@ class WebsiteParser
     private $title_expression = "/<title>(.*)<\/title>/";
     // metatags are normaly this form: <meta name="NAME" content="CONTENT" />
     // Facebook use property "instead" of "name", see here : http://ogp.me/
-    private $metatags_expression = "/<meta[^>]+(?:name|property)=\"([^\"]*)\"[^>]+content=\"([^\"]*)\"[^>]*>/";
+    private $metatags_expression_1 = "/<meta[^>]+(?:name|property)=\"([^\"]*)\"[^>]+content=\"([^\"]*)\"[^>]*>/";
+    private $metatags_expression_2 = "/<meta[^>]+content=\"([^\"]*)\"[^>]+(?:name|property)=\"([^\"]*)\"[^>]*>/";
 
     /**
      * cUrl option
@@ -131,7 +132,8 @@ class WebsiteParser
      */
     public function __destruct()
     {
-        unset($this);
+        //It's not allowed to re-assign $this, so why it should be allowed to unset() it. The following code worked in PHP 7, but will emit compilation error in PHP 7.1
+        //unset($this);
     }
 
     /**
@@ -257,7 +259,7 @@ class WebsiteParser
 
         if (!is_null($this->content)) {
 
-            preg_match_all($this->metatags_expression, $this->content, $match_tags);
+            preg_match_all($this->metatags_expression_1, $this->content, $match_tags);
 
             if (isset($match_tags[2]) && count($match_tags[2])) {
                 foreach ($match_tags[2] as $key => $match_tag) {
@@ -268,6 +270,14 @@ class WebsiteParser
                     if ($match_tag) {
                         $metatags[] = array($key, $match_tag);
                     }
+                }
+            }
+
+            preg_match_all($this->metatags_expression_2, $this->content, $match_tags_2);
+
+            if (isset($match_tags_2) && count($match_tags_2)) {
+                foreach ($match_tags_2[0] as $key => $match_tag) {
+                        $metatags[] = array( trim( $match_tags_2[2][$key] ), trim( $match_tags_2[1][$key] ) );
                 }
             }
         }
