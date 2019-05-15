@@ -14,12 +14,11 @@
 	<?php
 	// Load posts loop.
 	while ( have_posts() ) :  the_post(); ?>
-		<?php acf_form(array(
-			'fields' => array('slides')
-		)); ?>
-
-		<?php ?>
-
+		<?php if (function_exists('acf_form')): ?>
+			<?php acf_form(array(
+				'fields' => array('slides')
+			)); ?>
+		<?php endif; ?>
 		<?php get_template_part( 'template-parts/content/content', 'front' ); ?>
 	<?php endwhile ?>
 
