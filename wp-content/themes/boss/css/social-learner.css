@@ -29,11 +29,11 @@ This is the Social Learner stylesheet, served to all devices.
     border-bottom: none;
 }
 
-#attached-media h2, 
-#main .course .course-lessons-inner header, 
-#main .course .course-results-lessons header, 
-.module-archive #module_stats, 
-.single-course #main .course .post.module+.course-lessons>header, 
+#attached-media h2,
+#main .course .course-lessons-inner header,
+#main .course .course-results-lessons header,
+.module-archive #module_stats,
+.single-course #main .course .post.module+.course-lessons>header,
 .single-course .post.module>header {
     border: none;
 }
@@ -50,7 +50,7 @@ section.entry ul li {
 h1, h2, h3, h4, h5, h6,
 h1.main-title, #item-header-content h1, #fwslider .slide .title, .group-info li p:first-child, #item-statistics .numbers span p:first-child,
 body, p, #profile-nav span, #wp-admin-bar-shortcode-secondary .alert, .header-notifications a.notification-link span {
-     font-family: 'Open Sans' !important;   
+     font-family: 'Open Sans' !important;
 }
 */
 section.entry ul, section.entry  p, .single-course .entry-content p, .single-course .entry-content ul {
@@ -64,7 +64,7 @@ body .site {
 body #main-wrap {
     overflow: hidden;
 }
-.boxed .page-full-width, 
+.boxed .page-full-width,
 .boxed .page-right-sidebar {
     border-left: none;
     border-right: none;
@@ -75,8 +75,8 @@ body #main-wrap {
     padding: 0 0 0 50px;
 }
 /*
-.boxed .dir-page-entry .inner-padding, 
-.boxed .page-full-width, 
+.boxed .dir-page-entry .inner-padding,
+.boxed .page-full-width,
 .boxed .page-right-sidebar {
     padding-left: 0;
     padding-right: 0;
@@ -107,14 +107,22 @@ body #main-wrap {
 }
 .social-learner #header-menu > ul > li:before {
     display: none;
-} 
-.menu-panel #header-menu > ul > li.bp-courses-nav > a:before, 
+}
+.menu-panel #header-menu > ul > li.bp-courses-nav > a:before,
 .menu-panel #nav-menu > ul > li.bp-courses-nav > a:not(.open-submenu):before {
     content: "\f19d";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
-.menu-panel #header-menu > ul > li.bp-achievements-nav > a:before, 
+.menu-panel #header-menu > ul > li.bp-achievements-nav > a:before,
 .menu-panel #nav-menu > ul > li.bp-achievements-nav > a:not(.open-submenu):before {
     content: "\f091";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 .menu-panel #header-menu > ul li a:before, .menu-panel #nav-menu > ul > li > a:not(.open-submenu):before, .menu-panel .screen-reader-shortcut:before, .menu-panel .bp_components ul li ul li > .ab-item:before {
     -webkit-transition: color .3s ease-in-out;
@@ -170,10 +178,11 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
 }
 nav.navigation.post-navigation .nav-links .nav-previous:before,
 nav.navigation.post-navigation .nav-links .nav-next:after,
-.nav-previous .meta-nav:before, 
-.nav-prev .meta-nav:before, 
+.nav-previous .meta-nav:before,
+.nav-prev .meta-nav:before,
 .nav-next .meta-nav:before {
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -219,8 +228,8 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
 #attached-media ul, .post.module .module-lessons ul, .course-results-lessons, .course-lessons-inner {
     border-radius: 3px;
     border: none;
-    -webkit-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2); 
-    -moz-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2); 
+    -webkit-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
+    -moz-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
     box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
 }
 .course-lessons-inner {
@@ -235,7 +244,7 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
 }
 #attached-media h2, #main .course-container .module-lessons .lesson header, .module-archive #module_stats, .module .module-lessons ul li a, .single-course .post.module > header, #main .course .course-lessons-inner header, .single-course #main .course .post.module + .course-lessons > header, #main .course .course-results-lessons header {
     border-bottom: 1px solid #c6d3e4;
-} 
+}
 .single-course #main .course .post.module + .course-lessons > header {
     border-top: none;
 }
@@ -253,6 +262,38 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
     -o-transition: all .2s;
     transition: all .2s;
 }
+
+.lesson header,
+.module-lessons header {
+    margin-bottom: 0;
+}
+
+.lesson header .lesson-meta,
+.module-lessons header .lesson-meta {
+    width: auto;
+    margin-left: auto;
+}
+
+.lessons-list .list_arrow .fa-sort-down {
+    position: relative;
+    top: -3px;
+}
+
+.other-lessons header {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.other-lessons h4 {
+    font-size: 14px;
+    flex: 1;
+}
+
+.other-lessons span.lesson-status {
+    margin-left: auto;
+    padding-left: 12px;
+}
+
 /* ---------------------------------------------------------------
 3.3 - Widgets
 --------------------------------------------------------------- */
@@ -265,12 +306,16 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
 .widget-area .widget li.fix > a:first-child,
 .widget-area .widget li.fix > a:nth-child(2) {
     font-weight: 600;
-}  
+}
 .widget_course_progress .widgettitle, .widget-area .widget.widget_course_progress h3 a {
     color: #fff;
 }
-.widget-area .widget.widget_course_progress h3, .widget_sensei_course_progress header h2 {
-    font-size: 26px;
+.widget_sensei_course_progress header h2 {
+    font-size: 20px;
+    font-weight: 400;
+}
+.widget-area .widget.widget_course_progress h3 {
+    font-size: 18px;
     font-weight: 400;
 }
 .widget_course_progress .course-completion-rate {
@@ -287,7 +332,7 @@ nav.navigation.post-navigation .nav-links .nav-next:after,
     min-width: inherit;
     padding: 0;
 }
-.meter-bottom > span > span { 
+.meter-bottom > span > span {
     color: #fff;
 }
 #main .widget_course_progress .course header h4 {
@@ -339,7 +384,7 @@ body:not(.left-menu-open) .group-single.single-course #secondary {
 3.1 - Sensei Course Progress
 --------------------------------------------------------------- */
 .widget_sensei_course_progress header h2 a {
-     color: #fff;   
+    color: #fff;
 }
 
 /* ---------------------------------------------------------------
@@ -363,19 +408,19 @@ body:not(.left-menu-open) .group-single.single-course #secondary {
 27.0 - Visual composer
 --------------------------------------------------------------*/
 .flexslider.wpb_flexslider {
-  margin: 0;
-  background: #fff;
-  border: none;
-  position: relative;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  -o-border-radius: 0;
-  border-radius: 0;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  -o-box-shadow: none;
-  box-shadow: none;
-  zoom: 1;
+    margin: 0;
+    background: #fff;
+    border: none;
+    position: relative;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -o-border-radius: 0;
+    border-radius: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    -o-box-shadow: none;
+    box-shadow: none;
+    zoom: 1;
 }
 .flex-direction-nav {
     display: none;
@@ -394,10 +439,10 @@ body:not(.left-menu-open) .group-single.single-course #secondary {
 .wpb_wrapper .wpb_posts_slider .flex-caption .post-title {
     font-size: 70px;
     border-bottom: none;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  -o-box-shadow: none;
-  box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    -o-box-shadow: none;
+    box-shadow: none;
     text-shadow: none;
     color: #fff;
     max-width: 1000px;
@@ -567,12 +612,12 @@ body .entry-content .shop-title h2 {
     display: inline-block;
 }
 .wpb_row .woocommerce ul.products li.product .add_to_cart_button {
-/*
-    font-size: 0;
-    border: none;
-    width: auto;
-    display: inline-block;
-*/
+    /*
+        font-size: 0;
+        border: none;
+        width: auto;
+        display: inline-block;
+    */
     margin-top: 0;
 }
 body .entry-content #counters {
@@ -709,8 +754,8 @@ body .entry-content #students .vc_col-sm-3 a {
 #learndash_uploaded_assignments table td, #lesson_heading, #lessons_list .lesson h4, .ld-item:not(:last-child), .learndash_topic_dots.type-list ul li, #quiz_list > div:not(:last-child) h4, #lessons_list .lesson.has-topics h4, #learndash_course_materials h4, #quiz_heading, #learndash_lesson_topics_list h2, #learndash_uploaded_assignments h2 {
     border-bottom: 1px solid #c6d3e4;
 }
-#lessons_list .lesson h4, 
-.ld-item, #quiz_list > div h4, 
+#lessons_list .lesson h4,
+.ld-item, #quiz_list > div h4,
 #learndash_course_materials .materials-content {
     background-color: #f1f4f9;
 }
@@ -718,9 +763,9 @@ body .entry-content #students .vc_col-sm-3 a {
     background-color: #e8ecf2;
 }
 .single-sfwd-lessons u + table, #learndash_uploaded_assignments table, #learndash_lesson_topics_list ul li:last-child, #quiz_list > div:last-child h4, #lessons_list .lesson:last-child, #learndash_course_materials .materials-content {
-      -webkit-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
+    -webkit-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
     -moz-box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
-      box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
+    box-shadow: 0px 3px 4px -2px rgba(50, 50, 50, 0.2);
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
 }
@@ -731,6 +776,9 @@ body .entry-content #students .vc_col-sm-3 a {
 }
 .secondary-inner #item-actions, #group-description, #secondary.widget-area .widget {
     border-bottom: 1px solid #a4b3c2;
+}
+.lms-post-content ul {
+    list-style: inherit;
 }
 
 /* Lesson */
@@ -758,3 +806,85 @@ body .entry-content #students .vc_col-sm-3 a {
 }
 
 .is-mobile .entry-buddypress-content { overflow: hidden; }
+
+/* Pagination Fixes */
+.learndash-pager {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.learndash-pager a {
+    display: inline-block;
+    margin: 0 4px;
+    height: 36px;
+    width: 36px;
+    line-height: 36px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    color: rgba(0,0,0,.4);
+    border: 2px solid rgba(0,0,0,0.2);
+    background-color: transparent;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+.learndash-pager a:hover {
+    -moz-box-shadow: inset 0 0 1000px rgba(0, 0, 0, 0.15) !important;
+    -webkit-box-shadow: inset 0 0 1000px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: inset 0 0 1000px rgba(0, 0, 0, 0.15) !important;
+}
+
+.learndash-pager.learndash-pager span.pager-left {
+    -webkit-box-ordinal-group: 2;
+    -ms-flex-order: 1;
+    order: 1;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    margin: 0;
+    font-size: 0;
+}
+
+.learndash-pager.learndash-pager span.pager-legend {
+    -webkit-box-ordinal-group: 3;
+    -ms-flex-order: 2;
+    order: 2;
+    margin: 0 10px;
+    padding-right: 0;
+}
+
+.learndash-pager.learndash-pager span.pager-right {
+    -webkit-box-ordinal-group: 4;
+    -ms-flex-order: 3;
+    order: 3;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 0;
+}
+
+.learndash-pager.learndash-pager .pager-legend .pagedisplay {
+    margin: 0;
+}
+
+.widget-area .learndash-pager a {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+}
+
+.widget .learndash-pager span.pager-legend {
+    font-size: 13px;
+}

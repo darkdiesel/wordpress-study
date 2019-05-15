@@ -47,8 +47,20 @@ if ( !class_exists( 'ReduxFramework_custom_image_select' ) ) {
 			$this->value	 = $value;
 
 			if ( empty( $this->extension_dir ) ) {
-				$this->extension_dir = trailingslashit( str_replace( '\\', '/', dirname( __FILE__ ) ) );
-				$this->extension_url = site_url( str_replace( trailingslashit( str_replace( '\\', '/', ABSPATH ) ), '', $this->extension_dir ) );
+
+				if ( strpos( Redux_Helpers::cleanFilePath( __FILE__ ), Redux_Helpers::cleanFilePath( get_template_directory() ) ) !== false ) {
+					$relative_url = str_replace( Redux_Helpers::cleanFilePath( get_template_directory() ), '', Redux_Helpers::cleanFilePath( dirname( __FILE__ ) ) );
+					$this->extension_url   = trailingslashit( get_template_directory_uri() . $relative_url );
+				} else if ( strpos( Redux_Helpers::cleanFilePath( __FILE__ ), Redux_Helpers::cleanFilePath( get_stylesheet_directory() ) ) !== false ) {
+					$relative_url = str_replace( Redux_Helpers::cleanFilePath( get_stylesheet_directory() ), '', Redux_Helpers::cleanFilePath( dirname( __FILE__ ) )  );
+					$this->extension_url   = trailingslashit( get_stylesheet_directory_uri() . $relative_url );
+				} else {
+					$wp_content_dir = trailingslashit( Redux_Helpers::cleanFilePath( WP_CONTENT_DIR ) );
+					$wp_content_dir = trailingslashit( str_replace( '//', '/', $wp_content_dir ) );
+					$relative_url   = str_replace( $wp_content_dir, '', Redux_Helpers::cleanFilePath( dirname( __FILE__ ) ) );
+					$this->extension_url     = trailingslashit( self::$wp_content_url . $relative_url );
+				}
+
 			}
 
 			// Set default args for this field to avoid bad indexes. Change this to anything you use.
@@ -198,6 +210,13 @@ if ( !class_exists( 'ReduxFramework_custom_image_select' ) ) {
 					if ( $v[ 'title' ] != '' ) {
 						echo '<br /><span>' . $v[ 'title' ] . '</span>';
 					}
+
+					/**
+					 * Fix: color preset gets lost overtime on ajax save
+					 * Issue: sometimes when you move away to a different admin page, come back and just save the settings, but sometimes when you set a color preset and just save again, too
+					 * Resolve: at the present ajax save does not consider radio button so we need to add hidden filed that hold boss_scheme_select radio value
+					 */
+					if ( 'boss_scheme_select' == $this->field[ 'id' ] && boss_get_option('boss_scheme_select') == $theValue ) echo '<input type="hidden"  name="boss_options[boss_scheme_select]" value="'. $theValue.'" />';
 
 					echo '</label>';
 					echo '</li>';

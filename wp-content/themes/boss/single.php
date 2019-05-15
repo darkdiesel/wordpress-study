@@ -99,10 +99,15 @@ get_header(); ?>
     <?php while ( have_posts() ) : the_post(); ?>
 
         <?php
-        $style = ( has_post_thumbnail() && boss_get_option( 'boss_cover_blog' ) ) ? 'style="background-image: url(' . get_the_post_thumbnail_url( $post ) . '); background-position: center;background-size: cover;background-repeat: none;" data-photo="yes"' : '';
+        if ( has_post_thumbnail() && boss_get_option( 'boss_cover_blog' ) ) {
+			$thumb	        = get_post_thumbnail_id();
+			$image_url	    = buddyboss_resize( $thumb, '', 2.5, null, null, true );
+			$style = 'style="background-image: url(' . $image_url . '); background-position: center;background-size: cover;background-repeat: none;" data-photo="yes"';
+		}
         ?>
 
-        <header class="page-cover table" <?php echo $style; ?>>
+        <?php if( !( function_exists( 'WPJM' ) && get_post_type() === 'job_listing' ) ) : ?>
+        <header class="page-cover table" <?php echo isset( $style ) ? $style : ''; ?>>
             <div class="table-cell page-header">
                 <div class="cover-content">
                     <h1 class="post-title main-title"><?php the_title(); ?></h1>
@@ -120,28 +125,46 @@ get_header(); ?>
                                 $link_switch = boss_get_option( 'profile_social_media_links_switch' );
                                 if ( ! empty( $link_switch ) ):
                                 $social_profiles = boss_get_option( 'profile_social_media_links' );
+                                if ( is_array( $social_profiles ) ):
+                                foreach ( $social_profiles as $key => $social  ):
 
-                                foreach ( $social_profiles as $social  ):
+                                    //Boss v2.1.1
+                                    if ( ! empty( $label['title'] ) ) {
+                                        $social_key = sanitize_title( $social['title'] );
+                                        $social_title = $label['title'];
 
-                                    if ( empty( $social['title'] ) ) {
-                                        continue;
+                                        //Boss v2.1.0
+                                    } else {
+                                        $social_key = sanitize_title( $key );
+                                        $social_title = ucwords( $key );
                                     }
 
-                                    $social_key                 = sanitize_title( $social['title'] );
-                                    $background_image_style     = '';
-                                    $icon_url                   = $social['thumb'];
-                                    $url                        = buddyboss_get_user_social( bp_displayed_user_id(), $social_key ); //Get user social link
+                                    $background_image_style = '';
+
+                                    if ( ! empty( $social['thumb'] ) ) {
+                                        $icon_url = $social['thumb'];
+                                    } else {
+                                        //Show default supported social site icon
+                                        $icon_path = TEMPLATEPATH."/images/social-icon-white/{$social_key}-white.png";
+                                        $icon_url = '';
+                                        if ( file_exists( $icon_path ) ) {
+                                            $icon_url = get_template_directory_uri()."/images/social-icon-white/{$social_key}-white.png";
+                                        }
+                                    }
+                                    
+                                    $url  = buddyboss_get_user_social( get_current_user_id(), $social_key ); //Get user social link
 
                                     //Set profile icon
-                                    if ( ! empty ( $icon_url) ) {
-                                        $background_image_style = "background-image: url($icon_url);  background-size: cover;";
-                                    }
+                                    $background_image_style = "background-image: url($icon_url);  background-size: cover;";
+
+
                                     ?>
                                     <?php if ( !empty( $url ) ): ?>
-                                    <a class="btn" href="<?php echo $url; ?>" title="<?php echo esc_attr( $social['title'] ); ?>" target="_blank"><i style="<?php echo $background_image_style ?>" class="alt-social-icon alt-<?php echo empty( $background_image_style ) ? $social_key : ''; ?>"></i> </a>
+                                    <a class="btn" href="<?php echo $url; ?>" title="<?php echo esc_attr( $social_title ); ?>" target="_blank"><i style="<?php echo $background_image_style ?>" class="alt-social-icon alt-<?php echo empty( $background_image_style ) ? $social_key : ''; ?>"></i> </a>
                                 <?php endif; ?>
 
                                 <?php endforeach;
+                                    endif;
                                 endif;?>
 
                             </div>
@@ -150,6 +173,7 @@ get_header(); ?>
                 </div>
             </div>
         </header><!-- .archive-header -->
+        <?php endif; ?>
 
         <?php
         if ( is_active_sidebar( 'sidebar' ) ) :

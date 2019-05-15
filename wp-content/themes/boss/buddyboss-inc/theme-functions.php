@@ -6,12 +6,14 @@
  * Sets up the content width value based on the theme's design and stylesheet.
  */
 global $content_width;
-$content_width     = ( isset( $content_width ) ) ? $content_width : 625;
+$content_width = ( isset( $content_width ) ) ? $content_width : 625;
 
 function boss_show_adminbar() {
 	$show = false;
 
 	if ( !is_admin() && current_user_can( 'manage_options' ) && (boss_get_option( 'boss_adminbar' )) ) {
+//	This is changed becuase other user type can see top bar.
+//	if ( (boss_get_option( 'boss_adminbar' ) ) ) {
 		$show = true;
 	}
 
@@ -30,7 +32,7 @@ if ( is_rtl() ) {
 }
 
 global $boss_learndash, $boss_sensei, $learner;
-$learner = !is_null($boss_learndash) || !is_null($boss_sensei);
+$learner = !is_null( $boss_learndash ) || !is_null( $boss_sensei );
 
 /**
  * Sets up theme defaults and registers the various WordPress features that Boss supports.
@@ -54,12 +56,18 @@ function buddyboss_setup() {
 
 	// Adds RSS feed links to <head> for posts and comments.
 	add_theme_support( 'automatic-feed-links' );
-    
-    // Add title at wp_head
-    add_theme_support( 'title-tag' );
-    
+
+	// Add title at wp_head
+	add_theme_support( 'title-tag' );
+
+	// Declare BuddyPress template pack support
+    add_theme_support( 'buddypress-use-legacy' );
+
 	// Declare theme support for WooCommerce
 	add_theme_support( 'woocommerce' );
+	add_theme_support( 'wc-product-gallery-zoom' );
+	add_theme_support( 'wc-product-gallery-lightbox' );
+	add_theme_support( 'wc-product-gallery-slider' );
 
 	// Adds wp_nav_menu() in two locations with BuddyPress deactivated.
 	register_nav_menus( array(
@@ -81,6 +89,10 @@ function buddyboss_setup() {
 	// This theme uses a custom image size for featured images, displayed on "standard" posts.
 	add_theme_support( 'post-thumbnails' );
 	set_post_thumbnail_size( 624, 9999 ); // Unlimited height, soft crop
+	// Disable wordpress core css
+	add_theme_support( 'html5', array(
+		'gallery'
+	) );
 }
 
 add_action( 'after_setup_theme', 'buddyboss_setup' );
@@ -126,6 +138,9 @@ function bb_unique_array( $a ) {
  * from detectmobilebrowsers.com
  */
 function is_phone() {
+	if ( empty($_SERVER['HTTP_USER_AGENT']) ) {
+		return false;
+	}
 	$useragent = $_SERVER[ 'HTTP_USER_AGENT' ];
 	if ( preg_match( '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i', $useragent ) || preg_match( '/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i', substr( $useragent, 0, 4 ) ) )
 		return true;
@@ -141,123 +156,125 @@ function buddyboss_scripts_styles() {
 	/*	 * **************************** SCRIPTS ***************************** */
 
 	global $bp, $buddyboss, $buddyboss_js_params, $rtl;
-
-	$class_sufix = '';
-	if ( $rtl ) {
-		$class_sufix = '-rtl';
-		wp_deregister_style( 'bp-legacy-css-rtl' );
-	}
+	/**
+	 * Assign the Boss version to a var
+	 */
+	$theme			 = wp_get_theme( 'boss' );
+	$boss_version	 = $theme[ 'Version' ];
 
 	/*	 * *************************** STYLES ***************************** */
 
 	// FontAwesome icon fonts. If browsing on a secure connection, use HTTPS.
 	// We will only load if our is latest.
-	$recent_fwver = (isset(wp_styles()->registered["fontawesome"]))?wp_styles()->registered["fontawesome"]->ver:"0";
-	$current_fwver = "4.4.0";
-	if(version_compare($current_fwver, $recent_fwver , '>')) {
+	$recent_fwver	 = (isset( wp_styles()->registered[ "fontawesome" ] )) ? wp_styles()->registered[ "fontawesome" ]->ver : "0";
+	$current_fwver	 = "5.2.0";
+	if ( version_compare( $current_fwver, $recent_fwver, '>' ) ) {
 		wp_deregister_style( 'fontawesome' );
-		wp_register_style( 'fontawesome', "//maxcdn.bootstrapcdn.com/font-awesome/{$current_fwver}/css/font-awesome.min.css", false, $current_fwver);
+		wp_register_style( 'fontawesome', "https://use.fontawesome.com/releases/v{$current_fwver}/css/all.css", false, $current_fwver );
+		//wp_enqueue_script( 'fontawesome-v4-shims', "https://use.fontawesome.com/releases/v{$current_fwver}/js/v4-shims.js", false, $current_fwver );
 		wp_enqueue_style( 'fontawesome' );
 	}
 
 	// Used in js file to detect if we are using only mobile layout
 	$only_mobile = false;
 
-	$CSS_URL = boss_get_option( 'boss_minified_css' ) ? get_template_directory_uri() . '/css-compressed' : get_template_directory_uri() . '/css';
+	$css_dest			 = ( is_rtl() ) ? '/css-rtl' : '/css';
+	$css_compressed_dest = ( is_rtl() ) ? '/css-rtl-compressed' : '/css-compressed';
+	$CSS_URL			 = boss_get_option( 'boss_minified_css' ) ? get_template_directory_uri() . $css_compressed_dest : get_template_directory_uri() . $css_dest;
 
 	// Main stylesheet
 	if ( !is_admin() ) {
 
 		// Activate our main stylesheets. Load FontAwesome first.
-		wp_enqueue_style( 'boss-main-global', $CSS_URL . '/main-global' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-        
-        if ( defined('EM_VERSION') && EM_VERSION ) {
-		  wp_enqueue_style( 'boss-events-global', $CSS_URL . '/events/events-global' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-        }
+		wp_enqueue_style( 'boss-main-global', $CSS_URL . '/main-global.css', array( 'fontawesome' ), $boss_version, 'all' );
+
+		if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+			wp_enqueue_style( 'boss-events-global', $CSS_URL . '/events/events-global.css', array( 'fontawesome' ), $boss_version, 'all' );
+		}
 
 		// Switch between mobile and desktop
 		if ( isset( $_COOKIE[ 'switch_mode' ] ) && ( boss_get_option( 'boss_layout_switcher' ) ) ) {
 			if ( $_COOKIE[ 'switch_mode' ] == 'mobile' ) {
-				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
+				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
 
-				if ( defined('EM_VERSION') && EM_VERSION ) {
-					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-                }
+				if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
+				}
 
 				$only_mobile = true;
 			} else {
-				wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (min-width: 481px)' );
-				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (max-width: 480px)' );
+				wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop.css', array( 'fontawesome' ), $boss_version, 'screen and (min-width: 481px)' );
+				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'screen and (max-width: 480px)' );
 
-				if ( defined('EM_VERSION') && EM_VERSION ) {
-                    wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (min-width: 481px)' );
-				    wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (max-width: 480px)' );
-                }
+				if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+					wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop.css', array( 'fontawesome' ), $boss_version, 'screen and (min-width: 481px)' );
+					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'screen and (max-width: 480px)' );
+				}
 			}
 			// Defaults
 		} else {
 			if ( is_phone() ) {
-				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-				if ( defined('EM_VERSION') && EM_VERSION ) {
-				wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-                }
+				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
+				if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
+				}
 				$only_mobile = true;
 			} elseif ( wp_is_mobile() ) {
 				if ( boss_get_option( 'boss_layout_tablet' ) == 'desktop' ) {
-					wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-					if ( defined('EM_VERSION') && EM_VERSION ) {
-					wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-                    }
+					wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop.css', array( 'fontawesome' ), $boss_version, 'all' );
+					if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+						wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop.css', array( 'fontawesome' ), $boss_version, 'all' );
+					}
 				} else {
-                    wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
+					wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
 
-					if ( defined('EM_VERSION') && EM_VERSION ) {
-					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-                    }
+					if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+						wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
+					}
 
 					$only_mobile = true;
 				}
 			} else {
 				if ( boss_get_option( 'boss_layout_desktop' ) == 'mobile' ) {
-					wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
+					wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
 
-					if ( defined('EM_VERSION') && EM_VERSION ) {
-					wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'all' );
-                    }
+					if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+						wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'all' );
+					}
 
 					$only_mobile = true;
 				} else {
-					wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (min-width: 481px)' );
+					wp_enqueue_style( 'boss-main-desktop', $CSS_URL . '/main-desktop.css', array( 'fontawesome' ), $boss_version, 'screen and (min-width: 481px)' );
 
-					if ( defined('EM_VERSION') && EM_VERSION ) {
-					wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (min-width: 481px)' );
-                    }
+					if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+						wp_enqueue_style( 'boss-events-desktop', $CSS_URL . '/events/events-desktop.css', array( 'fontawesome' ), $boss_version, 'screen and (min-width: 481px)' );
+					}
 				}
 			}
 
 			// Media query fallback
 			if ( !wp_script_is( 'boss-main-mobile', 'enqueued' ) ) {
-				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (max-width: 480px)' );
+				wp_enqueue_style( 'boss-main-mobile', $CSS_URL . '/main-mobile.css', array( 'fontawesome' ), $boss_version, 'screen and (max-width: 480px)' );
 			}
-			if ( !wp_script_is( 'boss-events-mobile', 'enqueued' ) && defined('EM_VERSION') && EM_VERSION ) {
-				wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile' . $class_sufix . '.css', array( 'fontawesome' ), '2.1.3', 'screen and (max-width: 480px)' );
+			if ( !wp_script_is( 'boss-events-mobile', 'enqueued' ) && defined( 'EM_VERSION' ) && EM_VERSION ) {
+				wp_enqueue_style( 'boss-events-mobile', $CSS_URL . '/events/events-mobile.css', array( 'fontawesome' ), $boss_version, 'screen and (max-width: 480px)' );
 			}
 		}
-        
-        global $learner;
-        
-        if($learner){
-            wp_enqueue_style( 'social-learner', $CSS_URL . '/social-learner' . $class_sufix . '.css', array( 'fontawesome' ), '1.0.6', 'all' );
-        }
+
+		global $learner;
+
+		if ( $learner ) {
+			wp_enqueue_style( 'social-learner', $CSS_URL . '/social-learner.css', array( 'fontawesome' ), $boss_version, 'all' );
+		}
 
 
-        if(!empty($GLOBALS['badgeos'])){
-            wp_enqueue_style( 'boss-badgeos', $CSS_URL . '/badgeos/badgeos' . $class_sufix . '.css', array( 'fontawesome' ), '1.0.6', 'all' );
-        }
-        
-        if( '2' == boss_get_option('boss_header') ){
-            wp_enqueue_style( 'header-style-2', $CSS_URL . '/header-style-2' . $class_sufix . '.css', array( 'fontawesome' ), '1.0.6', 'all' );
-        }
+		if ( !empty( $GLOBALS[ 'badgeos' ] ) ) {
+			wp_enqueue_style( 'boss-badgeos', $CSS_URL . '/badgeos/badgeos.css', array( 'fontawesome' ), $boss_version, 'all' );
+		}
+
+		if ( '2' == boss_get_option( 'boss_header' ) ) {
+			wp_enqueue_style( 'header-style-2', $CSS_URL . '/header-style-2.css', array( 'fontawesome' ), $boss_version, 'all' );
+		}
 	}
 
 	/*
@@ -272,11 +289,7 @@ function buddyboss_scripts_styles() {
 	 * Adds mobile JavaScript functionality.
 	 */
 	if ( !is_admin() ) {
-		if ( $rtl ) {
-			wp_enqueue_script( 'idangerous-swiper', get_template_directory_uri() . '/js/idangerous.rtl.swiper.js', array( 'jquery' ), '1.9.2', true );
-		} else {
-			wp_enqueue_script( 'idangerous-swiper', get_template_directory_uri() . '/js/idangerous.swiper.js', array( 'jquery' ), '1.9.2', true );
-		}
+		wp_enqueue_script( 'idangerous-swiper', get_template_directory_uri() . '/js/swiper.jquery.js', array( 'jquery' ), '3.4.2', true );
 	}
 
 	$user_profile = null;
@@ -300,9 +313,8 @@ function buddyboss_scripts_styles() {
 		wp_enqueue_script( 'jquery-ui-accordion' );
 		wp_enqueue_script( 'jquery-ui-progressbar' );
 		wp_enqueue_script( 'jquery-ui-tooltip' );
-		wp_enqueue_script( 'moxie', get_template_directory_uri() . '/js/plupload/moxie.min.js', array( 'jquery' ), '1.2.1' );
-		wp_enqueue_script( 'plupload', get_template_directory_uri() . '/js/plupload/plupload.dev.js', array( 'jquery', 'moxie' ), '2.1.3' );
-
+		//wp_enqueue_script( 'moxie', get_template_directory_uri() . '/js/plupload/moxie.min.js', array( 'jquery' ), '1.2.1' );
+		//wp_enqueue_script( 'plupload', get_template_directory_uri() . '/js/plupload/plupload.dev.js', array( 'jquery', 'moxie' ), $boss_version );
 		//Heartbeat
 		wp_enqueue_script( 'heartbeat' );
 
@@ -317,18 +329,19 @@ function buddyboss_scripts_styles() {
 		// Add BuddyBoss words that we need to use in JS to the end of the page
 		// so they can be translataed and still used.
 		$buddyboss_js_vars = array(
-			'select_label'	 => __( 'Show:', 'boss' ),
-			'post_in_label'	 => __( 'Post in:', 'boss' ),
-			'tpl_url'		 => get_template_directory_uri(),
-			'child_url'		 => get_stylesheet_directory_uri(),
-			'user_profile'	 => $user_profile,
-            'days'           =>  array ( __('Monday', 'boss' ), __('Tuesday', 'boss' ), __('Wednesday', 'boss' ), __('Thursday', 'boss' ), __('Friday', 'boss' ), __('Saturday', 'boss' ), __('Sunday', 'boss' ))
+			'select_label'	  => __( 'Show:', 'boss' ),
+			'post_in_label'	  => __( 'Post in:', 'boss' ),
+			'tpl_url'		  => get_template_directory_uri(),
+			'child_url'		  => get_stylesheet_directory_uri(),
+			'user_profile'	  => $user_profile,
+			'excluded_inputs' => boss_get_option('boss_excluded_inputs'),
+			'days'			  => array( __( 'Monday', 'boss' ), __( 'Tuesday', 'boss' ), __( 'Wednesday', 'boss' ), __( 'Thursday', 'boss' ), __( 'Friday', 'boss' ), __( 'Saturday', 'boss' ), __( 'Sunday', 'boss' ) )
 		);
 
 		$buddyboss_js_vars = apply_filters( 'buddyboss_js_vars', $buddyboss_js_vars );
 
 		if ( boss_get_option( 'boss_minified_js' ) ) {
-			wp_register_script( 'boss-main-min', get_template_directory_uri() . '/js/compressed/boss-main-min.js', array( 'jquery' ), '2.1.3', true );
+			wp_register_script( 'boss-main-min', get_template_directory_uri() . '/js/compressed/boss-main-min.js', array( 'jquery' ), $boss_version, true );
 			wp_localize_script( 'boss-main-min', 'translation', $translation_array );
 			wp_localize_script( 'boss-main-min', 'BuddyBossOptions', $buddyboss_js_vars );
 			wp_enqueue_script( 'boss-main-min' );
@@ -336,7 +349,7 @@ function buddyboss_scripts_styles() {
 
 			/* Adds custom BuddyBoss JavaScript functionality. */
 
-			wp_register_script( 'buddyboss-main', get_template_directory_uri() . '/js/buddyboss.js', array( 'jquery', 'plupload', 'moxie' ), '2.1.3' );
+			wp_register_script( 'buddyboss-main', get_template_directory_uri() . '/js/buddyboss.js', array( 'jquery' ), $boss_version, true );
 
 			wp_localize_script( 'buddyboss-main', 'translation', $translation_array );
 			wp_localize_script( 'buddyboss-main', 'BuddyBossOptions', $buddyboss_js_vars );
@@ -357,15 +370,14 @@ function buddyboss_scripts_styles() {
 			//	wp_enqueue_script( 'plupload', get_template_directory_uri() . '/js/plupload/plupload.dev.js', array( 'jquery', 'moxie' ), '2.1.3' );
 
 			wp_enqueue_script( 'buddyboss-main' );
-            
-            if( '2' == boss_get_option('boss_header') ){
-                wp_enqueue_script( 'social-learner', get_template_directory_uri() . '/js/social-learner.js', false, '2.1.3', false );
-            }
 
-			if ( defined('EM_VERSION') && EM_VERSION ) {
-                wp_enqueue_script( 'boss-events', get_template_directory_uri() . '/js/boss-events.js', false, '2.1.3', true );
-            }
-            
+			if ( '2' == boss_get_option( 'boss_header' ) ) {
+				wp_enqueue_script( 'social-learner', get_template_directory_uri() . '/js/social-learner.js', false, $boss_version, false );
+			}
+
+			if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+				wp_enqueue_script( 'boss-events', get_template_directory_uri() . '/js/boss-events.js', false, $boss_version, true );
+			}
 		}
 	}
 
@@ -390,6 +402,7 @@ function buddyboss_scripts_styles() {
 		wp_deregister_style( 'bp-child-css' );
 		wp_deregister_style( 'bp-parent-css' );
 		wp_deregister_style( 'bp-legacy-css' );
+		wp_deregister_style( 'bp-legacy-css-rtl' );
 	}
 
 	/*
@@ -523,6 +536,36 @@ function buddyboss_members_latest_update_filter( $latest ) {
 add_filter( 'bp_get_activity_latest_update_excerpt', 'buddyboss_members_latest_update_filter' );
 
 /**
+ * Remove an anonymous object filter.
+ *
+ * @param string $tag Hook name.
+ * @param string $class Class name
+ * @param string $method Method name
+ * @return void
+ */
+function buddyboss_remove_anonymous_object_filter( $tag, $class, $method ) {
+	$filters = $GLOBALS[ 'wp_filter' ][ $tag ];
+
+	if ( empty( $filters ) ) {
+		return;
+	}
+
+	foreach ( $filters as $priority => $filter ) {
+		foreach ( $filter as $identifier => $function ) {
+			if ( is_array( $function )
+            && is_array( $function['function'] )
+			&& $function[ 'function' ][0] instanceof $class
+			&& $method === $function[ 'function' ][1]
+			) {
+				remove_filter(
+				$tag, array( $function[ 'function' ][0], $method ), $priority
+				);
+			}
+		}
+	}
+}
+
+/**
  * Moves sitewide notices to the header
  *
  * Since BuddyPress doesn't give us access to BP_Legacy, let
@@ -533,36 +576,8 @@ add_filter( 'bp_get_activity_latest_update_excerpt', 'buddyboss_members_latest_u
 function buddyboss_fix_sitewide_notices() {
 	// Check if BP_Legacy is being used and messages are active
 	if ( class_exists( 'BP_Legacy' ) && bp_is_active( 'messages' ) ) {
-		remove_action( 'wp_footer', array( 'BP_Legacy', 'sitewide_notices' ), 9999 );
-
-		global $wp_filter;
-
-		// Get the wp_footer callbacks
-		$footer = !empty( $wp_filter[ 'wp_footer' ] ) && is_array( $wp_filter[ 'wp_footer' ] ) ? $wp_filter[ 'wp_footer' ] : false;
-
-		// Make sure we have some
-		if ( is_array( $footer ) && count( $footer ) > 0 ) {
-			$new_footer_cbs = array();
-
-			// Cycle through each callback and remove any with sitewide_notices in it,
-			// then replace and add to the header
-			foreach ( $footer as $priority => $footer_cb ) {
-				if ( is_array( $footer_cb ) && !empty( $footer_cb ) ) {
-					$keys	 = array_keys( $footer_cb );
-					$key	 = $keys[ 0 ];
-
-					if ( stristr( $key, 'sitewide_notices' ) ) {
-						add_action( 'buddyboss_inside_wrapper', 'buddyboss_print_sitewide_notices', 9999 );
-					} else {
-						$new_footer_cbs[ $priority ] = $footer_cb;
-					}
-				} else {
-					$new_footer_cbs[ $priority ] = $footer_cb;
-				}
-			}
-
-			$wp_filter[ 'wp_footer' ] = $new_footer_cbs;
-		}
+		buddyboss_remove_anonymous_object_filter( 'wp_footer', 'BP_Legacy', 'sitewide_notices' );
+		add_action( 'buddyboss_inside_wrapper', 'buddyboss_print_sitewide_notices', 9999 );
 	}
 }
 
@@ -572,7 +587,17 @@ add_action( 'wp', 'buddyboss_fix_sitewide_notices' );
  * Prints sitewide notices (used in the header, by default is in footer)
  */
 function buddyboss_print_sitewide_notices() {
-	@BP_Legacy::sitewide_notices();
+
+	// Do not show notices if user is not logged in.
+	if ( ! is_user_logged_in() )
+		return;
+
+	// Add a class to determine if the admin bar is on or not.
+	$class = did_action( 'admin_bar_menu' ) ? 'admin-bar-on' : 'admin-bar-off';
+
+	echo '<div id="sitewide-notice" class="' . $class . '">';
+	bp_message_get_notices();
+	echo '</div>';
 }
 
 /**
@@ -791,7 +816,7 @@ if ( !function_exists( 'buddyboss_entry_meta' ) ) :
 		// Translators: used between list items, there is a space after the comma.
 		$tag_list = get_the_tag_list( '', __( ', ', 'boss' ) );
 
-		$date = sprintf( '<a href="%1$s" title="%2$s" rel="bookmark" class="post-date fa fa-clock-o"><time class="entry-date" datetime="%3$s">%4$s</time></a>', esc_url( get_permalink() ), esc_attr( get_the_time() ), esc_attr( get_the_date( 'c' ) ), esc_html( get_the_date() )
+		$date = sprintf( '<a href="%1$s" title="%2$s" rel="bookmark" class="post-date"><i class="far fa-clock"></i><time class="entry-date" datetime="%3$s">%4$s</time></a>', esc_url( get_permalink() ), esc_attr( get_the_time() ), esc_attr( get_the_date( 'c' ) ), esc_html( get_the_date() )
 		);
 
 		$author = sprintf( '<span class="author vcard"><a class="url fn n" href="%1$s" title="%2$s" rel="author">%3$s</a></span>', esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ), esc_attr( sprintf( __( 'View all posts by %s', 'boss' ), get_the_author() ) ), get_the_author()
@@ -817,7 +842,8 @@ if ( !function_exists( 'buddyboss_entry_meta' ) ) :
 			if ( comments_open() ) :
 				?>
 				<!-- reply link -->
-				<span class="comments-link fa fa-comment-o">
+				<span class="comments-link">
+					<i class="far fa-comment"></i>
 					<?php comments_popup_link( '<span class="leave-reply">' . __( '0 comments', 'boss' ) . '</span>', __( '1 comment', 'boss' ), __( '% comments', 'boss' ) ); ?>
 				</span><!-- .comments-link -->
 				<?php
@@ -885,6 +911,11 @@ function buddyboss_is_login_page() {
 add_filter( 'login_redirect', 'buddyboss_redirect_previous_page', 10, 3 );
 
 function buddyboss_redirect_previous_page( $redirect_to, $request, $user ) {
+
+    if ( ! empty( $_GET['redirect_to'] ) ) {
+        return $redirect_to;
+    }
+
 	if ( buddyboss_is_bp_active() ) {
 		$bp_pages = bp_get_option( 'bp-pages' );
 
@@ -932,6 +963,8 @@ function buddyboss_redirect_previous_page( $redirect_to, $request, $user ) {
  */
 function buddyboss_custom_login_scripts() {
 	//placeholders
+	if ( boss_get_option( 'boss_custom_login' ) ) {
+
 	echo '<script>
         document.addEventListener("DOMContentLoaded", function(event) {
             document.getElementById("user_login").setAttribute( "placeholder", "' . __( "Username", "boss" ) . '" );
@@ -987,7 +1020,8 @@ function buddyboss_custom_login_scripts() {
 		}
 
 		echo '<style type="text/css">
-				#login h1 a { background: url( ' . esc_url( $boss_logo_url ) . ' ) no-repeat 50% 0;
+				#login h1 a { 
+				background: url( ' . esc_url( $boss_logo_url ) . ' ) no-repeat 50% 0;
                 background-size: ' . esc_attr( $boss_background_size ) . ';
 				overflow: hidden;
 				text-indent: -9999px;
@@ -997,21 +1031,28 @@ function buddyboss_custom_login_scripts() {
 			echo 'height: ' . esc_attr( $boss_logo_height ) . 'px;
 					width: ' . esc_attr( $boss_logo_width ) . 'px;
 					margin: 0 auto;
-					padding: 0;
-				}';
+					padding: 0;';
 		}
+		echo '}';
 
 		echo '</style>';
 	}
 
 	$title_font = boss_get_option( 'boss_site_title_font_family' );
 
+	$title_font = wp_parse_args( $title_font, array(
+			'font-family' => '',
+			'font-size' => '',
+			'font-style' => '',
+			'google' => '',
+		));
+
 	if ( $title_font ) {
 		$font_family = $title_font[ 'font-family' ];
 		$font_size	 = $title_font[ 'font-size' ];
-		$font_weight = ( $title_font[ 'font-weight' ] ) ? ':' . $title_font[ 'font-weight' ] : '';
+		$font_weight = ! empty( $title_font[ 'font-weight' ] ) ? ':' . $title_font[ 'font-weight' ] : '';
 		$font_style	 = $title_font[ 'font-style' ];
-		$subsets	 = ( $title_font[ 'subsets' ] ) ? '&amp;subset=' . $title_font[ 'subsets' ] : '';
+		$subsets	 = ! empty( $title_font[ 'subsets' ] ) ? '&amp;subset=' . $title_font[ 'subsets' ] : '';
 		$google		 = $title_font[ 'google' ];
 
 		if ( $google != 'false' && $font_family ) {
@@ -1026,10 +1067,6 @@ function buddyboss_custom_login_scripts() {
 			padding-top: 20px;
 		}
 	</style>
-
-	<?php
-	if ( boss_get_option( 'boss_custom_login' ) ) {
-		?>
 
 		<style type="text/css">
 			body.login {
@@ -1078,8 +1115,8 @@ function change_wp_login_url() {
 	return home_url();
 }
 
-function change_wp_login_title() {
-	get_option( 'blogname' );
+function change_wp_login_title( $login_header_title ) {
+	return get_option( 'blogname' );
 }
 
 add_filter( 'login_headerurl', 'change_wp_login_url' );
@@ -1091,15 +1128,18 @@ add_filter( 'login_headertitle', 'change_wp_login_title' );
  */
 
 function buddyboss_login_stylesheet() {
-	global $rtl;
+	/**
+	 * Assign the Boss version to a var
+	 */
+	$theme			 = wp_get_theme( 'boss' );
+	$boss_version	 = $theme[ 'Version' ];
 
-	$class_sufix = '';
-	if ( $rtl ) {
-		$class_sufix = '-rtl';
-	}
+	$css_dest			 = ( is_rtl() ) ? '/css-rtl' : '/css';
+	$css_compressed_dest = ( is_rtl() ) ? '/css-rtl-compressed' : '/css-compressed';
+	$CSS_URL			 = boss_get_option( 'boss_minified_css' ) ? get_template_directory_uri() . $css_compressed_dest : get_template_directory_uri() . $css_dest;
 
 	if ( boss_get_option( 'boss_custom_login' ) ) {
-		wp_enqueue_style( 'custom-login', get_template_directory_uri() . '/css/style-login' . $class_sufix . '.css', false, '1.0.0', 'all' );
+		wp_enqueue_style( 'custom-login', $CSS_URL . '/style-login.css', false, $boss_version, 'all' );
 	}
 }
 
@@ -1113,11 +1153,13 @@ add_action( 'login_enqueue_scripts', 'buddyboss_login_stylesheet' );
  * @since Boss 1.0.0
  * */
 function buddyboss_strip_unnecessary_admin_bar_nodes( &$wp_admin_bar ) {
-	global $admin_bar_myaccount, $bb_adminbar_notifications, $bp;
+	global $admin_bar_myaccount, $bb_adminbar_notifications, $bb_adminbar_messages, $bb_adminbar_friends, $bp;
 
-	if ( is_admin() ) { //nothing to do on admin
+	$dontalter_adminbar = apply_filters( 'boss_prevent_adminbar_processing', is_admin() );
+	if ( $dontalter_adminbar ) { //nothing to do on admin
 		return;
 	}
+
 	$nodes = $wp_admin_bar->get_nodes();
 
 	$bb_adminbar_notifications[] = @$nodes[ "bp-notifications" ];
@@ -1134,9 +1176,6 @@ function buddyboss_strip_unnecessary_admin_bar_nodes( &$wp_admin_bar ) {
 			if ( $node->id == "my-account" ) {
 				continue;
 			}
-
-			if ( !boss_show_adminbar() )
-				$wp_admin_bar->remove_node( $node->id );
 		}
 
 		//adding active for parent link
@@ -1162,9 +1201,15 @@ function buddyboss_strip_unnecessary_admin_bar_nodes( &$wp_admin_bar ) {
 		}
 
 		if ( $node->id == "my-account-messages-inbox" ) {
+			$bb_adminbar_messages[] = $node;
 			if ( $bp->current_component == "messages" AND $bp->current_action == "inbox" ) {
 				buddyboss_adminbar_item_add_active( $wp_admin_bar, $name );
 			}
+		}
+
+		//adding active for parent link
+		if ( $node->id == "my-account-friends-requests" ) {
+			$bb_adminbar_friends[] = $node;
 		}
 
 		//adding active for child link
@@ -1174,15 +1219,6 @@ function buddyboss_strip_unnecessary_admin_bar_nodes( &$wp_admin_bar ) {
 				buddyboss_adminbar_item_add_active( $wp_admin_bar, $name );
 			}
 		}
-
-		/*
-		  //add active class if it has viewing page href
-		  if(!empty($node->href)) {
-		  if("http://".$current_href == $node->href AND "https://".$current_href == $node->href ) {
-		  buddyboss_adminbar_item_add_active($wp_admin_bar,$name);
-		  }
-		  } */
-
 
 		//add active class if it has viewing page href
 		if ( !empty( $node->href ) ) {
@@ -1223,7 +1259,8 @@ function buddyboss_memory_admin_bar_nodes() {
 	static $bb_memory_admin_bar_step;
 	global $bb_adminbar_myaccount;
 
-	if ( is_admin() ) { //nothing to do on admin
+	$dontalter_adminbar = apply_filters( 'boss_prevent_adminbar_processing', is_admin() );
+	if ( $dontalter_adminbar ) { //nothing to do on admin
 		return;
 	}
 
@@ -1238,8 +1275,8 @@ function buddyboss_memory_admin_bar_nodes() {
 		$admin_bar_output = ob_get_contents();
 		ob_end_clean();
 
-		if ( boss_show_adminbar() )
-			echo $admin_bar_output;
+		//if ( boss_show_adminbar() )
+		echo $admin_bar_output;
 
 		//strip some waste
 		$admin_bar_output = str_replace( array( 'id="wpadminbar"',
@@ -1247,7 +1284,10 @@ function buddyboss_memory_admin_bar_nodes() {
 			'class ',
 			'class="nojq nojs"',
 			'class="quicklinks" id="wp-toolbar"',
-			'id="wp-admin-bar-top-secondary" class="ab-top-secondary ab-top-menu"',
+			'id="wp-admin-bar-top-secondary"',
+			'class="ab-top-secondary ab-top-menu"',
+			'id="wp-admin-bar-top-secondary"',
+            'class="ab-top-secondary active ab-top-menu"',
 		), '', $admin_bar_output );
 
 		//remove screen shortcut link
@@ -1325,16 +1365,41 @@ function buddyboss_adminbar_notification() {
 }
 
 /**
+ * Get Messages
+ * */
+if ( !function_exists( 'buddyboss_adminbar_messages' ) ) {
+
+	function buddyboss_adminbar_messages() {
+		global $bb_adminbar_messages;
+		return @$bb_adminbar_messages;
+	}
+
+}
+
+/**
+ * Get Friends
+ * */
+if ( !function_exists( 'buddyboss_adminbar_friends' ) ) {
+
+	function buddyboss_adminbar_friends() {
+		global $bb_adminbar_friends;
+		return @$bb_adminbar_friends;
+	}
+
+}
+
+/**
  * Remove certain admin bar links useful as we using admin bar invisibly
  * @since Boss 1.0.0
  *
  */
 function remove_admin_bar_links() {
 	global $wp_admin_bar;
+
 	$wp_admin_bar->remove_menu( 'wp-logo' );
 	$wp_admin_bar->remove_menu( 'search' );
 
-	if ( !current_user_can( 'administrator' ) ):
+	if ( !is_admin() && !current_user_can( 'administrator' ) ):
 		$wp_admin_bar->remove_menu( 'site-name' );
 	endif;
 }
@@ -1397,15 +1462,15 @@ function buddyboss_default_group_avatar( $avatar ) {
 		$custom_avatar	 = get_stylesheet_directory_uri() . '/images/avatar-group.jpg';
 		$alt			 = 'group avatar';
 
-		if ( $groups_template && ! empty( $groups_template->group->name ) ) {
+		if ( $groups_template && !empty( $groups_template->group->name ) ) {
 			$alt = esc_attr( $groups_template->group->name );
 		}
 
-		$group_id = ! empty( $bp->groups->current_group->id ) ? $bp->groups->current_group->id : 0;
+		$group_id = !empty( $bp->groups->current_group->id ) ? $bp->groups->current_group->id : 0;
 		if ( $bp->current_action == "" ) {
-			return '<img width="' . BP_AVATAR_THUMB_WIDTH . '" height="' . BP_AVATAR_THUMB_HEIGHT . '" src="' . $custom_avatar . '" class="avatar group-'. $group_id .'-avatar" alt="' . $alt . '" />';
+			return '<img width="' . BP_AVATAR_THUMB_WIDTH . '" height="' . BP_AVATAR_THUMB_HEIGHT . '" src="' . $custom_avatar . '" class="avatar group-' . $group_id . '-avatar" alt="' . $alt . '" />';
 		} else {
-			return '<img width="' . BP_AVATAR_FULL_WIDTH . '" height="' . BP_AVATAR_FULL_HEIGHT . '" src="' . $custom_avatar . '" class="avatar group-'. $group_id .'-avatar" alt="' . $alt . '" />';
+			return '<img width="' . BP_AVATAR_FULL_WIDTH . '" height="' . BP_AVATAR_FULL_HEIGHT . '" src="' . $custom_avatar . '" class="avatar group-' . $group_id . '-avatar" alt="' . $alt . '" />';
 		}
 	}
 }
@@ -1449,10 +1514,10 @@ function buddyboss_avatar_thumb_width( $val ) {
 	return $val;
 }
 
-add_filter( "bp_core_avatar_full_height", "buddyboss_avatar_full_height" );
-add_filter( "bp_core_avatar_full_width", "buddyboss_avatar_full_width" );
-add_filter( "bp_core_avatar_thumb_height", "buddyboss_avatar_thumb_height" );
-add_filter( "bp_core_avatar_thumb_width", "buddyboss_avatar_thumb_width" );
+//add_filter( "bp_core_avatar_full_height", "buddyboss_avatar_full_height" );
+//add_filter( "bp_core_avatar_full_width", "buddyboss_avatar_full_width" );
+//add_filter( "bp_core_avatar_thumb_height", "buddyboss_avatar_thumb_height" );
+//add_filter( "bp_core_avatar_thumb_width", "buddyboss_avatar_thumb_width" );
 
 
 
@@ -1533,10 +1598,9 @@ endif;
  */
 function user_row_actions_bp_view( $actions, $user_object ) {
 	if ( function_exists( 'bp_is_active' ) ) {
-
 		$actions[ 'view' ] = '<a href="' . bp_core_get_user_domain( $user_object->ID ) . '">' . __( 'View Profile', 'boss' ) . '</a>';
-		return $actions;
 	}
+	return $actions;
 }
 
 add_filter( 'user_row_actions', 'user_row_actions_bp_view', 10, 2 );
@@ -1860,9 +1924,20 @@ function buddyboss_bbp_get_single_topic_description( $args = '' ) {
  */
 function tricks_change_bp_tag_position() {
 	global $bp;
-	$bp->bp_options_nav[ 'messages' ][ 'compose' ][ 'position' ] = 10;
-	$bp->bp_options_nav[ 'messages' ][ 'inbox' ][ 'position' ]	 = 11;
-	$bp->bp_options_nav[ 'messages' ][ 'sentbox' ][ 'position' ] = 30;
+	$version_compare = version_compare( BP_VERSION, '2.6', '<' );
+	if ( $version_compare ) {
+		$bp->bp_options_nav[ 'messages' ][ 'compose' ][ 'position' ] = 10;
+		$bp->bp_options_nav[ 'messages' ][ 'inbox' ][ 'position' ]	 = 11;
+		$bp->bp_options_nav[ 'messages' ][ 'sentbox' ][ 'position' ] = 30;
+	} else {
+		if ( !empty( $bp->messages ) ) {
+			$subnavs = array( 'compose' => 10, 'inbox' => 11, 'sentbox' => 30, );
+			foreach ( $subnavs as $subnav => $pos ) {
+				$nav_args = array( 'position' => $pos );
+				$bp->members->nav->edit_nav( $nav_args, $subnav, 'messages' );
+			}
+		}
+	}
 }
 
 add_action( 'bp_init', 'tricks_change_bp_tag_position', 999 );
@@ -1890,7 +1965,7 @@ function buddyboss_bp_messages_options() {
 
 	<?php endif; ?>
 
-	<a href="#" id="delete_<?php echo bp_current_action(); ?>_messages" class="fa fa-trash"></a> &nbsp;
+		<a href="#" id="delete_<?php echo bp_current_action(); ?>_messages" class="bb-delete-link"><i class="fas fa-trash-alt"></i></a> &nbsp;
 
 	<?php
 }
@@ -1934,8 +2009,8 @@ class BuddybossWalker extends Walker {
 	 * @param array  $args   An array of arguments. @see wp_nav_menu()
 	 */
 	public function start_lvl( &$output, $depth = 0, $args = array() ) {
-		$indent = str_repeat( "\t", $depth );
-		$output .= "\n$indent<div class='sub-menu-wrap'><ul class=\"sub-menu\">\n";
+		$indent	 = str_repeat( "\t", $depth );
+		$output	 .= "\n$indent<div class='sub-menu-wrap'><ul class=\"sub-menu\">\n";
 	}
 
 	/**
@@ -1950,8 +2025,8 @@ class BuddybossWalker extends Walker {
 	 * @param array  $args   An array of arguments. @see wp_nav_menu()
 	 */
 	public function end_lvl( &$output, $depth = 0, $args = array() ) {
-		$indent = str_repeat( "\t", $depth );
-		$output .= "$indent</ul></div>\n";
+		$indent	 = str_repeat( "\t", $depth );
+		$output	 .= "$indent</ul></div>\n";
 	}
 
 	/**
@@ -1970,16 +2045,30 @@ class BuddybossWalker extends Walker {
 	public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 		$indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
 
-		$icon_class = 'fa-file';
+		$icon_classes = array();
+		$registered_icon_classes = array( 'bp-blogs-nav', 'bp-activity-nav', 'bp-profile-nav', 'bp-notifications-nav', 'bp-messages-nav', 'bp-friends-nav', 'bp-followers-nav', 'bp-following-nav', 'bp-groups-nav', 'bp-forums-nav', 'bp-settings-nav', 'bp-logout-nav', 'bp-login-nav', 'bp-register-nav', 'bp-courses-nav', 'bp-achievements-nav' );
+		$in_registered_icon_classes = false;
 
 		foreach ( $item->classes as $key => $value ) {
-			if ( substr( $value, 0, 3 ) === 'fa-' ) {
-				$icon_class = $value;
+			if ( substr( $value, 0, 3 ) === 'fa-' || substr( $value, 0, 2 ) === 'fa' || substr( $value, 0, 3 ) === 'fab' || substr( $value, 0, 3 ) === 'far' ) {
+				$icon_classes[] = $value;
 			}
 			if ( substr( $value, 0, 2 ) === 'fa' ) {
 				unset( $item->classes[ $key ] );
 			}
+			if( in_array( $value, $registered_icon_classes ) ) {
+				$in_registered_icon_classes = true;
+				break;
+            }
 		}
+
+		if ( $item->menu_item_parent === '0' && empty( $icon_classes ) ) {
+			$icon_classes[] = 'fa fa-file';
+		}
+
+		if ( $in_registered_icon_classes ) {
+			$icon_classes = array();
+        }
 
 		$classes	 = empty( $item->classes ) ? array() : (array) $item->classes;
 		$classes[]	 = 'menu-item-' . $item->ID;
@@ -2038,20 +2127,24 @@ class BuddybossWalker extends Walker {
 		 * @param object $item The current menu item.
 		 * @param array  $args An array of wp_nav_menu() arguments.
 		 */
-		$archor_classes = ($item->menu_item_parent === '0') ? 'class="' . esc_attr( $icon_class ) . '"' : '';
+		$archor_classes = join( ' ', $icon_classes );
+		$archor_classes = 'class="' . esc_attr( $archor_classes ) . '"';
 
 		$atts = apply_filters( 'nav_menu_link_attributes', $atts, $item, $args );
 
 		$attributes = '';
 		foreach ( $atts as $attr => $value ) {
 			if ( !empty( $value ) ) {
-				$value = ( 'href' === $attr ) ? esc_url( $value ) : esc_attr( $value );
-				$attributes .= ' ' . $attr . '="' . $value . '"';
+				$value		 = ( 'href' === $attr ) ? esc_url( $value ) : esc_attr( $value );
+				$attributes	 .= ' ' . $attr . '="' . $value . '"';
 			}
 		}
 
 		$item_output = $args->before;
-		$item_output .= '<a' . $attributes . ' ' . $archor_classes . '>';
+		$item_output .= '<a' . $attributes . '>';
+		if ( ! empty( $icon_classes ) && ! empty( $args->theme_location ) && in_array( $args->theme_location, array('left-panel-menu', 'header-menu') ) ) {
+			$item_output .= '<i ' . $archor_classes . '></i>';
+		}
 		/** This filter is documented in wp-includes/post-template.php */
 		$item_output .= $args->link_before . apply_filters( 'the_title', $item->title, $item->ID ) . $args->link_after;
 		$item_output .= '</a>';
@@ -2174,7 +2267,7 @@ function buddyboss_get_page_title() {
 
 				$output_page = get_post( $page_id );
 
-				$custom_title = $output_page->post_title;
+				$custom_title = apply_filters( 'the_title', $output_page->post_title );
 			}
 		}
 	}
@@ -2183,7 +2276,7 @@ function buddyboss_get_page_title() {
 	$bp_title	 = '';
 	$bp_title	 = get_the_title();
 	// If we have a custom title and need to grab a BP title button
-	if ( ! empty( $custom_title ) && (int) preg_match( $pattern, $bp_title ) > 0 ) {
+	if ( !empty( $custom_title ) && (int) preg_match( $pattern, $bp_title ) > 0 ) {
 		$token = md5( '#b#u#d#d#y#b#o#s#s#' );
 
 		$bp_title_parsed = preg_replace( $pattern, $token, $bp_title );
@@ -2200,6 +2293,14 @@ function buddyboss_get_page_title() {
 	return $custom_title;
 }
 
+add_action( 'wp_head', 'bb_check_page_template' );
+
+function bb_check_page_template() {
+	if ( is_page_template( 'page-boxed.php' ) ) {
+		add_filter( 'boss_redux_option_value', 'boss_filter_layout', 10, 3 );
+	}
+}
+
 /**
  * Filter Layout Option from Redux
  * @param  String $value value from Redux
@@ -2214,10 +2315,6 @@ function boss_filter_layout( $value, $id, $param ) {
 	return $value;
 }
 
-if ( is_page_template( 'page-boxed.php' ) ) {
-	add_filter( 'boss_redux_option_value', 'boss_filter_layout', 10, 3 );
-}
-
 /**
  * Adds classes to body
  *
@@ -2228,15 +2325,15 @@ add_filter( 'body_class', 'buddyboss_body_classes' );
 
 function buddyboss_body_classes( $classes ) {
 
-    global $learner;
-    
+	global $learner;
+
 	$panel_class = 'left-menu-open';
-    
-    // Learner enabled
-    if($learner){
-        $classes[] = 'social-learner';
-    }
-    
+
+	// Learner enabled
+	if ( $learner ) {
+		$classes[] = 'social-learner';
+	}
+
 	// Boxed layout
 	if ( boss_get_option( 'boss_layout_style' ) == 'boxed' ) {
 		$classes[]	 = 'boxed';
@@ -2301,8 +2398,14 @@ function buddyboss_body_classes( $classes ) {
 		$classes[]	 = 'page-template-page-no-buddypanel';
 		$classes[]	 = $panel_class;
 	}
+
 	if ( is_page_template( 'page-no-buddypanel.php' ) ) {
 		$classes[] = $panel_class;
+	}
+
+	// Adminbar class
+	if ( ! boss_show_adminbar( 'boss_adminbar' ) ) {
+		$classes[] = 'no-adminbar';
 	}
 
 	return array_unique( $classes );
@@ -2355,26 +2458,48 @@ function buddyboss_notification_count_heartbeat( $response, $data, $screen_id ) 
 
 	if ( function_exists( "bp_friend_get_total_requests_count" ) )
 		$friend_request_count	 = bp_friend_get_total_requests_count();
-	if ( function_exists( "bp_notifications_get_all_notifications_for_user" ) )
-		$notifications			 = bp_notifications_get_all_notifications_for_user( get_current_user_id() );
-	$notification_count		 = count( $notifications );
+
+	$notification_count = 0;
+
 	if ( function_exists( "bp_notifications_get_all_notifications_for_user" ) ) {
-		$notifications			 = bp_notifications_get_notifications_for_user( get_current_user_id() );
+		$notifications			 = bp_notifications_get_notifications_for_user( get_current_user_id(), 'object' );
+		$notification_count		 = $notifications ? count( $notifications ) : 0;
 		$notification_content	 = '';
-		foreach ( (array) $notifications as $notification ) {
-			$notification_content .= $notification;
+
+		// Check if unread notification count is not same as the unread notification count already displayed at the frontend
+		if ( $data['unread_notifications'] != $notification_count ) {
+
+			if ( 0 < $notification_count ) {
+				foreach ( (array) $notifications as $notification ) {
+					if ( is_object( $notification ) ) {
+						if ( isset( $notification->href ) && isset( $notification->content ) ) {
+							$notification_content .= "<a href='" . esc_url( $notification->href ) . "'>{$notification->content}</a>";
+						}
+					} else {
+						$notification_content .= $notification;
+					}
+				}
+			} else {
+				$notification_content = '<a href="' . bp_loggedin_user_domain() . '' . BP_NOTIFICATIONS_SLUG . '/">' . __( "No new notifications", "buddypress" ) . '</a>';
+			}
 		}
-		if ( empty( $notification_content ) )
-			$notification_content = '<a href="' . bp_loggedin_user_domain() . '' . BP_NOTIFICATIONS_SLUG . '/">' . __( "No new notifications", "buddypress" ) . '</a>';
 	}
-	if ( function_exists( "messages_get_unread_count" ) )
+
+	if ( function_exists( "messages_get_unread_count" ) ) {
 		$unread_message_count = messages_get_unread_count();
+		$message_content = '';
+		// Check if unread message count is not same as the unread message count already displayed at the frontend
+		if ( $unread_message_count != $data['unread_messages'] ) {
+			$message_content = buddyboss_get_unread_messages_html();
+		}
+    }
 
 	$response[ 'bb_notification_count' ] = array(
 		'friend_request'		 => @intval( $friend_request_count ),
 		'notification'			 => @intval( $notification_count ),
 		'notification_content'	 => @$notification_content,
-		'unread_message'		 => @intval( $unread_message_count )
+		'unread_message'		 => @intval( $unread_message_count ),
+        'message_content'       => @$message_content
 	);
 
 	return $response;
@@ -2447,11 +2572,11 @@ if ( !function_exists( 'buddyboss_resize' ) ) {
 		$file_info = pathinfo( $file_path );
 		// check if file exists
 		if ( empty( $file_info[ 'dirname' ] ) && empty( $file_info[ 'filename' ] ) && empty( $file_info[ 'extension' ] ) )
-			return;
+			return $image_src;
 
 		$base_file			 = $file_info[ 'dirname' ] . '/' . $file_info[ 'filename' ] . '.' . $file_info[ 'extension' ];
 		if ( !file_exists( $base_file ) )
-			return;
+            return $image_src;
 		$extension			 = '.' . $file_info[ 'extension' ];
 		// the image path without the extension
 		$no_ext_path		 = $file_info[ 'dirname' ] . '/' . $file_info[ 'filename' ];
@@ -2493,9 +2618,13 @@ if ( !function_exists( 'buddyboss_resize' ) ) {
 
 			$image->resize( $width, $height, $crop );
 			$save_data		 = $image->save();
-			if ( isset( $save_data[ 'path' ] ) )
+			if ( ! is_wp_error( $save_data ) && isset( $save_data[ 'path' ] ) )
 				$new_img_path	 = $save_data[ 'path' ];
 		}
+
+		if ( empty( $new_img_path ) ) {
+		    return false;
+        }
 
 		$new_img_size	 = getimagesize( $new_img_path );
 		$new_img		 = str_replace( basename( $image_src[ 0 ] ), basename( $new_img_path ), $image_src[ 0 ] );
@@ -2505,7 +2634,7 @@ if ( !function_exists( 'buddyboss_resize' ) ) {
 			'width'	 => $new_img_size[ 0 ],
 			'height' => $new_img_size[ 1 ]
 		);
-		return $vt_image;
+		return $new_img;
 	}
 
 }
@@ -2565,14 +2694,16 @@ function declare_sensei_support() {
  * @since Boss 1.1.0
  *
  */
-add_filter( 'add_to_cart_fragments', 'woo_add_to_cart_ajax' );
+add_filter( 'woocommerce_add_to_cart_fragments', 'woo_add_to_cart_ajax' );
 
 function woo_add_to_cart_ajax( $fragments ) {
 	global $woocommerce;
 	ob_start();
 	$cart_items = $woocommerce->cart->cart_contents_count;
+	$mobile_classes = wp_is_mobile() ? 'sidebar-btn table-cell' : '';
 	?>
-	<a class="cart-notification notification-link fa fa-shopping-cart" href="<?php echo $woocommerce->cart->get_cart_url(); ?>">
+	<a class="cart-notification notification-link <?php echo $mobile_classes; ?>" href="<?php echo wc_get_cart_url(); ?>">
+		<i class="fa fa-shopping-cart"></i>
 		<?php if ( $cart_items ) { ?>
 			<span><?php echo $cart_items; ?></span>
 		<?php } ?>
@@ -2596,7 +2727,7 @@ add_action( 'boss_get_group_template', 'boss_get_group_template' );
 function boss_get_group_template() {
 
 	//Group Blog plugin template issue fix
-	if ( function_exists('bp_set_template_included') ) {
+	if ( function_exists( 'bp_set_template_included' ) ) {
 		bp_set_template_included( 'group-single' );
 	}
 
@@ -2638,9 +2769,9 @@ add_action( 'wp', 'boss_bb_inbox_selectbox' );
  * @return string
  */
 function bbm_label_button_html_override( $html ) {
-	$new_html = '<a class="bbm-label-button" title="Add/Create Label" href="javascript:void(0)">';
-	$new_html .= '<span class="hida"><i class="fa fa-tag"></i></span>';
-	$new_html .= '<p class="multiSel"></p></a>';
+	$new_html	 = '<a class="bbm-label-button" title="Add/Create Label" href="javascript:void(0)">';
+	$new_html	 .= '<span class="hida"><i class="fa fa-tag"></i></span>';
+	$new_html	 .= '<p class="multiSel"></p></a>';
 
 	return $new_html;
 }
@@ -2689,7 +2820,7 @@ remove_action( 'woocommerce_sidebar', 'woocommerce_get_sidebar', 10 );
 function bb_child_doc_menu_count_tabs() {
 	global $bp, $wpdb;
 
-	if ( ! function_exists( 'bp_is_active' ) ) {
+	if ( !function_exists( 'bp_is_active' ) ) {
 		return;
 	}
 
@@ -2704,7 +2835,7 @@ function bb_child_doc_menu_count_tabs() {
 		$name = __( 'Docs', 'boss' );
 	}
 
-	$bp->bp_nav[ 'docs' ][ 'name' ] = $name . ' <span class="count">' . $numdocsposts . '</span>';
+	$bp->members->nav->edit_nav( array( 'name' => $name . ' <span class="count">' . $numdocsposts . '</span>' ), bp_docs_get_docs_slug() );
 
 	if ( bp_is_group() ) {
 		$get_term_id = get_term_by( 'slug', 'bp_docs_associated_group_' . bp_get_current_group_id(), 'bp_docs_associated_item' );
@@ -2717,15 +2848,9 @@ function bb_child_doc_menu_count_tabs() {
 				$numdocsposts = number_format( $numdocsposts );
 			}
 
-			$slug = bp_get_current_group_slug();
-
-			$bp->bp_options_nav[ $slug ][ "docs" ][ "name" ] = '' . $bp->bp_options_nav[ $slug ][ "docs" ][ "name" ] . ' <span class="count">' . $numdocsposts . '</span>';
-			;
-			//$bp->bp_nav
+			$bp->groups->nav->edit_nav( array( 'name' => $name . ' <span class="count">' . $numdocsposts . '</span>' ), bp_docs_get_docs_slug(), bp_current_item() );
 		}
 	}
-
-	//print_r($bp);
 }
 
 if ( function_exists( 'bp_is_active' ) && (buddyboss_is_plugin_active( 'buddypress-docs/loader.php' )) ) {
@@ -2809,7 +2934,7 @@ function bboss_bp_doc_group_doc_action_links( $links, $doc_id ) {
 
 	if ( $is_group_component ) {
 		$permalink	 = trailingslashit( bp_get_group_permalink() ) . bp_docs_get_docs_slug() . '/?doc_id=' . $doc_id;
-		$links[ 0 ]	 = '<a href="' . $permalink . '">' . __( 'Read', 'bp-docs' ) . '</a>';
+		$links[ 0 ]	 = '<a href="' . $permalink . '">' . __( 'Read', 'buddypress-docs' ) . '</a>';
 	}
 	return $links;
 }
@@ -2922,15 +3047,20 @@ function bboss_bpd_sg_save_group_navs_info() {
 	/**
 	 * get all nav items for a single group
 	 */
-	$group_navs = array();
-	if ( !isset( $bp->bp_options_nav[ bp_current_item() ] ) || count( $bp->bp_options_nav[ bp_current_item() ] ) < 1 ) {
+	$group_navs		 = array();
+	$bp_options_nav	 = buddyboss_bp_options_nav( bp_current_component(), bp_current_item() );
+	if ( empty( $bp_options_nav ) ) {
 		return false;
 	} else {
 		$the_index = bp_current_item();
 	}
 
 	// Loop through each navigation item
-	foreach ( (array) $bp->bp_options_nav[ $the_index ] as $subnav_item ) {
+	foreach ( (array) $bp_options_nav as $subnav_item ) {
+
+		if ( empty( $subnav_item[ 'slug' ] ) )
+			continue;
+
 		$item = array(
 			'name'		 => $subnav_item[ 'name' ],
 			'position'	 => $subnav_item[ 'position' ],
@@ -2946,6 +3076,10 @@ function bboss_bpd_sg_save_group_navs_info() {
  *
  */
 function bboss_bpd_sg_get_create_link( $link ) {
+
+	if ( !bp_is_active( 'groups' ) )
+		return $link;
+
 	$slug = bp_get_group_slug();
 	if ( $slug && current_user_can( 'bp_docs_associate_with_group', bp_get_group_id() ) ) {
 		$link = add_query_arg( 'group', $slug, $link );
@@ -2960,32 +3094,28 @@ function bboss_bpd_sg_get_create_link( $link ) {
 if ( !function_exists( 'boss_logo_height' ) ) {
 
 	function boss_logo_height( $size ) {
+		$h = 74;
 
 		if ( $size == 'big' ) {
-			$logo		 = boss_get_option( 'boss_logo', 'url' );
-			$fixed_width = 187;
+			$site_logo_id			 = boss_get_option( 'boss_logo', 'id' );
+			$site_logo_img			 = wp_get_attachment_image_src( $site_logo_id, 'full' );
+			$boss_fixed_logo_width	 = 187;
+			$boss_site_logo_width	 = $site_logo_img[ 1 ];
+			$boss_site_logo_height	 = $site_logo_img[ 2 ];
 		} else {
-			$logo		 = boss_get_option( 'boss_small_logo', 'url' );
-			$fixed_width = 52;
-		}
-		/* convert from relative url to absolute url */
-		$logo_absolute_url = $logo;
-
-		$h = 74;
-		if ( $logo ) {
-			$optionname = get_option( "logo_height" );
-			if ( $optionname[ "hash-" . $size ] != md5( $logo ) ) {
-                list( $width, $height ) = getimagesize( $logo_absolute_url );
-				$h								 = ceil( intval( $height ) * ($fixed_width / intval( $width )) ) + 25;
-				$optionname[ "hash-" . $size ]	 = md5( $logo );
-				$optionname[ "height-" . $size ] = (int) $h;
-				update_option( "logo_height", $optionname );
-			} else {
-				$h = $optionname[ "height-" . $size ];
-			}
+			$site_logo_id			 = boss_get_option( 'boss_small_logo', 'id' );
+			$logo_img				 = wp_get_attachment_image_src( $site_logo_id, 'full' );
+			$boss_fixed_logo_width	 = 45;
+			$boss_site_logo_width	 = $logo_img[ 1 ];
+			$boss_site_logo_height	 = $logo_img[ 2 ];
 		}
 
-		return ($h > 74) ? $h : 74;
+		if ( $site_logo_id && ( $boss_site_logo_width > $boss_fixed_logo_width ) ) {
+			$ratio	 = $boss_site_logo_height / $boss_site_logo_width;
+			$h		 = ceil( $ratio * $boss_fixed_logo_width ) + 10; // 10 is padding-top + padding-bottom given to #mastlogo
+		}
+
+		return ( $h > 74 ) ? $h : 74;
 	}
 
 }
@@ -3044,7 +3174,7 @@ if ( !function_exists( 'buddyboss_comment' ) ) {
 
 							<footer class="comment-meta">
 								<?php
-								printf( '<a href="%1$s"><time datetime="%2$s">%3$s ago</time></a>', esc_url( get_comment_link( $comment->comment_ID ) ), get_comment_time( 'c' ),
+								printf( __( '<a href="%1$s"><time datetime="%2$s">%3$s ago</time></a>', 'boss' ), esc_url( get_comment_link( $comment->comment_ID ) ), get_comment_time( 'c' ),
 								/* translators: 1: date, 2: time */ human_time_diff( get_comment_time( 'U' ), current_time( 'timestamp' ) )
 								);
 								?>
@@ -3065,6 +3195,11 @@ if ( !function_exists( 'buddyboss_comment' ) ) {
 	function boss_get_docs_group_id() {
 		// First, try to set the preselected group by looking at the URL params
 		$selected_group_slug = isset( $_GET[ 'group' ] ) ? $_GET[ 'group' ] : '';
+
+		// See if we're associated with a group
+		if ( !function_exists( 'bp_is_active' ) || !bp_is_active( 'groups' ) ) {
+			return 0;
+		}
 
 		// Support for BP Group Hierarchy
 		if ( false !== $slash = strrpos( $selected_group_slug, '/' ) ) {
@@ -3174,139 +3309,171 @@ if ( !function_exists( 'buddyboss_comment' ) ) {
 		}
 
 	endif;
- 
-/**
- * Cart icon html
- */
-function boss_cart_icon_html() {
 
-	global $woocommerce;
-	if ( $woocommerce ) {
-		$cart_items = $woocommerce->cart->cart_contents_count;
-		?>
+	/**
+	 * Cart icon html
+	 */
+	function boss_cart_icon_html() {
 
-		<div class="header-notifications cart">
-			<a class="cart-notification notification-link fa fa-shopping-cart" href="<?php echo $woocommerce->cart->get_cart_url(); ?>">
-				<?php if ( $cart_items ) { ?>
-					<span><?php echo $cart_items; ?></span>
-				<?php } ?>
-			</a>
-		</div>
-		<?php
+		global $woocommerce;
+		if ( $woocommerce ) {
+			$cart_items = $woocommerce->cart->cart_contents_count;
+			?>
+
+			<div class="header-notifications cart">
+				<a class="cart-notification notification-link" href="<?php echo wc_get_cart_url() ?>">
+					<i class="fa fa-shopping-cart"></i>
+					<?php if ( $cart_items ) { ?>
+						<span><?php echo $cart_items; ?></span>
+					<?php } ?>
+				</a>
+			</div>
+			<?php
+		}
 	}
-}
 
-if( defined('EM_VERSION') && EM_VERSION ) {
-    add_action('em_options_page_footer_formats', 'boss_events_setup');
     /**
-     * Add settings page
-     */
-    function boss_events_setup(){
-        global $save_button, $events_placeholder_tip;
-        ?>
-        <div  class="postbox " id="em-opt-boss-events-formats" >
-        <div class="handlediv" title="<?php __('Click to toggle', 'boss'); ?>"><br /></div><h3><span><?php _e ( 'BuddyBoss Events', 'boss' ); ?> </span></h3>
-        <div class="inside">
-            <table class="form-table">
-                <tr class="em-header"><td colspan="2">
-                    <h4><?php echo sprintf(__('%s Page','boss'),__('Events','boss')); ?></h4>
-                    <p><?php _e('These formats will be used on your events page. They will override settings previously set on "Events" dropdown of this page. This will also be used if you do not provide specified formats in other event lists, like in shortcodes.','boss'); ?></p>
-                </td></tr>
-                <?php
-                em_options_radio_binary ( __( 'Use BuddyBoss list layout?', 'boss' ), 'dbem_bb_event_list_layout', __( "Use BuddyBoss grid layout.",'boss' ) );
-                em_options_textarea ( __( 'Default event list format header', 'boss' ), 'dbem_bb_event_list_item_format_header', __( 'This content will appear just above your code for the default event list format. Default is blank', 'boss' ) );
-                em_options_textarea ( __( 'Default event list format', 'boss' ), 'dbem_bb_event_list_item_format', __( 'The format of any events in a list.', 'boss' ).$events_placeholder_tip );
-                em_options_textarea ( __( 'Default event list format footer', 'boss' ), 'dbem_bb_event_list_item_format_footer', __( 'This content will appear just below your code for the default event list format. Default is blank', 'boss' ) );
-                em_options_textarea ( __( 'Default event grid format header', 'boss' ), 'dbem_bb_event_grid_item_format_header', __( 'This content will appear just above your code for the default event grid format. Default is blank', 'boss' ) );
-                em_options_textarea ( __( 'Default event grid format', 'boss' ), 'dbem_bb_event_grid_item_format', __( 'The format of any events in a list.', 'boss' ).$events_placeholder_tip );
-                em_options_textarea ( __( 'Default event grid format footer', 'boss' ), 'dbem_bb_event_grid_item_format_footer', __( 'This content will appear just below your code for the default event grid format. Default is blank', 'boss' ) );
-                ?>
-                <tr class="em-header">
-                    <td colspan="2">
-                        <h4><?php echo sprintf(__('Single %s Page','boss'),__('Event','boss')); ?></h4>
-                        <em><?php echo sprintf(__('These formats can be used on %s pages or on other areas of your site displaying an %s.','boss'),__('event','boss'),__('event','boss'));?></em>
-                </tr>
-                <?php
+	 * Cart icon html for the mobile devices
+	 */
+	function boss_mobile_cart_icon_html() {
+
+		global $woocommerce;
+		if ( $woocommerce ) {
+			$cart_items = $woocommerce->cart->cart_contents_count;
+			?>
+            <div id="cart-nav-wrap" class="btn-wrap">
+                <a id="cart-nav" class="cart-notification sidebar-btn table-cell" href="<?php echo wc_get_cart_url() ?>">
+					<i class="fa fa-shopping-cart"></i>
+                    <?php if ( $cart_items ) { ?>
+                        <span><?php echo $cart_items; ?></span>
+                    <?php } ?>
+                </a>
+            </div>
+			<?php
+		}
+	}
+
+	if ( defined( 'EM_VERSION' ) && EM_VERSION ) {
+		add_action( 'em_options_page_footer_formats', 'boss_events_setup' );
+
+		/**
+		 * Add settings page
+		 */
+		function boss_events_setup() {
+			global $save_button, $events_placeholder_tip;
+			?>
+			<div  class="postbox " id="em-opt-boss-events-formats" >
+				<div class="handlediv" title="<?php __( 'Click to toggle', 'boss' ); ?>"><br /></div><h3><span><?php _e( 'BuddyBoss Events', 'boss' ); ?> </span></h3>
+				<div class="inside">
+					<table class="form-table">
+						<tr class="em-header"><td colspan="2">
+								<h4><?php echo sprintf( __( '%s Page', 'boss' ), __( 'Events', 'boss' ) ); ?></h4>
+								<p><?php _e( 'These formats will be used on your events page. They will override settings previously set on "Events" dropdown of this page. This will also be used if you do not provide specified formats in other event lists, like in shortcodes.', 'boss' ); ?></p>
+							</td></tr>
+						<?php
+						em_options_radio_binary( __( 'Use BuddyBoss list layout?', 'boss' ), 'dbem_bb_event_list_layout', __( "Use BuddyBoss grid layout.", 'boss' ) );
+						em_options_textarea( __( 'Default event list format header', 'boss' ), 'dbem_bb_event_list_item_format_header', __( 'This content will appear just above your code for the default event list format. Default is blank', 'boss' ) );
+						em_options_textarea( __( 'Default event list format', 'boss' ), 'dbem_bb_event_list_item_format', __( 'The format of any events in a list.', 'boss' ) . $events_placeholder_tip );
+						em_options_textarea( __( 'Default event list format footer', 'boss' ), 'dbem_bb_event_list_item_format_footer', __( 'This content will appear just below your code for the default event list format. Default is blank', 'boss' ) );
+						em_options_textarea( __( 'Default event grid format header', 'boss' ), 'dbem_bb_event_grid_item_format_header', __( 'This content will appear just above your code for the default event grid format. Default is blank', 'boss' ) );
+						em_options_textarea( __( 'Default event grid format', 'boss' ), 'dbem_bb_event_grid_item_format', __( 'The format of any events in a list.', 'boss' ) . $events_placeholder_tip );
+						em_options_textarea( __( 'Default event grid format footer', 'boss' ), 'dbem_bb_event_grid_item_format_footer', __( 'This content will appear just below your code for the default event grid format. Default is blank', 'boss' ) );
+						?>
+						<tr class="em-header">
+							<td colspan="2">
+								<h4><?php echo sprintf( __( 'Single %s Page', 'boss' ), __( 'Event', 'boss' ) ); ?></h4>
+								<em><?php echo sprintf( __( 'These formats can be used on %s pages or on other areas of your site displaying an %s.', 'boss' ), __( 'event', 'boss' ), __( 'event', 'boss' ) ); ?></em>
+						</tr>
+						<?php
 //                em_options_textarea ( sprintf(__('Single %s page header format', 'boss' ),__('event','boss')), 'dbem_bb_single_event_header_format', sprintf(__( 'Choose how to format your event headings.', 'boss' ),__('event','boss')).$events_placeholder_tip );
-                em_options_radio_binary ( __( 'Use BuddyBoss single event layout?', 'boss' ), 'dbem_bb_single_event', __( "Use BuddyBoss single event layout.",'boss' ) );
-                em_options_textarea ( sprintf(__('Single %s page format', 'boss' ),__('event','boss')), 'dbem_bb_single_event_format', sprintf(__( 'The format used to display %s content on single pages or elsewhere on your site.', 'boss' ),__('event','boss')).$events_placeholder_tip );
+						em_options_radio_binary( __( 'Use BuddyBoss single event layout?', 'boss' ), 'dbem_bb_single_event', __( "Use BuddyBoss single event layout.", 'boss' ) );
+						em_options_textarea( sprintf( __( 'Single %s page format', 'boss' ), __( 'event', 'boss' ) ), 'dbem_bb_single_event_format', sprintf( __( 'The format used to display %s content on single pages or elsewhere on your site.', 'boss' ), __( 'event', 'boss' ) ) . $events_placeholder_tip );
 
-                echo $save_button;
-                ?>
-            </table>
-        </div> <!-- . inside -->
-        </div> <!-- .postbox -->
-    <?php
-    }
-    
-    add_filter('em_ml_translatable_options', 'boss_add_translatable_options', 10, 1);
-    /**
-     * Add options to translatable array
-     * @param array $array Options array
-     */
-    function boss_add_translatable_options($array){
-        array_push($array, 'dbem_bb_event_list_layout', 'dbem_bb_event_list_item_format_header', 'dbem_bb_event_list_item_format', 'dbem_bb_event_list_item_format_footer', 'dbem_bb_event_grid_layout', 'dbem_bb_event_grid_item_format_header', 'dbem_bb_event_grid_item_format', 'dbem_bb_event_grid_item_format_footer', 'dbem_bb_single_event', 'dbem_bb_single_event_format');
-    }
-    
-    add_filter('em_content_events_args', 'boss_events_page_arguments', 10, 1);
-    /**
-     * Events page agruments
-     * @param  array $args Arguments array
-     * @return array Arguments array
-     */
-    function boss_events_page_arguments($args){
-        $layout = 'list';
-        if ( !isset( $_COOKIE[ 'events_layout' ] ) ) {
-            if(get_option('dbem_bb_event_list_layout')) {
-                $layout = 'list';
-            }
-            if(get_option('dbem_bb_event_grid_layout')) {
-                $layout = 'grid';
-            }
-        } else {
-            $layout = $_COOKIE[ 'events_layout' ];         
-        }
+						echo $save_button;
+						?>
+					</table>
+				</div> <!-- . inside -->
+			</div> <!-- .postbox -->
+			<?php
+		}
 
-        $args['format_header']  = get_option('dbem_bb_event_'.$layout.'_item_format_header');
-        $args['format']         = get_option('dbem_bb_event_'.$layout.'_item_format');
-        $args['format_footer']  = get_option('dbem_bb_event_'.$layout.'_item_format_footer');
-        
-        return $args;
-    }
-    
-    if(get_option('dbem_bb_single_event')) {
-    
-        add_filter('em_event_output_single', 'boss_single_event', 10, 3 );
-        /**
-         * Use Boss Setting on Single Event page
-         */
-        function boss_single_event($output, $object, $target) {
-            $format = get_option('dbem_bb_single_event_format');
-            return $object->output($format, $target);
-        }
-    }
-    
+		add_filter( 'em_ml_translatable_options', 'boss_add_translatable_options', 10, 1 );
+
+		/**
+		 * Add options to translatable array
+		 * @param array $array Options array
+		 */
+		function boss_add_translatable_options( $array ) {
+			array_push( $array, 'dbem_bb_event_list_layout', 'dbem_bb_event_list_item_format_header', 'dbem_bb_event_list_item_format', 'dbem_bb_event_list_item_format_footer', 'dbem_bb_event_grid_layout', 'dbem_bb_event_grid_item_format_header', 'dbem_bb_event_grid_item_format', 'dbem_bb_event_grid_item_format_footer', 'dbem_bb_single_event', 'dbem_bb_single_event_format' );
+			return $array;
+		}
+
+		add_filter( 'em_content_events_args', 'boss_events_page_arguments', 10, 1 );
+
+		/**
+		 * Events page agruments
+		 * @param  array $args Arguments array
+		 * @return array Arguments array
+		 */
+		function boss_events_page_arguments( $args ) {
+			$layout = 'list';
+			if ( !isset( $_COOKIE[ 'events_layout' ] ) ) {
+				if ( get_option( 'dbem_bb_event_list_layout' ) ) {
+					$layout = 'list';
+				}
+				if ( get_option( 'dbem_bb_event_grid_layout' ) ) {
+					$layout = 'grid';
+				}
+			} else {
+				$layout = $_COOKIE[ 'events_layout' ];
+			}
+
+			$args[ 'format_header' ] = get_option( 'dbem_bb_event_' . $layout . '_item_format_header' );
+			$args[ 'format' ]		 = get_option( 'dbem_bb_event_' . $layout . '_item_format' );
+			$args[ 'format_footer' ] = get_option( 'dbem_bb_event_' . $layout . '_item_format_footer' );
+
+			return $args;
+		}
+
+		if ( get_option( 'dbem_bb_single_event' ) ) {
+
+			add_filter( 'em_event_output_single', 'boss_single_event', 10, 3 );
+
+			/**
+			 * Use Boss Setting on Single Event page
+			 */
+			function boss_single_event( $output, $object, $target ) {
+				$format = get_option( 'dbem_bb_single_event_format' );
+				return $object->output( $format, $target );
+			}
+
+		}
+
 //    add_action('em_options_page_footer_formats', 'boss_events_default_options');
-    /**
-     * Prepate things on theme switch
-     */
-    function boss_events_default_options() {
-        $bb_event_options = array(
-            'dbem_full_calendar_event_format' => '<li style="background-color: #_CATEGORYCOLOR">#_EVENTLINK</li>',
-            'dbem_bb_event_list_layout' => 1,
-            'dbem_bb_event_list_item_format_header' => '<table cellpadding="0" cellspacing="0" class="events-table" >
+		/**
+		 * Prepate things on theme switch
+		 */
+		function boss_events_default_options() {
+
+			if ( !get_option( 'dbem_bb_event_default_options' ) ) {
+
+				$bb_event_options = array(
+					'dbem_full_calendar_event_format'		 => '<li style="background-color: #_CATEGORYCOLOR">#_EVENTLINK</li>',
+					'dbem_bb_event_list_layout'				 => 1,
+					'dbem_bb_event_default_options'			 => 1,
+					'dbem_bb_event_list_item_format_header'	 => '<table cellpadding="0" cellspacing="0" class="events-table" >
             <thead>
                 <tr>
-                    <th class="event-time" width="150">'.__('Date/Time','boss').'</th>
-                    <th class="event-description" width="*">'.__('Event','boss').'</th>
-                    <th class="event-location" width="*">'.__('Location','boss').'</th>
+                    <th class="event-time" width="150">' . __( 'Date/Time', 'boss' ) . '</th>
+                    <th class="event-description" width="*">' . __( 'Event', 'boss' ) . '</th>
+                    <th class="event-location" width="*">' . __( 'Location', 'boss' ) . '</th>
                 </tr>
             </thead>
             <tbody>',
-            'dbem_bb_event_list_item_format' => '<tr>
+					'dbem_bb_event_list_item_format'		 => '<tr>
                 <td class="event-time">
-                    <i class="fa fa-calendar"></i>#_EVENTDATES<br/>
-                    <i class="fa fa-clock-o"></i>#_EVENTTIMES
+                    <i class="fas fa-calendar-alt"></i>#_EVENTDATES<br/>
+                    <i class="far fa-clock"></i>#_EVENTTIMES
                 </td>
                 <td class="event-description">
                     <span class="event-image">
@@ -3321,10 +3488,10 @@ if( defined('EM_VERSION') && EM_VERSION ) {
                     {has_location}<i class="fa fa-globe"></i><span>#_LOCATIONTOWN #_LOCATIONSTATE</span>{/has_location}
                 </td>
             </tr>',
-            'dbem_bb_event_list_item_format_footer' => '</tbody></table>',
-            'dbem_bb_event_grid_layout' => 0,
-            'dbem_bb_event_grid_item_format_header' => '<div class="events-grid">',
-            'dbem_bb_event_grid_item_format' => '<div class="event-item">
+					'dbem_bb_event_list_item_format_footer'	 => '</tbody></table>',
+					'dbem_bb_event_grid_layout'				 => 0,
+					'dbem_bb_event_grid_item_format_header'	 => '<div class="events-grid">',
+					'dbem_bb_event_grid_item_format'		 => '<div class="event-item">
                 <a href="#_EVENTURL" class="event-image">
                 #_EVENTIMAGECROP{events_thumbnail}
                 </a>
@@ -3336,208 +3503,359 @@ if( defined('EM_VERSION') && EM_VERSION ) {
                 #_EVENTDATES<span> / </span>#_EVENTTIMES
                 </div>
             </div>',
-            'dbem_bb_event_grid_item_format_footer' => '</div>',
-            'dbem_bb_single_event_format' => '<div class="event-image">#_EVENTIMAGE{1400,332}</div>
+					'dbem_bb_event_grid_item_format_footer'	 => '</div>',
+					'dbem_bb_single_event_format'			 => '<div class="event-image">#_EVENTIMAGE{1400,332}</div>
              #_EVENTNOTES
             <div class="event-details">
             <div style="float:right; margin:0px 0px 0 15px;">#_LOCATIONMAP</div>
             <p>
-                <strong>'.__('Date/Time', 'boss').'</strong>
+                <strong>' . __( 'Date/Time', 'boss' ) . '</strong>
                #_EVENTDATES @ <i>#_EVENTTIMES</i>
             </p>
             {has_location}
             <p>
-                <strong>'.__('Location', 'boss').'</strong>
+                <strong>' . __( 'Location', 'boss' ) . '</strong>
                 #_LOCATIONLINK
             </p>
             {/has_location}
             <p>
-                <strong>'.__('Categories', 'boss').'</strong>
+                <strong>' . __( 'Categories', 'boss' ) . '</strong>
                 #_CATEGORIES
             </p>
-</div>
+			</div>
              {has_bookings}
-            <h3>'.__('Bookings', 'boss').'</h3>
+            <h3>' . __( 'Bookings', 'boss' ) . '</h3>
             #_BOOKINGFORM
             {/has_bookings}',
-            'dbem_image_min_width' => 200,
-		    'dbem_image_min_height' => 200
+					'dbem_image_min_width'					 => 200,
+					'dbem_image_min_height'					 => 200
 //            'dbem_bb_single_event_header_format' => '<h1 class="entry-title">#s</h1><div class="subtitle">#_EVENTDATES @ #_EVENTTIMES</div>'
-        );
+				);
 
-        //add new options
-        foreach($bb_event_options as $key => $value){
-            add_option($key, $value);
-        }   
-        
-        $events_page_id = get_option ( 'dbem_events_page' );
-        $events_page = array(
-          'ID'           => $events_page_id,
-          'page_template'  => 'page-events.php'
-        );
-        wp_update_post( $events_page );
-    }
+				//add new options
+				foreach ( $bb_event_options as $key => $value ) {
+					update_option( $key, $value );
+				}
 
-	/**
-	 * Since strait call to boss_events_default_options giving a php warning, boss_events_default_options call is moved on init with priority 11
-	 */
-	add_action( 'init', 'boss_events_default_options', 11 );
+				$events_page_id	 = get_option( 'dbem_events_page' );
+				$events_page	 = array(
+					'ID'			 => $events_page_id,
+					'page_template'	 => 'page-events.php'
+				);
+				wp_update_post( $events_page );
+			}
+		}
 
-    
-    add_filter( 'body_class', 'boss_events_page_class' );
-    /**
-     * Evants Page body class
-     * @param  array $classes Body classes
-     * @return array Body classes
-     */
-    function boss_events_page_class( $classes ) {
-        global $post;
-        $events_page_id = get_option ( 'dbem_events_page' );
-        
-        if($post->ID == $events_page_id) {
-            $classes[] = 'events-page';
-        }
-        
-        if($post->ID == $events_page_id && get_option('dbem_display_calendar_in_events_page')) {
-            $classes[] = 'fullcalendar-page';
-        }
-        return array_unique( $classes );
-    }
-    
-    add_action( 'widgets_init', 'boss_events_widgets' );
-    /**
-     * Events Sidebar
-     */
-    function boss_events_widgets(){
-        register_sidebar( array(
-            'name'			 => 'Events Sidebar',
-            'id'			 => 'events',
-            'description'	 => 'Only display on events pages',
-            'before_widget'	 => '<aside id="%1$s" class="widget %2$s">',
-            'after_widget'	 => '</aside>',
-            'before_title'	 => '<h4 class="widgettitle">',
-            'after_title'	 => '</h4>',
-        ) );
-    }
-}
+		/**
+		 * Since straight call to boss_events_default_options giving a php warning, boss_events_default_options call is moved on init with priority 11
+		 */
+		add_action( 'init', 'boss_events_default_options', 11 );
+
+
+		add_filter( 'body_class', 'boss_events_page_class' );
+
+		/**
+		 * Evants Page body class
+		 * @param  array $classes Body classes
+		 * @return array Body classes
+		 */
+		function boss_events_page_class( $classes ) {
+			global $post;
+			$events_page_id = get_option( 'dbem_events_page' );
+
+			if ( isset( $post->ID ) && $post->ID == $events_page_id ) {
+				$classes[] = 'events-page';
+			}
+
+			if ( isset( $post->ID ) && $post->ID == $events_page_id && get_option( 'dbem_display_calendar_in_events_page' ) ) {
+				$classes[] = 'fullcalendar-page';
+			}
+			return array_unique( $classes );
+		}
+
+		add_action( 'widgets_init', 'boss_events_widgets' );
+
+		/**
+		 * Events Sidebar
+		 */
+		function boss_events_widgets() {
+			register_sidebar( array(
+				'name'			 => 'Events Sidebar',
+				'id'			 => 'events',
+				'description'	 => 'Only display on events pages',
+				'before_widget'	 => '<aside id="%1$s" class="widget %2$s">',
+				'after_widget'	 => '</aside>',
+				'before_title'	 => '<h4 class="widgettitle">',
+				'after_title'	 => '</h4>',
+			) );
+		}
+
+	}
 
 // Add thumbnail size just events
-add_image_size( 'events_thumbnail', 200, 200, true );
+	add_image_size( 'events_thumbnail', 200, 200, true );
 
-/**
- * Crop Event Image by string name
- *
- */
-if ( !function_exists( 'boss_hard_crop_event_image' ) ):
+	/**
+	 * Crop Event Image by string name
+	 *
+	 */
+	if ( !function_exists( 'boss_hard_crop_event_image' ) ):
 
-add_filter('em_event_output', 'boss_hard_crop_event_image', 10, 4);
+		add_filter( 'em_event_output', 'boss_hard_crop_event_image', 10, 4 );
 
-function boss_hard_crop_event_image($event_string, $post, $format, $target) {
-    preg_match_all("/(#@?_?[A-Za-z0-9]+)({([^}]+)})?/", $event_string, $placeholders);
-    $replaces = array();
+		function boss_hard_crop_event_image( $event_string, $post, $format, $target ) {
+			preg_match_all( "/(#@?_?[A-Za-z0-9]+)({([^}]+)})?/", $event_string, $placeholders );
+			$replaces = array();
 
-    foreach($placeholders[1] as $key => $result) {
-        $match = true;
-        $replace = '';
-        $full_result = $placeholders[0][$key];
-        if( '#_EVENTIMAGECROP' == $result ) {
-            $image_size = $placeholders[3][$key];
-            $replace = get_the_post_thumbnail($post->ID, $image_size);   
-            $event_string = preg_replace( "/".$result."({([^}]+)})?/", $replace, $event_string ); 
-        }
-    }
-    return $event_string;
-}
+			foreach ( $placeholders[ 1 ] as $key => $result ) {
+				$match		 = true;
+				$replace	 = '';
+				$full_result = $placeholders[ 0 ][ $key ];
+				if ( '#_EVENTIMAGECROP' == $result ) {
+					$image_size		 = $placeholders[ 3 ][ $key ];
+					$replace		 = get_the_post_thumbnail( $post->ID, $image_size );
+					$event_string	 = preg_replace( "/" . $result . "({([^}]+)})?/", $replace, $event_string );
+				}
+			}
+			return $event_string;
+		}
 
-endif;
+	endif;
 
 
-if ( !function_exists( 'boss_profile_achievements' ) ):
-/**
- * Output badges on profile
- *
- */
-function boss_profile_achievements() {
-	global $user_ID;
+	if ( !function_exists( 'boss_profile_achievements' ) ):
 
-	//user must be logged in to view earned badges and points
+		/**
+		 * Output badges on profile
+		 *
+		 */
+		function boss_profile_achievements() {
+			global $user_ID;
 
-	if ( is_user_logged_in() && function_exists( 'badgeos_get_user_achievements' ) ) {
+			//user must be logged in to view earned badges and points
 
-		$achievements = badgeos_get_user_achievements( array( 'user_id' => bp_displayed_user_id() ) );
+			if ( is_user_logged_in() && function_exists( 'badgeos_get_user_achievements' ) ) {
 
-		if ( is_array( $achievements ) && !empty( $achievements ) ) {
+				$achievements = badgeos_get_user_achievements( array( 'user_id' => bp_displayed_user_id(), 'display' => true ) );
 
-			$number_to_show	 = 5;
-			$thecount		 = 0;
+				if ( is_array( $achievements ) && !empty( $achievements ) ) {
 
-			wp_enqueue_script( 'badgeos-achievements' );
-			wp_enqueue_style( 'badgeos-widget' );
+					$number_to_show	 = 5;
+					$thecount		 = 0;
 
-			//load widget setting for achievement types to display
-			$set_achievements = ( isset( $instance[ 'set_achievements' ] ) ) ? $instance[ 'set_achievements' ] : '';
+					wp_enqueue_script( 'badgeos-achievements' );
+					wp_enqueue_style( 'badgeos-widget' );
 
-			//show most recently earned achievement first
-			$achievements = array_reverse( $achievements );
+					//load widget setting for achievement types to display
+					$set_achievements = ( isset( $instance[ 'set_achievements' ] ) ) ? $instance[ 'set_achievements' ] : '';
 
-			echo '<ul class="profile-achievements-listing">';
+					//show most recently earned achievement first
+					$achievements = array_reverse( $achievements );
 
-			foreach ( $achievements as $achievement ) {
+					echo '<ul class="profile-achievements-listing">';
 
-				//verify achievement type is set to display in the widget settings
-				//if $set_achievements is not an array it means nothing is set so show all achievements
-				if ( !is_array( $set_achievements ) || in_array( $achievement->post_type, $set_achievements ) ) {
+					foreach ( $achievements as $achievement ) {
 
-					//exclude step CPT entries from displaying in the widget
-					if ( get_post_type( $achievement->ID ) != 'step' ) {
+						//verify achievement type is set to display in the widget settings
+						//if $set_achievements is not an array it means nothing is set so show all achievements
+						if ( !is_array( $set_achievements ) || in_array( $achievement->post_type, $set_achievements ) ) {
 
-						$permalink	 = get_permalink( $achievement->ID );
-						$title		 = get_the_title( $achievement->ID );
-						$img		 = badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ), 'wp-post-image' );
-						$thumb		 = $img ? '<a style="margin-top: -25px;" class="badgeos-item-thumb" href="' . esc_url( $permalink ) . '">' . $img . '</a>' : '';
-						$class		 = 'widget-badgeos-item-title';
-						$item_class	 = $thumb ? ' has-thumb' : '';
+							//exclude step CPT entries from displaying in the widget
+							if ( get_post_type( $achievement->ID ) != 'step' ) {
 
-						// Setup credly data if giveable
-						$giveable	 = credly_is_achievement_giveable( $achievement->ID, $user_ID );
-						$item_class .= $giveable ? ' share-credly addCredly' : '';
-						$credly_ID	 = $giveable ? 'data-credlyid="' . absint( $achievement->ID ) . '"' : '';
+								$permalink	 = get_permalink( $achievement->ID );
+								$title		 = get_the_title( $achievement->ID );
+								$img		 = badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ), 'wp-post-image' );
+								$thumb		 = $img ? '<a style="margin-top: -25px;" class="badgeos-item-thumb" href="' . esc_url( $permalink ) . '">' . $img . '</a>' : '';
+								$class		 = 'widget-badgeos-item-title';
+								$item_class	 = $thumb ? ' has-thumb' : '';
 
-						echo '<li id="widget-achievements-listing-item-' . absint( $achievement->ID ) . '" ' . $credly_ID . ' class="widget-achievements-listing-item' . esc_attr( $item_class ) . '">';
-						echo $thumb;
-						echo '<a class="widget-badgeos-item-title ' . esc_attr( $class ) . '" href="' . esc_url( $permalink ) . '">' . esc_html( $title ) . '</a>';
-						echo '</li>';
+								// Setup credly data if giveable
+								$giveable	 = credly_is_achievement_giveable( $achievement->ID, $user_ID );
+								$item_class	 .= $giveable ? ' share-credly addCredly' : '';
+								$credly_ID	 = $giveable ? 'data-credlyid="' . absint( $achievement->ID ) . '"' : '';
 
-						$thecount++;
+								echo '<li id="widget-achievements-listing-item-' . absint( $achievement->ID ) . '" ' . $credly_ID . ' class="widget-achievements-listing-item' . esc_attr( $item_class ) . '">';
+								echo $thumb;
+								echo '<a class="widget-badgeos-item-title ' . esc_attr( $class ) . '" href="' . esc_url( $permalink ) . '">' . esc_html( $title ) . '</a>';
+								echo '</li>';
 
-						if ( $thecount == $number_to_show && $number_to_show != 0 ) {
-							echo '<li id="widget-achievements-listing-item-more" class="widget-achievements-listing-item">';
-							echo '<a class="badgeos-item-thumb" href="' . bp_core_get_user_domain( get_current_user_id() ) . '/achievements/"><span class="fa fa-ellipsis-h"></span></a>';
-							echo '<a class="widget-badgeos-item-title ' . esc_attr( $class ) . '" href="' . bp_core_get_user_domain( get_current_user_id() ) . '/achievements/">' . __( 'See All', 'social-learner' ) . '</a>';
-							echo '</li>';
-							break;
+								$thecount++;
+
+								if ( $thecount == $number_to_show && $number_to_show != 0 && is_plugin_active('badgeos-community-add-on/badgeos-community.php') ) {
+									echo '<li id="widget-achievements-listing-item-more" class="widget-achievements-listing-item">';
+									echo '<a class="badgeos-item-thumb" href="' . bp_core_get_user_domain( bp_displayed_user_id() ) . '/achievements/"><i class="fa fa-ellipsis-h"></i></a>';
+									echo '<a class="widget-badgeos-item-title ' . esc_attr( $class ) . '" href="' . bp_core_get_user_domain( bp_displayed_user_id() ) . '/achievements/">' . __( 'See All', 'social-learner' ) . '</a>';
+									echo '</li>';
+									break;
+								}
+							}
 						}
+					}
+
+					echo '</ul><!-- widget-achievements-listing -->';
+				}
+			}
+		}
+
+	endif;
+
+	/**
+	 * Run custom slider shortcode
+	 */
+	if ( !function_exists( 'boss_execute_slider_shortcode' ) ):
+
+		function boss_execute_slider_shortcode() {
+			$slider_shortcode = boss_get_option( 'boss_plugins_slider' );
+			if ( !empty( $slider_shortcode ) && !boss_get_option( 'boss_slider_switch' ) ) {
+				echo do_shortcode( boss_get_option( 'boss_plugins_slider' ) );
+			}
+		}
+
+	endif;
+
+	add_action( 'boss_custom_slider', 'boss_execute_slider_shortcode' );
+
+	/**
+	 * Boss header nav > Dashboard
+	 */
+	function boss_header_dashboard_subnav_links() {
+		?>
+		<div class="ab-sub-wrapper">
+			<ul class="ab-submenu">
+				<li>
+
+					<?php if ( current_user_can( 'edit_theme_options' ) ) : ?>
+						<a href="<?php echo admin_url( 'admin.php?page=boss_options' ); ?>"><?php _e( 'Boss Options', 'boss' ); ?></a>
+						<a href="<?php echo admin_url( 'customize.php' ); ?>"><?php _e( 'Customize', 'boss' ); ?></a>
+						<a href="<?php echo admin_url( 'widgets.php' ); ?>"><?php _e( 'Widgets', 'boss' ); ?></a>
+						<a href="<?php echo admin_url( 'nav-menus.php' ); ?>"><?php _e( 'Menus', 'boss' ); ?></a>
+						<a href="<?php echo admin_url( 'themes.php' ); ?>"><?php _e( 'Themes', 'boss' ); ?></a>
+					<?php endif; ?>
+
+					<?php if ( current_user_can( 'activate_plugins' ) ): ?>
+						<a href="<?php echo admin_url( 'plugins.php' ); ?>"><?php _e( 'Plugins', 'boss' ); ?></a>
+					<?php endif; ?>
+
+					<a href="<?php echo admin_url( 'profile.php' ); ?>"><?php _e( 'Profile', 'boss' ); ?></a>
+
+				</li>
+			</ul>
+		</div>
+		<?php
+	}
+
+	if ( !function_exists( 'buddyboss_bp_options_nav' ) ) {
+
+		/**
+		 * Support legacy buddypress nav items manipulation
+		 */
+		function buddyboss_bp_options_nav( $component_index = false, $current_item = false ) {
+			$secondary_nav_items = false;
+
+			$bp = buddypress();
+
+			$version_compare = version_compare( BP_VERSION, '2.6', '<' );
+			if ( $version_compare ) {
+				/**
+				 * @todo In future updates, remove the version compare check completely and get rid of legacy code
+				 */
+				//legacy code
+				$secondary_nav_items = isset( $bp->bp_options_nav[ $component_index ] ) ? $bp->bp_options_nav[ $component_index ] : false;
+			} else {
+				//new navigation apis
+				// Default to the Members nav.
+				if ( !bp_is_single_item() ) {
+					$secondary_nav_items = $bp->members->nav->get_secondary( array( 'parent_slug' => $component_index ) );
+				} else {
+					$component_index = $component_index ? $component_index : bp_current_component();
+					$current_item	 = $current_item ? $current_item : bp_current_item();
+
+					// If the nav is not defined by the parent component, look in the Members nav.
+					if ( !isset( $bp->{$component_index}->nav ) ) {
+						$secondary_nav_items = $bp->members->nav->get_secondary( array( 'parent_slug' => $current_item ) );
+					} else {
+						$secondary_nav_items = $bp->{$component_index}->nav->get_secondary( array( 'parent_slug' => $current_item ) );
 					}
 				}
 			}
 
-			echo '</ul><!-- widget-achievements-listing -->';
+			return $secondary_nav_items;
 		}
-	}
-}
 
-endif;
+	}
+
+	if ( ! function_exists( 'buddyboss_get_unread_messages_html' ) ) {
+	    function buddyboss_get_unread_messages_html() {
+	    	global $messages_template;
+
+	        ob_start();
+
+			// Parse the arguments.
+			$r = array(
+				'user_id'      => get_current_user_id(),
+				'box'          => 'inbox',
+				'per_page'     => 10,
+				'max'          => false,
+				'type'         => 'unread',
+				'page_arg'     => 'mpage', // See https://buddypress.trac.wordpress.org/ticket/3679.
+				'meta_query'   => array()
+			);
+
+			// Reserve original messages template
+			$main_messages_template = $messages_template;
+
+			// Load the messages loop global up with messages.
+			$messages_template = new BP_Messages_Box_Template( $r );
+
+			if ( $messages_template->has_threads() ) { ?>
+
+            <ul class="bb-user-notifications">
+                <?php while (bp_message_threads()) : bp_message_thread(); ?>
+
+                    <li>
+
+                        <?php bp_message_thread_avatar('height=20&width=20'); ?>
+
+                        <?php bp_message_thread_from() ?>
+
+                        <a class="bb-message-link" href="<?php esc_url(bp_message_thread_view_link()); ?>">
+                            <?php _e('Sent you message', 'boss'); ?>
+                        </a>
+
+                    </li>
+
+                <?php endwhile; ?>
+            </ul>
+
+            <?php } else { ?>
+            <a href="#"><?php _e('No unread messages', 'boss'); ?></a>
+	<?php }
+			// Restore original messages template
+			$messages_template = $main_messages_template;
+	        return ob_get_clean();
+        }
+    }
 
 /**
-* Run custom slider shortcode
-*/
-if(!function_exists('boss_execute_slider_shortcode')):
-function boss_execute_slider_shortcode(){
-    $slider_shortcode = boss_get_option('boss_plugins_slider') ;
-    if(!empty($slider_shortcode) && !boss_get_option( 'boss_slider_switch' )){
-    echo do_shortcode(boss_get_option('boss_plugins_slider'));
-}
-}
-endif;
+ * BuddyBoss Global Search Support
+ */
+add_action( 'wp', 'bb_search_result_page_body_class' );
 
-add_action('boss_custom_slider', 'boss_execute_slider_shortcode');
+function bb_search_result_page_body_class() {
+	remove_filter( 'body_class', 'buddyboss_global_search_body_class', 10, 1 );
+}
+
+//  load single event template from theme or plugin
+function bb_event_single_template( $single_template ) {
+	global $post;
+
+	if ( is_plugin_active( 'events-manager/events-manager.php' ) && $post->post_type == 'event' ) {
+		$theme_template = locate_template( 'single-events-manager.php' );
+		if( file_exists( $theme_template ) )
+			$single_template = $theme_template;
+    }
+
+	return $single_template;
+}
+add_filter( 'single_template', 'bb_event_single_template', 16 );

@@ -21,6 +21,7 @@ This is the Global stylesheet, served to all devices.
     2.10 - Post Pagination
     2.11 - Post Navigation
     2.12 - Author Profiles
+    2.13 - Gallery
 3.0 - Basic structure
     3.1 - Assistive text
     3.2 - Page structure
@@ -157,6 +158,8 @@ This is the Global stylesheet, served to all devices.
 39.0 - BuddyPress Portfolio
 40.0 - BuddyBoss Welcome Experience
 41.0 - BuddyPress User Blog
+42.0 - Wangguard
+43.0 - Group Subscription
 ----------------------------------------------------------------
 >>> EXTRAS
 ----------------------------------------------------------------
@@ -455,8 +458,6 @@ div#register-page .security-question-section h4,
 }
 
 h1.main-title {
-    font-weight: 600;
-    font-family: 'Source Sans Pro', sans-serif;
     font-size: 60px;
     margin: 0;
     line-height: 1.2;
@@ -525,7 +526,9 @@ input[type="email"],
 input[type="url"],
 input[type="password"],
 input[type="search"],
-textarea {
+textarea,
+.select2-container--default .select2-selection--single
+{
     height: 36px;
     border: none;
     background-color: rgba(0,0,0,0.04);
@@ -603,7 +606,7 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
 2.5.1 - Dropdowns
 --------------------------------------------------------------*/
 
-.item-list-tabs select, #whats-new-form select, .editfield select:not([multiple]), #notifications-bulk-management select, #messages-bulk-management select, .field-visibility select, .register-section select, .bbp-form select, #bp-group-course, #bbp_group_forum_id {
+#whats-new-form select, .editfield select:not([multiple]), #notifications-bulk-management select, #messages-bulk-management select, .field-visibility select, .register-section select, .bbp-form select, #bp-group-course, #bbp_group_forum_id {
     opacity: 0;
 }
 
@@ -636,8 +639,8 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
 
 .selected-tab:after,
 .buddyboss-select-inner:after {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -831,7 +834,7 @@ a.button,
 #create-group-form .remove,
 #buddypress ul.button-nav li a,
 #buddypress div.generic-button a,
-#buddypress .comment-reply-link,
+body:not(.single-bp_doc) #buddypress .comment-reply-link,
 .entry-title a.button,
 span.create-a-group > a,
 #buddypress div.activity-comments form input[disabled],
@@ -928,7 +931,7 @@ a.button:hover,
 #buddypress ul.button-nav li a:hover,
 #buddypress ul.button-nav li.current a,
 #buddypress div.generic-button a:hover,
-#buddypress .comment-reply-link:hover,
+body:not(.single-bp_doc) #buddypress .comment-reply-link:hover,
 .entry-title a.button:hover,
 span.create-a-group > a:hover,
 #buddypress div.activity-comments form input[disabled]:hover,
@@ -962,7 +965,7 @@ article.post-password-required input[type=submit]:active,
 a.button:active,
 #buddypress ul.button-nav li a:active,
 #buddypress div.generic-button a:active,
-#buddypress .comment-reply-link:active,
+body:not(.single-bp_doc) #buddypress .comment-reply-link:active,
 .entry-title a.button:active,
 span.create-a-group > a:active,
 #buddypress div.activity-comments form input[disabled]:active {
@@ -1145,6 +1148,12 @@ li.bypostauthor cite span {
     margin-left: 10px;
 }
 
+#bp-delete-cover-image.button {
+    padding-left: 15px;
+    padding-right: 15px;
+    width: auto;
+    margin-top: 10px;
+}
 
 /*--------------------------------------------------------------
 2.7 - Responsive images
@@ -1243,32 +1252,8 @@ img.wp-smiley,
     margin: 0;
 }
 
-.gallery-item a,
 .gallery-caption {
     width: 90%;
-}
-
-.gallery-item a {
-    display: block;
-}
-
-.gallery-caption a {
-    display: inline;
-}
-
-.gallery-columns-1 .gallery-item a {
-    max-width: 100%;
-    width: auto;
-}
-
-.gallery .gallery-icon img {
-    height: auto;
-    max-width: 90%;
-    padding: 5%;
-}
-
-.gallery-columns-1 .gallery-icon img {
-    padding: 3%;
 }
 
 
@@ -1314,6 +1299,7 @@ body.blog .pagination-below {
 .em-pagination strong, .em-pagination a,
 .search_results .navigation .wp-paginate a, .search_results .navigation .wp-paginate span,
 .pagination span, .pagination a,
+.learndash-pager > a,
 .bbp-pagination-links span, .bbp-pagination-links a {
     display: inline-block;
     margin-right: 15px;
@@ -1405,10 +1391,12 @@ body.blog .pagination-below {
     margin: 48px 0;
 }
 
-
 /*--------------------------------------------------------------
 2.11 - Author Profiles
 --------------------------------------------------------------*/
+body.no-adminbar #wpadminbar {
+    display: none !important;
+}
 
 .author .archive-header {
     margin-bottom: 24px;
@@ -1465,6 +1453,132 @@ body.blog .pagination-below {
 
 
 /*--------------------------------------------------------------
+2.12 - Gallery
+--------------------------------------------------------------*/
+
+.gallery {
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.gallery-item {
+    float: left;
+    margin: 0 4px 4px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.gallery-columns-1 .gallery-item {
+    max-width: 100%;
+}
+
+.gallery-columns-2 .gallery-item {
+    max-width: 48%;
+    max-width: -webkit-calc(50% - 4px);
+    max-width:         calc(50% - 4px);
+}
+
+.gallery-columns-3 .gallery-item {
+    max-width: 32%;
+    max-width: -webkit-calc(33.3% - 4px);
+    max-width:         calc(33.3% - 4px);
+}
+
+.gallery-columns-4 .gallery-item {
+    max-width: 23%;
+    max-width: -webkit-calc(25% - 4px);
+    max-width:         calc(25% - 4px);
+}
+
+.gallery-columns-5 .gallery-item {
+    max-width: 19%;
+    max-width: -webkit-calc(20% - 4px);
+    max-width:         calc(20% - 4px);
+}
+
+.gallery-columns-6 .gallery-item {
+    max-width: 15%;
+    max-width: -webkit-calc(16.7% - 4px);
+    max-width:         calc(16.7% - 4px);
+}
+
+.gallery-columns-7 .gallery-item {
+    max-width: 13%;
+    max-width: -webkit-calc(14.28% - 4px);
+    max-width:         calc(14.28% - 4px);
+}
+
+.gallery-columns-8 .gallery-item {
+    max-width: 11%;
+    max-width: -webkit-calc(12.5% - 4px);
+    max-width:         calc(12.5% - 4px);
+}
+
+.gallery-columns-9 .gallery-item {
+    max-width: 9%;
+    max-width: -webkit-calc(11.1% - 4px);
+    max-width:         calc(11.1% - 4px);
+}
+
+.gallery-columns-1 .gallery-item:nth-of-type(1n),
+.gallery-columns-2 .gallery-item:nth-of-type(2n),
+.gallery-columns-3 .gallery-item:nth-of-type(3n),
+.gallery-columns-4 .gallery-item:nth-of-type(4n),
+.gallery-columns-5 .gallery-item:nth-of-type(5n),
+.gallery-columns-6 .gallery-item:nth-of-type(6n),
+.gallery-columns-7 .gallery-item:nth-of-type(7n),
+.gallery-columns-8 .gallery-item:nth-of-type(8n),
+.gallery-columns-9 .gallery-item:nth-of-type(9n) {
+    margin-right: 0;
+}
+
+.gallery-columns-1.gallery-size-medium figure.gallery-item:nth-of-type(1n+1),
+.gallery-columns-1.gallery-size-thumbnail figure.gallery-item:nth-of-type(1n+1),
+.gallery-columns-2.gallery-size-thumbnail figure.gallery-item:nth-of-type(2n+1),
+.gallery-columns-3.gallery-size-thumbnail figure.gallery-item:nth-of-type(3n+1) {
+    clear: left;
+}
+
+.gallery-caption {
+    background-color: rgba(0, 0, 0, 0.7);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing:    border-box;
+    box-sizing:         border-box;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    max-height: 50%;
+    opacity: 0;
+    padding: 6px 8px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    text-align: left;
+    width: 100%;
+}
+
+.gallery-caption:before {
+    content: "";
+    height: 100%;
+    min-height: 49px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.gallery-item:hover .gallery-caption {
+    opacity: 1;
+}
+
+.gallery-columns-7 .gallery-caption,
+.gallery-columns-8 .gallery-caption,
+.gallery-columns-9 .gallery-caption {
+    display: none;
+}
+
+/*--------------------------------------------------------------
 3.0 - Basic structure
 --------------------------------------------------------------*/
 /*--------------------------------------------------------------
@@ -1517,6 +1631,7 @@ section[role="banner"] {
 }
 
 .menu-panel ul li a,
+.menu-panel ul li div.ab-item,
 .menu-panel #header-menu ul .sub-menu-wrap a {
     padding: 10px 27px 10px 30px;
     display: block;
@@ -1524,6 +1639,10 @@ section[role="banner"] {
     font-size: 15px;
     line-height: 25px;
     position: relative;
+}
+
+.menu-panel #header-menu ul ul a.open-submenu {
+    padding-left: 20px;
 }
 
 .menu-panel #header-menu ul .sub-menu-wrap a:hover {
@@ -1575,27 +1694,16 @@ body:not(.left-menu-open) .menu-panel .screen-reader-shortcut {
     padding-top: 22px;
 }
 
-body:not(.left-menu-open) #mastlogo {
-    padding: 16px 5px;
-}
-
 body:not(.left-menu-open)[data-logo="1"] #mastlogo {
-    padding: 16px 5px;
+    /*padding: 16px 5px;*/
+    /* This create issue when BuddyPanel is closed */
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 body:not(.left-menu-open) .bb-title-large,
 body.left-menu-open .bb-title-small {
     display: none;
-}
-
-.bb-title-small {
-    padding: 0 15px;
-}
-
-.menu-panel #nav-menu ul li ul li ul,
-.menu-panel #header-menu ul li ul li ul {
-    display: none;
-    /* disable 3rd navigation level */;
 }
 
 .menu-panel .screen-reader-shortcut,
@@ -1629,6 +1737,10 @@ body:not(.left-menu-open) .menu-panel .ab-sub-wrapper > .ab-item {
     padding-right: 20px;
 }
 
+body:not(.left-menu-open) .menu-panel ul li .sub-menu-wrap a span.count {
+    display: none;
+}
+
 .menu-panel #header-menu > a.open-submenu,
 .menu-panel #nav-menu > a.open-submenu {
     line-height: 22px;
@@ -1653,29 +1765,35 @@ body:not(.left-menu-open) .menu-panel .ab-sub-wrapper > .ab-item {
     white-space: nowrap;
 }
 
-.menu-panel #header-menu a.open-submenu:before {
-    font-size: 23px;
+.menu-panel a.open-submenu .fa,
+.menu-panel a.open-submenu .fab,
+.menu-panel a.open-submenu .fal,
+.menu-panel a.open-submenu .far,
+.menu-panel a.open-submenu .fas,
+.menu-panel a.open-submenu .svg-inline--fa {
+    font-size: 20px;
     color: #fff;
+    pointer-events: none;
 }
 
 .bp_components div {
     outline: none;
 }
 
-.menu-panel #header-menu > ul li a:before,
-.menu-panel #nav-menu > ul > li > a:not(.open-submenu):before,
+.menu-panel #header-menu > ul li a i,
+.menu-panel #nav-menu > ul li > a:not(.open-submenu) i,
+.menu-panel #nav-menu > ul li > a:not(.open-submenu) .svg-inline--fa,
 .menu-panel .screen-reader-shortcut:before,
-.menu-panel .bp_components ul li ul li > .ab-item:before {
+.menu-panel .bp_components ul li ul li > .ab-item i,
+.menu-panel #nav-menu .sub-menu-wrap > ul.sub-menu > li > a:not(.open-submenu) i {
     color: #3c7a90;
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
-    font-size: inherit;
+    font-weight: 900;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 19px;
-    margin-right: 20px;
-    padding-right: 22px;
+    padding-right: 10px;
     width: 19px;
     text-align: center;
     visibility: visible;
@@ -1686,56 +1804,78 @@ body:not(.left-menu-open) .menu-panel .ab-sub-wrapper > .ab-item {
 }
 
 /* Generic */
-/*
-.menu-panel #header-menu > ul li a:before {
-    content: "\f15b";
-}
-*/
-
 .menu-panel .menupop > .ab-item:before {
     content: "\f005";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Blogs */
 .menu-panel #header-menu > ul > li.bp-blogs-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-blogs-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-blogs-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-blogs > .ab-item:before {
     content: "\f0ac";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Activity */
 .menu-panel #header-menu > ul > li.bp-activity-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-activity-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-activity-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-activity > .ab-item:before {
     content: "\f10e";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Profile */
 .menu-panel #header-menu > ul > li.bp-profile-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-profile-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-profile-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-xprofile > .ab-item:before {
     content: "\f007";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Notifications */
 .menu-panel #header-menu > ul > li.bp-notifications-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-notifications-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-notifications-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-notifications > .ab-item:before {
     content: "\f0f3";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Messages */
 .menu-panel #header-menu > ul > li.bp-messages-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-messages-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-messages-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-messages > .ab-item:before {
     content: "\f0e0";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Friends */
 .menu-panel #header-menu > ul > li.bp-friends-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-friends-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-friends-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-friends > .ab-item:before {
     content: "\f0c0";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Followers */
@@ -1743,57 +1883,93 @@ body:not(.left-menu-open) .menu-panel .ab-sub-wrapper > .ab-item {
 .menu-panel #nav-menu > ul > li.bp-followers-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-follow > .ab-item:before {
     content: "\f097";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Following */
 .menu-panel #header-menu > ul > li.bp-following-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-following-nav > a:not(.open-submenu):before {
+.menu-panel #nav-menu > ul li.bp-following-nav > a:not(.open-submenu):before {
     content: "\f02e";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Groups */
 .menu-panel #header-menu > ul > li.bp-groups-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-groups-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-groups-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-groups > .ab-item:before {
     content: "\f1b3";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Forums */
 .menu-panel #header-menu > ul > li.bp-forums-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-forums-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-forums-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-forums > .ab-item:before {
     content: "\f086";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Settings */
 .menu-panel #header-menu > ul > li.bp-settings-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-settings-nav > a:not(.open-submenu):before,
+.menu-panel #nav-menu > ul li.bp-settings-nav > a:not(.open-submenu):before,
 .menu-panel #wp-admin-bar-my-account-settings > .ab-item:before {
     content: "\f085";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Photos */
 .menu-panel #wp-admin-bar-my-account-photos > .ab-item:before {
     content: "\f03e";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Logout */
 .menu-panel #header-menu > ul > li.bp-logout-nav > a:before,
-.menu-panel #nav-menu > ul > li.bp-logout-nav > a:before,
+.menu-panel #nav-menu > ul li.bp-logout-nav > a:before,
 .menu-panel .screen-reader-shortcut:before {
-    content: "\f08b";
+    content: "\f2f5";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Login */
 .menu-panel a.login-link:before,
-.menu-panel #nav-menu > ul > li.bp-login-nav > a:before {
-    content: "\f090";
+.menu-panel #nav-menu > ul li.bp-login-nav > a:before {
+    content: "\f2f6";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 /* Register */
 .menu-panel a.register-link:before,
-.menu-panel #nav-menu > ul > li.bp-register-nav > a:before {
+.menu-panel #nav-menu > ul li.bp-register-nav > a:before {
     content: "\f044";
+    font-family: "Font Awesome 5 Free";
+    margin-right: 10px;
+    font-size: 19px;
+    font-weight: 900;
 }
 
 .menu-panel .screen-reader-shortcut {
@@ -1997,7 +2173,7 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
     margin: 9px 0;
 }
 
-.boxed .widget button#searchsubmit,
+.boxed .widget button.searchsubmit,
 .widget-area .widget button[type="submit"],
 .widget-area .widget input[type="submit"] {
     padding: 0 10px;
@@ -2227,9 +2403,9 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
 /* Category Widget */
 
 .widget_categories .cat-item {
-    display: table;
     width: 100%;
     margin-bottom: 20px;
+    position: relative;
 }
 
 .widget_categories .cat-item:last-child {
@@ -2237,9 +2413,11 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
 }
 
 .widget_categories .cat-item span {
-    display: table-cell;
     vertical-align: middle;
     width: 30px;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .widget_categories .cat-item i {
@@ -2277,6 +2455,7 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
 
 .widget-area .widget.widget_buddyboss_recent_post  ul li a.category-link {
     color: #4dcadd;
+    display: block;
 }
 
 .widget.widget_buddyboss_recent_post .category-link {
@@ -2308,8 +2487,8 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
     background-color: #4dcadd;
     color: rgba(0,0,0,0.8);
     font-weight: 300;
-    width: 25px;
-    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
     line-height: 25px;
     text-align: center;
     display: inline-block;
@@ -2362,6 +2541,7 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
 }
 
 #profile-nav span,
+#cart-nav-wrap > .cart-notification > span,
 .widget_categories .cat-item i,
 #wp-admin-bar-shortcode-secondary .alert,
 .header-notifications a.notification-link span {
@@ -2384,6 +2564,7 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
 }
 
 #profile-nav span,
+#cart-nav-wrap > .cart-notification > span,
 .header-notifications a.notification-link span {
     position: absolute;
     margin: -36px 0px 0px 9px;
@@ -2402,8 +2583,9 @@ body .menu-panel .bp_components ul li ul li.menupop.active > a:not(.open-submenu
     display: none;
 }
 
-#profile-nav span {
-    margin: -43px 0px 0px 5px;
+#profile-nav span,
+#cart-nav-wrap > .cart-notification > span {
+    margin: -43px 0px 0px 35px;
 }
 
 #profile-nav span.no-alert,
@@ -2496,7 +2678,7 @@ body:not(.left-menu-open) .menu-panel .ab-sub-wrapper > .ab-item span {
     z-index: 1;
 }
 
-button#searchsubmit {
+button.searchsubmit {
     color: #999;
     background-color: transparent;
     border: none;
@@ -2510,14 +2692,14 @@ button#searchsubmit {
     width: 46px;
 }
 
-button#searchsubmit:hover {
+button.searchsubmit:hover {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
 
 .header-inner .left-col a:hover i,
-#searchsubmit:hover i {
+.searchsubmit:hover i {
     -ms-transform: scale(1.3);
     -webkit-transform: scale(1.3);
     transform: scale(1.3);
@@ -2525,7 +2707,7 @@ button#searchsubmit:hover {
     transition: .2s ease-in-out;
 }
 
-#searchform .screen-reader-text {
+.searchform .screen-reader-text {
     display: none;
 }
 
@@ -2572,6 +2754,30 @@ button#searchsubmit:hover {
     margin-left: 10px;
 }
 
+#masthead .pop.user-pop-links {
+/*    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden; */
+    /*Removed due to hover issue fixed.*/
+    padding: 0 35px 20px 35px;
+    left: auto;
+    right: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#masthead .pop.pop-links {
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#masthead .pop-inner {
+    background-color: #ffffff;
+    -webkit-box-shadow: 0px 1px 4px 0px rgba(50, 50, 50, 0.2);
+    -moz-box-shadow: 0px 1px 4px 0px rgba(50, 50, 50, 0.2);
+    box-shadow: 0px 1px 4px 0px rgba(50, 50, 50, 0.2);
+}
 
 /*--------------------------------------------------------------
 3.7 - Footer
@@ -2713,8 +2919,8 @@ div.footer-inner ul.social-icons li a span:hover {
 }
 
 div.footer-inner ul.social-icons li span:before {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Brands';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -2743,7 +2949,7 @@ div.footer-inner ul.social-icons li span:before {
 }
 
 .link-youtube span:before {
-    content: "\f16a";
+    content: "\f167";
 }
 
 .link-instagram span:before {
@@ -2755,7 +2961,8 @@ div.footer-inner ul.social-icons li span:before {
 }
 
 .link-email span:before {
-    content: "\f003";
+    font-family: 'Font Awesome 5 Free' !important;
+    content: "\f0e0";
 }
 
 .link-dribbble span:before {
@@ -2791,6 +2998,7 @@ div.footer-inner ul.social-icons li span:before {
 }
 
 .link-rss span:before {
+    font-family: 'Font Awesome 5 Free' !important;
     content: "\f09e";
 }
 
@@ -3173,15 +3381,12 @@ body:not(.bp-active) .page-cover .btn-group.social {
 }
 
 .alt-social-icon {
-    background-color: #c2c8ce;
+    background-color: #E4E4E5;
     width: 27px;
     height: 27px;
     background-position: 0 0;
     background-repeat: no-repeat;
     display: inline-block;
-    -webkit-box-shadow: inset 0px -2px 4px 0px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: inset 0px -2px 4px 0px rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0px -2px 4px 0px rgba(0, 0, 0, 0.3);
     border-radius: 50%;
 }
 
@@ -3401,7 +3606,8 @@ article.format-aside p:last-child {
 .entry-actions .reply:before {
     content: "\f064";
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -3837,6 +4043,11 @@ article.format-quote .entry-content blockquote {
 10.0 - Front page template
 --------------------------------------------------------------*/
 
+.home-page:not(.boxed) #content .panel-grid {
+    margin-left: -30px;
+    margin-right: -30px;
+}
+
 .entry-page-image {
     margin-bottom: 14px;
 }
@@ -4078,7 +4289,7 @@ article.error404 {
     margin-right: 8px;
 }
 
-.error404 #searchform {
+.error404 .searchform {
     display: inline-block;
 }
 
@@ -4088,7 +4299,7 @@ article.error404 {
         width: 133px;
     }
 
-    #searchsubmit {
+    .searchsubmit {
         padding-left: 10px;
     }
 
@@ -4153,7 +4364,8 @@ article.error404 {
 .ui-accordion.accordion h3:after {
     content: "\f105";
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -4558,7 +4770,8 @@ article.error404 {
     right: 0;
     top: 10px;
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -4601,7 +4814,7 @@ article.error404 {
     display: block;
     float: left;
     width: 100%;
-    padding: 10px 0;
+    padding: 30px 0;
 }
 
 #buddypress div.pagination .pag-count {
@@ -4677,6 +4890,7 @@ article.error404 {
     -webkit-border-radius: 35px;
     border-radius: 35px;
     max-width: 60px;
+    max-height: 60px;
 }
 
 #buddypress #activity-stream p {
@@ -4706,7 +4920,8 @@ article.error404 {
 #buddypress #activity-stream .activity-meta .bp-secondary-action.loading:after {
     content: "\f110";
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -4738,6 +4953,26 @@ article.error404 {
     top: -1px;
     line-height: 1;
     letter-spacing: 0;
+    border: none;
+}
+
+/* like button counters */
+#buddypress #activity-stream .fav span,
+#buddypress #activity-stream .unfav span {
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+#buddypress #activity-stream .fav span {
+    color: rgba(0, 0, 0, 0.2);
+}
+#buddypress #activity-stream .activity-meta .fav:hover span {
+    color: rgba(0,0,0,0.42);
+}
+
+#buddypress #activity-stream .unfav span {
+    color: #4dcadd;
 }
 
 #buddypress #activity-stream .acomment-options .acomment-reply,
@@ -4771,7 +5006,8 @@ article.error404 {
 #buddypress #activity-stream .activity-meta .delete-activity-single:before,
 #buddypress #activity-stream .activity-meta .delete-activity:before {
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -4780,7 +5016,7 @@ article.error404 {
 }
 
 #buddypress #activity-stream .acomment-options .acomment-reply:before {
-    content: "\f112";
+    content: "\f3e5";
 }
 
 #buddypress #activity-stream .acomment-options .acomment-delete:before,
@@ -4796,7 +5032,7 @@ article.error404 {
 
 #buddypress #activity-stream .acomment-options .acomment-like.unfav-comment:before,
 #buddypress #activity-stream .activity-meta .unfav.bp-secondary-action:before {
-    content: "\f006";
+    content: "\f005";
     color: #4dcadd;
 }
 
@@ -4950,6 +5186,46 @@ body.no-js #buddypress #whats-new-options {
     margin-right: 10px;
     clear: both;
     display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+#buddypress #activity-stream .acomment-options a.appbosscm-report-button,
+#buddypress #activity-stream .activity-meta .bp-secondary-action.appbosscm-activity-report-button {
+    background: transparent;
+    box-shadow: none;
+    font-size: 0;
+    padding: 0;
+    top: 0;
+}
+
+#buddypress #activity-stream .acomment-options a.appbosscm-report-button:before,
+#buddypress #activity-stream .activity-meta .bp-secondary-action.appbosscm-activity-report-button:before {
+    content:"\f024";
+    display: inline-block;
+    font: normal normal normal 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: normal;
+    background: transparent;
+    color: rgba(0,0,0,0.2);
+    font-size: 17px;
+}
+
+.appbosscm-feedback-form-field-wrap select {
+    font-size: 14px;
+    height: 36px;
+    color: #737373;
+    box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.05);
+    border: 0;
+    outline: none;
+}
+
+.appbosscm-moderation-button-wrap .fa.fa-spinner {
+    display: none;
 }
 
 /*--------------------------------------------------------------
@@ -5060,26 +5336,22 @@ body.activity:not(.bp-user)  .item-list-tabs ul li,
 }
 
 .dir-form .item-list-tabs ul li {
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .logged-in .dir-form .item-list-tabs ul li {
-    width: 50%;
-}
-
-.logged-in .dir-form .item-list-tabs ul li {
-    width: 50%;
+    width: 33%;
 }
 
 .logged-in .dir-form.members-directory-form .item-list-tabs ul li {
-    width: 33.333333%;
+    /*width: 33.333333%;*/
 }
 
-body.activity:not(.bp-user)  .item-list-tabs ul li {
+body.activity:not(.bp-user) .item-list-tabs ul li {
     width: 50%;
 }
 
-body.logged-in.activity:not(.bp-user)  .item-list-tabs ul li {
+body.logged-in.activity:not(.bp-user) .item-list-tabs ul li {
     /*    width: 14.285714%;*/
     width: 100%;
 }
@@ -5128,8 +5400,7 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
     color: #fff;
 }
 
-body.activity:not(.bp-user)  .item-list-tabs ul li,
-.dir-form .item-list-tabs ul li {
+body.activity:not(.bp-user) .item-list-tabs ul li {
     border-right: none;
 }
 
@@ -5509,9 +5780,12 @@ body.activity:not(.bp-user)  .item-list-tabs ul li:last-child,
     margin-bottom: 26px;
 }
 
+.change-cover-image .bp-cover-image,
 #group-create-body .bp-cover-image {
-    margin-top: 10px;
+    margin-top: 30px;
 }
+
+
 
 /*--------------------------------------------------------------
 5.0 - Errors / Success Messages
@@ -5562,8 +5836,8 @@ div#sitewide-notice div#message p a {
 }
 
 #buddypress div#message p:before {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -5593,11 +5867,24 @@ div#sitewide-notice div#message p #close-notice {
     position: absolute;
     top: 20px;
     right: 30px;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    box-shadow: none;
+    width: auto;
+}
+
+div#sitewide-notice div#message p #close-notice span {
+    display: none;
 }
 
 div#sitewide-notice div#message p #close-notice:after {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -5675,6 +5962,10 @@ div#sitewide-notice div#message p #close-notice:after {
     animation-duration: 2.5s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
+}
+
+#buddypress #group-create-body #message {
+    margin-bottom: 30px;
 }
 
 @keyframes Disappear {
@@ -5807,7 +6098,7 @@ div#sitewide-notice div#message p #close-notice:after {
 #buddypress .standard-form#signup_form textarea,
 #buddypress .form-allowed-tags,
 #buddypress #commentform input[type="text"],
-#buddypress #commentform textarea {
+body:not(.single-bp_doc) #buddypress #commentform textarea {
     width: 90%;
 }
 
@@ -5843,6 +6134,10 @@ div#sitewide-notice div#message p #close-notice:after {
     width: 100%;
     height: 120px;
     margin-bottom: 30px;
+}
+
+#buddypress .standard-form ul.acfb-holder li:last-child {
+    clear: both;
 }
 
 #buddypress .standard-form textarea#message_content {
@@ -5887,7 +6182,7 @@ div#sitewide-notice div#message p #close-notice:after {
 
 #buddypress .standard-form a.clear-value {
     display: block;
-    margin-top: 5px;
+    margin: 10px 0;
     outline: none;
 }
 
@@ -5915,6 +6210,11 @@ div#sitewide-notice div#message p #close-notice:after {
     display: none;
 }
 
+#buddypress div.activity-comments form input[name="ac_form_submit"][disabled],
+#buddypress input[name="ac_form_submit"] {
+    width: 150px;
+}
+
 /*--------------------------------------------------------------
 7.0 - Ajax Loading
 --------------------------------------------------------------*/
@@ -5922,8 +6222,8 @@ div#sitewide-notice div#message p #close-notice:after {
 #buddypress a.loading:after,
 #buddypress button.loading:after,
 #buddypress ul li.loading a:after {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -6079,6 +6379,10 @@ div#sitewide-notice div#message p #close-notice:after {
 #buddypress table#message-threads {
     margin: 0;
     clear: left;
+}
+
+#buddypress table#message-threads a {
+    word-break: break-all;
 }
 
 #buddypress table.wp-profile-fields,
@@ -6250,6 +6554,10 @@ div#sitewide-notice div#message p #close-notice:after {
 
 #buddypress table.forum td.td-postcount {
     font-size: 13px;
+}
+
+#buddypress .notifications-options-nav {
+    margin: 20px 0;
 }
 
 #buddypress table.notification-settings {
@@ -6445,6 +6753,9 @@ div#sitewide-notice div#message p #close-notice:after {
     line-height: 1.4;
     padding-top: 20px;
 }
+#group-description p:not(:last-child) {
+    margin-bottom: 15px;
+}
 
 .secondary-inner #item-actions {
     padding-top: 30px;
@@ -6568,7 +6879,7 @@ div#sitewide-notice div#message p #close-notice:after {
 .bb-cover-photo button.update-cover-photo.refresh-cover-photo{ margin-top: 45px; }
 
 .bb-cover-photo .update-cover-photo i.fa-camera,
-.bb-cover-photo .update-cover-photo i.fa-refresh,
+.bb-cover-photo .update-cover-photo i.fa-sync,
 .bb-cover-photo .update-cover-photo i.fa-times {
     opacity: .7;
     position: absolute;
@@ -6582,7 +6893,7 @@ div#sitewide-notice div#message p #close-notice:after {
 }
 
 .bb-cover-photo .update-cover-photo:hover i.fa-camera,
-.bb-cover-photo .update-cover-photo:hover i.fa-refresh,
+.bb-cover-photo .update-cover-photo:hover i.fa-sync,
 .bb-cover-photo .update-cover-photo:hover i.fa-times {
     opacity: .9;
     -webkit-transform: scale(.75);
@@ -6810,6 +7121,9 @@ body.buddypress .entry-header .entry-title a {
     float: left;
 }
 
+body.group-admin #buddypress .section-header + div.pagination {
+    display: none;
+}
 
 /*--------------------------------------------------------------
 9.2.3 - Group Single Cover
@@ -7075,12 +7389,13 @@ body.activity:not(.bp-user) #activity-filter-select .buddyboss-select label,
     margin-top: 30px;
 }
 
-#primary .item-list li {
+#primary .item-list > li {
     display: table;
     padding: 30px 0;
     border-bottom: 1px solid rgba(0,0,0,0.11);
     width: 100%;
     margin: 0;
+    clear: both; /* To fix - Comment disorder when multiple comment */
 }
 
 .item-list li .item-avatar,
@@ -7143,6 +7458,7 @@ body.activity:not(.bp-user) #activity-filter-select .buddyboss-select label,
 
 #primary #groups-list li .item-avatar {
     width: 135px;
+    float: left;
 }
 
 .item-list li .item-avatar a {
@@ -7432,8 +7748,6 @@ body.activity:not(.bp-user) #activity-filter-select .buddyboss-select label,
 }
 
 #item-header-content h1 {
-    font-weight: 600;
-    font-family: 'Source Sans Pro', sans-serif;
     margin: 0;
     font-size: 20px !important;
     display: inline;
@@ -7650,7 +7964,7 @@ body.activity-permalink .entry-header {
 }
 
 #buddypress form#group-settings-form p {
-    margin-bottom: 0px;
+    margin-bottom: 15px;
 }
 
 .group-admin.group-avatar #buddypress form#group-settings-form p {
@@ -7668,18 +7982,12 @@ body:not(.group-cover-image) #buddypress form#group-settings-form h4 {
 .group-cover-image #buddypress form#group-settings-form h4 {
     margin-bottom: 10px;
 }
-
-.change-cover-image #buddypress .profile p,
-.group-cover-image #buddypress form#group-settings-form p {
-    margin-bottom: 20px;
+.bp-uploader-window .moxie-shim.moxie-shim-html5 {
+    margin: 5px 0 0 5px;
 }
-
-
 #buddypress form#group-settings-form ul.item-list {
     margin-bottom: 10px;
-    overflow: hidden;
 }
-
 #buddypress form#group-settings-form ul.item-list li {
     padding: 0 0 20px 0;
     border: none;
@@ -7724,6 +8032,18 @@ form#group-settings-form hr {
     padding-bottom: 24px;
 }
 
+#bp-delete-cover-image-container {
+    margin-bottom: 30px;
+}
+
+#bp-delete-cover-image-container p {
+    margin-bottom: 1rem;
+}
+
+.group-admin.manage-members .group-members-list div.action a.button {
+    margin-top: 3px;
+}
+
 /*--------------------------------------------------------------
 13.0 - Notifications
 --------------------------------------------------------------*/
@@ -7759,9 +8079,29 @@ form#group-settings-form hr {
 /*--------------------------------------------------------------
 14.0 - Private Messaging Threads
 --------------------------------------------------------------*/
+
+.messages.bp-user #buddypress div#item-body {
+    padding-bottom: 0;
+}
+
+.messages-container {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    min-height: 360px;
+}
+
 #messages-layout {
-    float: left;
-    width: 100%;
+    border-left: 1px solid #ddd;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 0;
+    flex: 1 1 0;
+}
+
+#messages-layout > div.message-search {
+    margin: 17px 50px 16px 0;
 }
 
 .ac_results {
@@ -7804,9 +8144,10 @@ form#group-settings-form hr {
 }
 
 #leftcolumn {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 300px;
+    flex: 0 0 300px;
     float: left;
-    width: 274px;
-    margin-left: -100%;
     position: relative;
 }
 
@@ -7987,6 +8328,20 @@ td.thread-avatar img {
     margin-left: 30px;
 }
 
+.my-messages.starred #buddypress div.messages-options-nav {
+    margin: 16px 18px 16px 38px;
+    position: static;
+}
+
+.my-messages.starred.left-menu-open .page-right-sidebar #messages-bulk-management {
+    margin-top: 0;
+}
+
+.my-messages.starred #messages-table-wrap {
+    border-top: 1px solid rgba(0, 0, 0, 0.11);
+    clear: both;
+}
+
 #compose-personal-li a {
     position: relative;
 }
@@ -8022,6 +8377,7 @@ td.thread-avatar img {
 #buddypress div#message-thread #message-subject {
     margin-top: 11px;
     padding-bottom: 5px;
+    font-size: 1.3em;
 }
 
 #buddypress div#message-thread strong {
@@ -8174,8 +8530,10 @@ div#register-page .security-question-section p {
     font-size: inherit;
     margin: 0 0 24px;
     width: auto;
+    max-width: 100%;
 }
 
+div#register-page .register-section > h2:first-child,
 div#register-page .register-section h4,
 div#register-page .security-question-section h4 {
     text-align: center;
@@ -8203,6 +8561,10 @@ div#register-page #signup_form.standard-form div.submit {
     padding-bottom: 57px;
 }
 
+div#register-page #signup_form.standard-form .editfield legend {
+    margin: 10px 0;
+}
+
 div#register-page #signup_form.standard-form div.submit input {
     margin: 0;
     padding: 11px 22px;
@@ -8213,6 +8575,36 @@ div#register-page #signup_form.standard-form textarea,
 div#register-page #signup_form.standard-form input[type="text"] ,
 div#register-page #signup_form.standard-form input[type="password"] {
     width: 100%;
+}
+
+div#register-page #signup_form.standard-form .visibility-toggle-link {
+    float: right;
+    display: inline-block;
+    width: 80px;
+    padding: 5px;
+}
+
+div#register-page #signup_form.standard-form .radio-button-options {
+    margin-top: 10px;
+}
+
+div#register-page #signup_form.standard-form .field-visibility-settings div.radio {
+    margin: 15px 0;
+}
+
+div#register-page #signup_form.standard-form .field-visibility-settings div.radio label {
+    line-height: 2;
+}
+
+div#register-page #signup_form.standard-form .field-visibility-settings button {
+    display: inline-block;
+    width: 80px;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+div#register-page #signup_form.standard-form .register-site > legend.label {
+    margin-bottom: 20px;
 }
 
 .wp-social-login-connect-with {
@@ -8240,6 +8632,11 @@ div#register-page #signup_form.standard-form input[type="password"] {
     margin: 0 0 6px 0;
     position: relative;
     line-height: 19px;
+    background-color: #444;
+}
+
+.wp-social-login-provider-list a:hover {
+    background-color: #333;
 }
 
 .wp-social-login-provider-list a:before {
@@ -8251,6 +8648,7 @@ div#register-page #signup_form.standard-form input[type="password"] {
     top: 9px;
     left: 15px;
     background-image: url('../images/login-iconset.svg');
+    background-position: 0 -50px;
     background-repeat: no-repeat;
     background-size: auto 20px;
     border-right: 1px solid rgba(0,0,0,0.2);
@@ -8347,6 +8745,18 @@ div#register-page #signup_form.standard-form input[type="password"] {
     background-position: -180px 0;
 }
 
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr {
+    background-color: #35465c;
+}
+
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr:hover {
+    background-color: #11243C;
+}
+
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr:before {
+    background-position: -210px 0;
+}
+
 .wp-social-login-provider-list img {
     display: none;
 }
@@ -8390,12 +8800,16 @@ div#register-page #signup_form.standard-form input[type="password"].password-ent
     border: none;
 }
 
-.boxed #primary .widget-area #groups-list li .item-avatar,
-.boxed #primary .widget-area #members-list li .item-avatar,
 .widget-area .widget ul.item-list li div.item-avatar {
     float: left;
     width: 60px;
     min-width: initial;
+}
+
+.boxed #primary .widget-area #groups-list li .item-avatar,
+.boxed #primary .widget-area #members-list li .item-avatar {
+    width: 64px;
+    padding-right: 0;
 }
 
 .boxed #primary .widget-area #friend-list .item-avatar a,
@@ -8534,11 +8948,13 @@ label.screen-reader-text{
     height: auto;
 }
 
+body.reply #bbpress-forums div.bbp-reply-header,
 #bbpress-forums .bbp-replies div.bbp-topic-header,
 #bbpress-forums .bbp-replies div.bbp-reply-header,
 #bbpress-forums .bbp-replies .bbp-forum-header {
     background-color: #edf0f0;
 }
+body.reply #bbpress-forums div.reply,
 #bbpress-forums .bbp-replies div.topic,
 #bbpress-forums .bbp-replies div.reply {
     margin: 10px 70px 20px 60px;
@@ -8717,6 +9133,7 @@ li.bbp-topic-freshness {
 }
 
 body.reply-edit .bbp-breadcrumb,
+body.reply .bbp-breadcrumb,
 .bbp-topic-details,
 .bbp-forum-details {
     clear: both;
@@ -8801,8 +9218,8 @@ body:not(.boxed) .bbp-forum-details {
 
 /* Closed Topics */
 #bbpress-forums li.bbp-body ul.bbp-forum-status-closed div.bbp-forum-info-content:before {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -9505,7 +9922,7 @@ p.form-allowed-tags {
 div.bbp-template-notice,
 div.indicator-hint {
     padding: 10px 14px;
-    margin: 5px 0 15px;
+    margin: 15px 0;
     font-size: 13px;
     clear: both;
     background-color: #edce7b;
@@ -9558,8 +9975,8 @@ div.indicator-hint p {
 .bbp-topics ul.super-sticky div.bbp-topic-title-content:before,
 .bbp-topics ul.sticky div.bbp-topic-title-content:before,
 .bbp-forum-content ul.sticky:before {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -10073,10 +10490,9 @@ div.docs-info-header #docs-filter-meta {
 }
 
 .woocommerce ul.products li.product h3 {
-    font-family: 'Source Sans Pro', sans-serif;
     font-size: 22px;
     font-weight: lighter;
-    float: inherit;
+    float: none;
     display: block;
 }
 
@@ -10288,6 +10704,28 @@ div.docs-info-header #docs-filter-meta {
 .woocommerce div.product form.cart .variations td {
     vertical-align: middle;
 }
+
+.woocommerce div.product .woocommerce-tabs ul.tabs {
+    padding: 0 0 0 5px;
+    margin-bottom: 0;
+}
+
+.woocommerce div.product .woocommerce-tabs ul.tabs li {
+    border-radius: 0;
+    padding: 7px 25px;
+    font-size: 16px;
+    font-weight: 900;
+    border-color: #e1e1e1;
+}
+
+@media screen and (max-width: 600px) {
+    .woocommerce div.product .woocommerce-tabs ul.tabs li {
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0 -2px;
+        padding: 2px 12px;
+    }
+}
 /* End Single Product Page */
 
 /* Cart */
@@ -10403,6 +10841,7 @@ input[type="checkbox"]:not(.styled), input[type="radio"]:not(.styled) {
     padding-top: 1em;
 }
 
+/*
 .woocommerce div.product div.images img,
 .woocommerce #content div.product div.images img,
 .woocommerce-page div.product div.images img,
@@ -10412,6 +10851,7 @@ input[type="checkbox"]:not(.styled), input[type="radio"]:not(.styled) {
     width: auto !important;
     max-width: 100% !important;
 }
+*/
 
 .woocommerce div.product div.images,
 .woocommerce #content div.product div.images,
@@ -10439,11 +10879,89 @@ input[type="checkbox"]:not(.styled), input[type="radio"]:not(.styled) {
     min-width: 100px;
 }
 
+.woocommerce input.button:disabled, .woocommerce input.button:disabled[disabled] {
+    padding: inherit;
+    line-height: .5;
+}
+
 .woocommerce-tabs h2,
 .upsells.products h2, .related.products h2 {
     font-size: 24px;
     margin-bottom: 30px;
 }
+
+.woocommerce-account .woocommerce-MyAccount-navigation,
+.woocommerce-account .woocommerce-MyAccount-content {
+    float: none;
+    width: 100%;
+}
+
+.woocommerce-MyAccount-navigation > ul {
+    border-left: 1px solid #e1e1e1;
+    margin: 0 0 30px;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+}
+
+.woocommerce-MyAccount-navigation > ul:after {
+    background: #e1e1e1;
+    content: ' ';
+    height: 1px;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+#content .woocommerce-MyAccount-navigation li {
+    border-color: #e1e1e1;
+    border-style: solid;
+    border-width: 1px 1px 0;
+    float: left;
+    list-style: outside none none;
+    margin-left: -1px;
+    position: relative;
+    z-index: 1;
+}
+
+.woocommerce-MyAccount-navigation li a {
+    background-color: #fff;
+    border-bottom: 1px solid #e1e1e1;
+    color: #333;
+    display: block;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 14px 22px;
+    text-transform: uppercase;
+}
+
+.woocommerce-MyAccount-navigation .is-active a {
+    border-bottom-color: #fff;
+}
+
+.woocommerce-MyAccount-navigation li a:hover {
+    background-color: #fff;
+    border-bottom-color: #fff;
+}
+
+.woocommerce table.my_account_orders .order-actions .button {
+    width: auto;
+}
+
+/** Select2 ************************************************/
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #4dcadd;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 20px;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    padding-left: 0;
+}
+
 
 @media screen and (max-width: 768px) {
     .woocommerce #content div.product div.images, .woocommerce #content div.product div.summary, .woocommerce div.product div.images, .woocommerce div.product div.summary, .woocommerce-page #content div.product div.images, .woocommerce-page #content div.product div.summary, .woocommerce-page div.product div.images, .woocommerce-page div.product div.summary {
@@ -10467,6 +10985,10 @@ input[type="checkbox"]:not(.styled), input[type="radio"]:not(.styled) {
     .woocommerce-page button.button.single_add_to_cart_button {
         clear: none;
         max-width: 78%;
+    }
+
+    .my-messages.starred #buddypress div.messages-options-nav {
+        margin: 16px 0 26px;
     }
 }
 /*--------------------------------------------------------------
@@ -10801,6 +11323,57 @@ form#places-form #new-place-content input[type="time"],
     height: 70px;
 }
 
+#buddyboss-edit-media-add-photo > .buddyboss-edit-media-add-photo-button {
+    max-width: 45px;
+}
+
+body.buddyboss-media-all-media footer.entry-meta {
+    clear: both;
+}
+
+
+#buddyboss-wall-privacy-submit,
+.buddyboss-wall-privacy-cancel,
+a.buddyboss_media_tag_friends_cancel,
+input.buddyboss-media-done-tagging-submit,
+a.buddyboss_media_move_media_cancel,
+#buddyboss-media-move-media-submit {
+    color: #fff;
+    background: #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 3px 5px;
+    position: relative;
+    width: auto;
+    top: -1px;
+    line-height: 1;
+    letter-spacing: 0;
+    border: none;
+}
+#buddyboss-wall-privacy-submit {
+    padding: 5px;
+}
+#buddypress .standard-form div.submit input.buddyboss-media-done-tagging-submit {
+    min-width: 0px;
+    width: auto;
+    background-color: #ccc;
+    margin-right: 0;
+    padding: 5px;
+}
+a.buddyboss_media_move_media_cancel:hover {
+    color: #fff;
+}
+#buddyboss-media-move-media .field {
+    float: left;
+}
+div.buddyboss-media-form-wrapper #frm_buddyboss-media-move-media #buddyboss-media-move-media .field.submit {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+#buddyboss-media-move-media-submit {
+    padding: 5px 10px;
+}
 
 /*--------------------------------------------------------------
 17.0 - BuddyPress Global Search
@@ -10822,6 +11395,7 @@ form#places-form #new-place-content input[type="time"],
     border: 1px solid #d6dade;
     background-color: #fff;
     background-image: none;
+    position: absolute;
 }
 
 .bb-global-search-ac.ui-autocomplete:before {
@@ -11123,7 +11697,7 @@ body #buddypress .results-group .activity-list .activity-content {
 
 .buddyboss-wall-active #buddypress #activity-stream .acomment-options .fav-comment.bp-secondary-action:before,
 .buddyboss-wall-active #buddypress #activity-stream .activity-meta .fav.bp-secondary-action:before {
-    content: "\f087";
+    content: "\f164";
 }
 
 .buddyboss-wall-active #buddypress #activity-stream .acomment-options .unfav-comment.bp-secondary-action:before,
@@ -11144,7 +11718,10 @@ body #buddypress .results-group .activity-list .activity-content {
     left: 0;
     padding-left: 4px;
 }
-
+#form_buddyboss-wall-privacy #bbwall-privacy-selectbox {
+    display: inline-block;
+    margin-left: 10px;
+}
 /*--------------------------------------------------------------
 19.0 - BP | You are blocked
 --------------------------------------------------------------*/
@@ -11219,6 +11796,16 @@ li#nav-documents-groups-li, li#nav-documents-personal-li {
 
 #buddypress #rtmedia-single-media-container.rtmedia-single-media .button {
     width: auto;
+}
+
+#rtmedia-image-editor-cotnainer button.imgedit-crop,
+#rtmedia-image-editor-cotnainer button.imgedit-rleft,
+#rtmedia-image-editor-cotnainer button.imgedit-rright,
+#rtmedia-image-editor-cotnainer button.imgedit-flipv,
+#rtmedia-image-editor-cotnainer button.imgedit-fliph,
+#rtmedia-image-editor-cotnainer button.imgedit-undo,
+#rtmedia-image-editor-cotnainer button.imgedit-redo {
+    width: 40px;
 }
 
 /*--------------------------------------------------------------
@@ -11312,10 +11899,14 @@ div[aria-label="rtMedia pro short code"] {
     margin-top: 3px;
 }
 
+.bb-inbox.my-messages .has-text-field #wp-link .query-results {
+    top: 220px;
+}
+
 @media screen and (max-width: 720px) {
     .bb-inbox.bp-user #buddypress #message-threads tr td {
-        border-left: none;
-        border-right: none;
+        background: transparent;
+        border: 0;
     }
     .bb-inbox.bp-user #buddypress #message-threads tr td:not(:first-child) {
         padding-right: 0;
@@ -11349,6 +11940,7 @@ div[aria-label="rtMedia pro short code"] {
         left: 0;
     }
     .bb-inbox.bp-user #buddypress #message-threads tr td.thread-options {
+        min-height: 40px;
         width: 100%;
     }
     .bb-inbox.bp-user #buddypress #message-threads.drafts tr td.thread-star,
@@ -11511,7 +12103,9 @@ div[aria-label="rtMedia pro short code"] {
 .single-bp_doc #content article {
     padding: 22px 60px;
 }
-
+.single-bp_doc #comments article {
+    padding: 0;
+}
 .post-type-archive-bp_doc .edit-link,
 .single-bp_doc #content .edit-link {
     display: none;
@@ -11697,7 +12291,8 @@ div[aria-label="rtMedia pro short code"] {
     color: #4dcadd;
     content: "\f0c6";
     display: inline-block;
-    font-family: fontawesome;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: 20px;
     margin-top: -4px;
 }
@@ -11723,7 +12318,8 @@ div[aria-label="rtMedia pro short code"] {
 .site #doc-attachments-ul .doc-attachment-delete:before {
     color: #dd4d4d;
     content: '\f00d';
-    font-family: fontawesome;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: 14px;
     font-weight: normal;
 }
@@ -11759,7 +12355,8 @@ div[aria-label="rtMedia pro short code"] {
     color: white;
     content: "\f105";
     display: inline-block;
-    font-family: fontawesome;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: 26px;
     font-weight: normal;
     line-height: 49px;
@@ -11869,7 +12466,7 @@ body #associated_group_summary .item {
 }
 
 .site .doc-title,
-.site .directory-title {
+.site .directory-title:not(.empty) {
     background: #30455c;
     color: #fff;
     display: block;
@@ -11877,6 +12474,7 @@ body #associated_group_summary .item {
     margin-bottom: 25px;
     padding: 22px 30px;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .site .doc-title a,
@@ -11904,7 +12502,8 @@ h2.directory-title .breadcrumb-current {
 .directory-breadcrumb-separator::before {
     color: #4dcadd;
     content: "\f105";
-    font-family: fontawesome;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: 15px;
     font-weight: normal;
 }
@@ -11941,7 +12540,8 @@ h2.directory-title .breadcrumb-current {
     color: #4dcadd;
     content: "\f107";
     display: inline-block;
-    font: bold 14px/1 FontAwesome;
+    font: bold 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin-right: 10px;
@@ -11969,7 +12569,8 @@ h2.directory-title .breadcrumb-current {
 
 .genericon-category.genericon-category:before {
     content: '\f07c';
-    font-family: fontawesome;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     color: #4dcadd;
     font-size: 13px;
     position: relative;
@@ -12093,7 +12694,8 @@ div#bp-docs-pagination {
     color: white;
     content: "\f040";
     display: inline-block;
-    font-family: fontawesome;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-size: 18px;
     font-weight: normal;
     line-height: 43px;
@@ -12195,8 +12797,8 @@ div#bp-docs-pagination {
 }
 
 input[name='group-notify-members'] + strong {
-  /*  display: inline-block;
-    width: calc(100% - 30px); */
+    /*  display: inline-block;
+      width: calc(100% - 30px); */
 }
 
 .post-revisions label.screen-reader-text {
@@ -12425,7 +13027,8 @@ body.wiki #buddypress div#subnav.item-list-tabs li {
 .item-subitem-indicator a:before {
     color: #4dcadd;
     content: '\f055';
-    font-family: fontawesome;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-size: 20px;
     position: relative;
     text-indent: 0;
@@ -12650,6 +13253,10 @@ body form#group-settings-form #nav-sortable li {
     margin: 2px 20px;
 }
 
+.site .bp-docs-attachment-clip .genericon-attachment {
+    display: none;
+}
+
 .tags-cell.tags-cell {
     min-width: 100px;
     width: auto;
@@ -12696,7 +13303,8 @@ body form#group-settings-form #nav-sortable li {
     color: #dd4d4d;
     content: "\f00d";
     display: inline-block;
-    font: normal 14px/1 FontAwesome;
+    font: normal 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-right: 5px;
@@ -12706,7 +13314,8 @@ body form#group-settings-form #nav-sortable li {
     color: #4dcadd;
     content: "\f127";
     display: inline-block;
-    font: bold 14px/1 FontAwesome;
+    font: bold 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     padding-right: 5px;
@@ -12928,7 +13537,8 @@ body.invite-new-members .submit {
     color: #4dcadd;
     content: "\f107";
     display: inline-block;
-    font: bold 14px/1 FontAwesome;
+    font: bold 14px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin-right: 10px;
@@ -13059,7 +13669,8 @@ body.group-create .left-menu p {
     color: #dd4d4d;
     content: "\f00d";
     display: inline-block;
-    font: 16px/1 FontAwesome;
+    font: 16px/1 'Font Awesome 5 Free';
+    font-weight: 900;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -13068,10 +13679,6 @@ body.group-create .left-menu p {
 .site #create-group-form ul.first,
 .site #send-invite-form ul.first {
     margin-bottom: 10px;
-}
-
-#send-to-input {
-    min-height: 50px;
 }
 
 .site #invite-anyone-invite-list li:last-child {
@@ -13281,7 +13888,8 @@ form.pmpro_form div.pmpro_payment-expiration .buddyboss-select + .buddyboss-sele
 
 .checklist ul li:before {
     content: "\f00c";
-    font-family: FontAwesome;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     display: inline-block;
     width: 20%;
     margin-left: -20%;
@@ -13378,7 +13986,7 @@ form.pmpro_form .pmpro_submit {
 }
 
 /*--------------------------------------------------------------
-36.0 - BuddyPress Membership Type
+BuddyPress Membership Type
 --------------------------------------------------------------*/
 
 /* Members Index > Too many member types */
@@ -13390,6 +13998,8 @@ form.pmpro_form .pmpro_submit {
 #members-directory-form div.item-list-tabs li.hideshow ul {
     display: none;
     max-width: 180px;
+    margin-top: 10px;
+    top: 34px;
 }
 
 #members-directory-form div.item-list-tabs li.hideshow ul li {
@@ -13446,10 +14056,10 @@ form.pmpro_form .pmpro_submit {
     color: #fff;
     content: "\f104";
     display: inline-block;
-    font-family: "FontAwesome";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
     font-size: 32px;
     font-style: normal;
-    font-weight: normal;
     line-height: 50px;
     text-decoration: inherit;
     text-indent: -3px;
@@ -13626,9 +14236,9 @@ form.pmpro_form .pmpro_submit {
     min-height: 1px;
 }
 
-[dir='rtl'] .slick-slide {
+/*[dir='rtl'] .slick-slide {
     float: right;
-}
+}*/
 
 .slick-slide img {
     display: block;
@@ -13703,7 +14313,7 @@ body.group-blog form#group-settings-form #blog-details-fields input[type=radio] 
     clear: both;
     font-size: 16px;
     margin: 15px 0 0;
-    padding: 20px 70px;
+    padding: 20px 0 0 70px;
 }
 
 .bb-labels-wrap .bb-label-title {
@@ -13745,7 +14355,6 @@ body.group-blog form#group-settings-form #blog-details-fields input[type=radio] 
     background: transparent;
     border: 2px solid rgba(0, 0, 0, 0.1);
     box-shadow: none;
-    width: 100%;
 }
 
 .bb-add-label-button {
@@ -13758,7 +14367,7 @@ body.group-blog form#group-settings-form #blog-details-fields input[type=radio] 
 .bb-message-tools {
     border-bottom: 1px solid rgba(0, 0, 0, 0.11);
     margin-bottom: 25px;
-    padding: 15px 70px 15px;
+    padding: 15px 70px 14px;
     text-align: right;
 }
 
@@ -13957,6 +14566,83 @@ body .boss-modal-form .button {
 
 .sap-tags-widget .selectize-input input {
     height: auto;
+}
+
+/* posts do not appear in my posts in blog fix */
+@media screen and (max-width: 768px) {
+    form#sort-posts-form {
+        margin: 0;
+    }
+    .sap-post-container.sap-post-container .sap-post {
+        overflow: visible;
+    }
+}
+
+/*--------------------------------------------------------------
+42.0 - Wangguard
+--------------------------------------------------------------*/
+
+.wangguard-user-report.button {
+    margin: 0px 5px;
+    color: #FFF;
+    background: #CCC none repeat scroll 0% 0% ;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 3px 5px;
+    position: relative;
+    width: auto;
+    top: -1px;
+    line-height: 1;
+    letter-spacing: 0px;
+}
+
+/*--------------------------------------------------------------
+43.0 - Group Subscription
+--------------------------------------------------------------*/
+
+#groups-dir-list .group-subscription-div,
+#groups-list .group-subscription-div {
+    min-width: 175px;
+}
+
+#groups-dir-list .group-subscription-options,
+#groups-list .group-subscription-options {
+    min-width: 200px;
+}
+
+.group-header-meta .group-subscription-options.generic-button,
+#buddypress #groups-dir-list .group-subscription-options.generic-button,
+#buddypress #groups-list .group-subscription-options.generic-button {
+    line-height: 1;
+}
+
+#buddypress .group-header-meta .group-subscription-options.generic-button a,
+#buddypress #groups-dir-list .group-subscription-options.generic-button a,
+#buddypress #groups-list .group-subscription-options.generic-button a {
+    padding: 0;
+    background: transparent;
+    display: inline;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    color: #000;
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+}
+
+#buddypress .group-header-meta .group-subscription-options.generic-button .group-subscription-close,
+#buddypress #groups-dir-list .group-subscription-options.generic-button .group-subscription-close,
+#buddypress #groups-list .group-subscription-options.generic-button .group-subscription-close {
+    margin-top: 0;
+    display: inline-block;
+    width: auto;
+}
+
+.group-header-meta .group-subscription-options.generic-button a:before,
+#buddypress #groups-dir-list .group-subscription-options.generic-button a:before,
+#buddypress #groups-list .group-subscription-options.generic-button a:before {
+    display: none;
 }
 
 /*--------------------------------------------------------------
@@ -14175,3 +14861,144 @@ body .boss-modal-form .button {
     line-height: 18px;
 }
 
+/* Events view as dropdown */
+#tribe-bar-views .buddyboss-select-inner {
+    display: none;
+}
+.events-archive.events-archive .entry-content,
+.events-archive.events-archive .entry-header {
+    width: 100%;
+}
+
+/* Fixed Visual Composer Issues */
+body.boxed .page-full-width,
+body.boxed .site-content {
+    overflow: visible;
+}
+
+body.boxed .page-full-width:after {
+    clear: both;
+    content: '';
+    display: table;
+}
+
+.group-single #admins-list:after,
+.group-single #members-list:after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.group-single .section-header {
+    margin-bottom: 20px;
+}
+
+.group-single #admins-list .item-avatar {
+    width: 65px;
+}
+
+#group-settings-form .bp-widget {
+    margin-bottom: 20px;
+}
+
+#group-settings-form ul.item-list li {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+        -ms-flex-flow: row wrap;
+            flex-flow: row wrap;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+}
+
+#group-settings-form ul.item-list li .item {
+    flex: 1;
+    width: auto;
+}
+
+#group-settings-form ul.item-list li .action {
+    flex: 0 0 100%;
+    padding-left: 95px;
+}
+
+#group-settings-form ul.item-list li .action .button {
+    width: 150px;
+    font-size: 13px;
+    letter-spacing: 0;
+    font-weight: 600;
+    margin: 0 0 5px;
+}
+
+#group-settings-form .bp-widget.group-members-list.group-mods-list {
+    margin-bottom: 40px;
+}
+
+/* Font awesome menu icon fix */
+[class^="fa-"],
+[class*=" fa-"] {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.fab.fab {
+    font-family: 'Font Awesome 5 Brands';
+}
+
+#object-nav .fa-cart-arrow-down {
+    font-family: inherit;
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
+}
+
+#object-nav .fa-cart-arrow-down:before {
+    display: none;
+}
+
+#masthead span.wp-admin-bar-arrow {
+    display: none;
+}
+
+/*Edge hack*/
+@supports (-ms-accelerator:true) {
+    .bp-cover-image .moxie-shim {
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+/*----------------------------------------------------------------
+Print Style
+----------------------------------------------------------------*/
+
+@media print {
+    #secondary,
+    #mobile-header,
+    .site-description,
+    #mobile-menu,
+    .header-wrap,
+    #left-panel {
+        display: none;
+    }
+}
+
+li.btn.boss-tab.ui-state-default.ui-corner-top {
+    padding: 0;
+}
+li.btn.boss-tab.ui-state-default.ui-corner-top a.boss-tab-link {
+    padding-top: 10px;
+    padding-bottom: 9px;
+    display: block;
+    padding-left: 19px;
+    padding-right: 19px;
+}

@@ -106,7 +106,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 					),
 				)
 			);
-            
+
 			// Header Settings
 			$this->sections[] = array(
 				'title'		 => __( 'Header', 'boss' ),
@@ -114,7 +114,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 				'customizer' => false,
 				//'desc'		 => __( 'We use device detection to determine the correct layout, with media queries as a fallback.', 'boss' ),
 				'icon'		 => 'el-icon-credit-card',
-				'fields'	 => array(            
+				'fields'	 => array(
                     array(
 						'id'		 => 'boss_header',
 						'type'		 => 'custom_image_select',
@@ -123,11 +123,11 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						'default'	 => '1',
 						'options'	 => array(
                                 '1'      => array(
-                                    'alt'   => 'Header style 1', 
+                                    'alt'   => 'Header style 1',
                                     'img'   => get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/images/headers/style1.png'
                                 ),
                                 '2'      => array(
-                                    'alt'   => 'Header style 2', 
+                                    'alt'   => 'Header style 2',
                                     'img'   => get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/images/headers/style2.png'
                                 ),
                         )
@@ -275,6 +275,22 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 			$group_cover_sizes	 = apply_filters( 'boss_group_cover_sizes', array( '322' => 'Big', '200' => 'Small' ) );
 			$blog_cover_sizes	 = apply_filters( 'boss_blog_cover_sizes', array( '350' => 'Big', '200' => 'Small' ) );
 
+//                        BP has issues with bp_attachments_get_cover_image_dimensions function so commenting until it is fixed.
+//                        if ( function_exists( 'bp_attachments_get_cover_image_dimensions' ) ) {
+//                            $profile_cover_dimensions = bp_attachments_get_cover_image_dimensions('xprofile');
+//                            $group_cover_dimensions = bp_attachments_get_cover_image_dimensions('groups');
+//                        } else {
+//                            $profile_cover_dimensions = '';
+//                            $group_cover_dimensions = '';
+//                        }
+                        $profile_cover_dimensions = array();
+                        $group_cover_dimensions = array();
+                        
+                        $profile_cover_dimensions['width'] = '625'; 
+                        $profile_cover_dimensions['height'] = '225'; 
+                        $group_cover_dimensions['width'] = '625'; 
+                        $group_cover_dimensions['height'] = '225'; 
+
 			// Cover Photos
 			$this->sections[] = array(
 				'title'		 => __( 'Cover Photos', 'boss' ),
@@ -307,7 +323,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						'id'		 => 'boss_profile_cover_default',
 						'type'		 => 'media',
 						'title'		 => __( 'Default Photo', 'boss' ),
-						'subtitle'	 => __( 'We display a photo at random from our included library. You can optionally upload your own image to always use as the default cover photo. Ideal size is 1050px by 320px.', 'boss' ),
+						'subtitle'	 => __( 'We display a photo at random from our included library. You can optionally upload your own image to always use as the default cover photo. Ideal size is '.$profile_cover_dimensions['width'].'px by '.$profile_cover_dimensions['height'].'px .', 'boss' ),
 						'url'		 => false,
 						'required'	 => array( 'boss_cover_profile', 'equals', '1' ),
 					),
@@ -345,7 +361,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						'id'		 => 'boss_group_cover_default',
 						'type'		 => 'media',
 						'title'		 => __( 'Default Photo', 'boss' ),
-						'subtitle'	 => __( 'We display a photo at random from our included library. You can optionally upload your own image to always use a default cover photo. Ideal size is 1050px by 320px.', 'boss' ),
+						'subtitle'	 => __( 'We display a photo at random from our included library. You can optionally upload your own image to always use a default cover photo. Ideal size is '.$group_cover_dimensions['width'].'px by '.$group_cover_dimensions['height'].'px .', 'boss' ),
 						'url'		 => false,
 						'required'	 => array( 'boss_cover_group', 'equals', '1' ),
 					),
@@ -466,12 +482,12 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 					),
 					array(
 						'id'            => 'profile_social_media_links',
-						'type'          => 'slides',
+						'type'          => 'custom_sites',
 						'title'		    => __( 'Sites to Allow', 'boss' ),
 						'required'	    => array( 'profile_social_media_links_switch', 'equals', '1' ),
-						'placeholder'   => array(
-							'title'           => __('This is a title', 'redux-framework-demo')
-						),
+						'placeholder'	 => array(
+							'title'			 => __( 'Site Name', 'boss' ),
+						)
 					),
 				)
 			);
@@ -499,11 +515,28 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						),
 						'output'		 => array( '.is-desktop #mastlogo .site-title, .is-mobile #mobile-header .site-title a, #mobile-header h1 a' ),
 					),
+                    array(
+                        'id'             => 'boss_body_font_family',
+                        'type'           => 'typography',
+                        'title'          => __( 'Body Font', 'boss' ),
+                        'subtitle'       => __( 'Specify the body font properties.', 'boss' ),
+                        'google'         => true,
+                        'line-height'    => false,
+                        'text-align'     => false,
+                        'subsets'        => true,
+                        'color'          => false,
+                        'default'        => array(
+                            'font-size'      => '14px',
+                            'font-family'    => 'Lato',
+                            'font-weight'    => '400',
+                        ),
+                        'output'         => array( 'html, #profile-nav span, #wp-admin-bar-shortcode-secondary .alert, .header-notifications a.notification-link span, .site-header #wp-admin-bar-shortcode-secondary .alert, .header-notifications a.notification-link span, .entry-meta .comments-link a, .entry-meta .post-date time' ),
+                    ),
 					array(
-						'id'			 => 'boss_body_font_family',
+						'id'			 => 'boss_body_font_family_bold',
 						'type'			 => 'typography',
-						'title'			 => __( 'Body Font', 'boss' ),
-						'subtitle'		 => __( 'Specify the body font properties.', 'boss' ),
+						'title'			 => __( 'Body Font Bold', 'boss' ),
+						'subtitle'		 => __( 'Specify the bold body font properties.', 'boss' ),
 						'google'		 => true,
 						'line-height'	 => false,
 						'text-align'	 => false,
@@ -512,9 +545,9 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						'default'		 => array(
 							'font-size'		 => '14px',
 							'font-family'	 => 'Lato',
-							'font-weight'	 => '400',
+							'font-weight'	 => '700',
 						),
-						'output'		 => array( 'html, #profile-nav span, #wp-admin-bar-shortcode-secondary .alert, .header-notifications a.notification-link span, .site-header #wp-admin-bar-shortcode-secondary .alert, .header-notifications a.notification-link span, .entry-meta .comments-link a, .entry-meta .post-date time' ),
+						'output'		 => array( 'strong, b' ),
 					),
 					array(
 						'id'			 => 'boss_h1_font_options',
@@ -640,7 +673,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 							'font-size'		 => '30px',
 							'font-weight'	 => '700',
 						),
-						'output'		 => array( '#item-header-content h1,.group-info li p:first-child,#item-statistics .numbers span p:first-child' ),
+						'output'		 => array( '#item-header-content h1,.group-info li p:first-child,#item-statistics .numbers span p:first-child, header .page-title, header .main-title' ),
 					),
 					array(
 						'id'			 => 'boss_slide_title_font_options',
@@ -667,46 +700,46 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 
 			$style_elements = array(
 				array( 'slug' => 'boss_scheme_select', 'desc' => 'ss', 'type' => 'preset', 'default' => $default_scheme ),
-				array( 'slug' => 'text_info', 'desc' => 'Text', 'type' => 'info' ),
-				array( 'slug' => 'boss_body_font_color', 'title' => 'Text Color', 'subtitle' => 'Set the text color for body.', 'desc' => '', 'type' => 'color', 'default' => '#737373' ),
-				array( 'slug' => 'boss_heading_font_color', 'title' => 'Headings Color', 'subtitle' => 'Set the color for h1, h2, h3, h4, h5, h6 elements.', 'desc' => '', 'type' => 'color', 'default' => '#000000' ),
-				array( 'slug' => 'boss_slideshow_font_color', 'title' => 'Slideshow Text Color', 'subtitle' => 'Set the color for slideshow content.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'links_buttons_info', 'desc' => 'Links and Buttons', 'type' => 'info' ),
-				array( 'slug' => 'boss_links_pr_color', 'title' => 'Link Color', 'subtitle' => 'Select your color for anchor elements (links).', 'desc' => '', 'type' => 'color', 'default' => '#000000' ),
-				array( 'slug' => 'boss_links_color', 'title' => 'Buttons Color', 'subtitle' => 'Select your color for button elements.', 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
-				array( 'slug' => 'body_info', 'desc' => 'Body', 'type' => 'info' ),
-				array( 'slug' => 'boss_layout_body_color', 'title' => 'Body Background Color', 'subtitle' => 'Select your color for body background.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'footer_color_info', 'desc' => 'Footer', 'type' => 'info' ),
-				array( 'slug' => 'boss_layout_footer_top_color', 'title' => 'Footer Widgets Background Color', 'subtitle' => 'Select your background color for footer widget area.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_layout_footer_bottom_color', 'title' => 'Footer Bottom Text Color', 'subtitle' => 'Select your color for footer bottom.', 'desc' => '', 'type' => 'color', 'default' => '#999999' ),
-				array( 'slug' => 'boss_layout_footer_bottom_bgcolor', 'title' => 'Footer Bottom Background Color', 'subtitle' => 'Select your color for footer bottom background.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'titlebar_desktop_info', 'desc' => 'Titlebar (Desktop)', 'type' => 'info' ),
-				array( 'slug' => 'boss_panel_logo_color', 'title' => 'Logo Area Background', 'subtitle' => 'Set background color for logo area.', 'desc' => '', 'type' => 'color', 'default' => '#30445C' ),
-				array( 'slug' => 'boss_title_color', 'title' => 'Site Title Color', 'subtitle' => 'Select your color for site title.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_layout_titlebar_bgcolor', 'title' => 'Titlebar Background Color', 'subtitle' => 'Select your background color for Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_layout_titlebar_color', 'title' => 'Titlebar Text Color', 'subtitle' => 'Select your text color for Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#999999' ),
-				array( 'slug' => 'titlebar_nobp_info', 'desc' => 'Titlebar (Desktop without BuddyPanel)', 'type' => 'info' ),
-				array( 'slug' => 'boss_layout_nobp_titlebar_bgcolor', 'title' => 'Titlebar Background Color', 'subtitle' => 'Select your background color for Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#30455c' ),
-				array( 'slug' => 'boss_layout_nobp_titlebar_color', 'title' => 'Titlebar Links Color', 'subtitle' => 'Select your color for links in Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_layout_nobp_titlebar_hover_color', 'title' => 'Titlebar Links Hover Color', 'subtitle' => 'Select your hover color for links in Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
-				array( 'slug' => 'titlebar_mobile_info', 'desc' => 'Titlebar (Mobile)', 'type' => 'info' ),
-				array( 'slug' => 'boss_layout_mobiletitlebar_bgcolor', 'title' => 'Mobile Titlebar Background Color', 'subtitle' => 'Select your background color for mobile Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#39516e' ),
-				array( 'slug' => 'boss_layout_mobiletitlebar_color', 'title' => 'Mobile Titlebar Text Color', 'subtitle' => 'Select your text color for mobile Titlebar.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'buddypanel_color_info', 'desc' => 'BuddyPanel', 'type' => 'info' ),
-				array( 'slug' => 'boss_panel_color', 'title' => 'BuddyPanel Background Color', 'subtitle' => 'Select your background color for BuddyPanel.', 'desc' => '', 'type' => 'color', 'default' => '#30445C' ),
-				array( 'slug' => 'boss_panel_title_color', 'title' => 'BuddyPanel Title Color', 'subtitle' => 'Select your title color for BuddyPanel.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_panel_icons_color', 'title' => 'BuddyPanel Icons Color', 'subtitle' => 'Select your color for icons in BuddyPanel.', 'desc' => '', 'type' => 'color', 'default' => '#3c7a90' ),
-				array( 'slug' => 'boss_panel_open_icons_color', 'title' => 'BuddyPanel Open Icons Color', 'subtitle' => 'Select your color for icons in BuddyPanel.', 'desc' => '', 'type' => 'color', 'default' => '#366076' ),
-				array( 'slug' => 'cover_photo_color_info', 'desc' => 'Cover Photos', 'type' => 'info' ),
-				array( 'slug' => 'boss_cover_color', 'title' => 'Cover Photo Background', 'subtitle' => 'Select your background color for cover photo.', 'desc' => '', 'type' => 'color', 'default' => '#3c7a90' ),
-				array( 'slug' => 'admin_screen_info', 'desc' => 'Admin Screen', 'type' => 'info' ),
-				array( 'slug' => 'boss_admin_screen_background_color', 'title' => 'Admin Screen Background Color', 'subtitle' => 'Select your background color for admin screen.', 'desc' => '', 'type' => 'color', 'default' => '#30455c' ),
-				array( 'slug' => 'boss_admin_screen_text_color', 'title' => 'Admin Screen Text Color', 'subtitle' => 'Select your text color for admin screen.', 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
-				array( 'slug' => 'boss_admin_screen_button_color', 'title' => 'Admin Screen Links and Button Color', 'subtitle' => 'Select your links hover color and buttons color for admin screen.', 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
-                array( 'slug' => 'boss_edu_color_section', 'desc' => 'Social Learner Options', 'type' => 'info' ),
-                array( 'slug' => 'boss_edu_active_link_color', 'title' => 'Active link color', 'subtitle' => 'Set the color for active links.', 'desc' => '', 'type' => 'color', 'default' => '#ea6645' ),
-                array( 'slug' => 'boss_edu_sidebar_bg', 'title' => 'Sidebar Background', 'subtitle' => 'Set the color for sidebar.', 'desc' => '', 'type' => 'color', 'default' => '#cdd7e2' ),
-			);
+				array( 'slug' => 'text_info', 'desc' => __( 'Text', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_body_font_color', 'title' => __( 'Text Color', 'boss' ), 'subtitle' =>__(  'Set the text color for body.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#737373' ),
+                array( 'slug' => 'boss_heading_font_color', 'title' => __( 'Headings Color', 'boss' ), 'subtitle' => __( 'Set the color for h1, h2, h3, h4, h5, h6 elements.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#000000' ),
+                array( 'slug' => 'boss_slideshow_font_color', 'title' => __( 'Slideshow Text Color', 'boss' ), 'subtitle' => __( 'Set the color for slideshow content.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'links_buttons_info', 'desc' => __( 'Links and Buttons', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_links_pr_color', 'title' => __( 'Link Color', 'boss' ), 'subtitle' => __( 'Select your color for anchor elements (links).', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#000000' ),
+                array( 'slug' => 'boss_links_color', 'title' => __( 'Buttons Color', 'boss' ), 'subtitle' => __( 'Select your color for button elements.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
+                array( 'slug' => 'body_info', 'desc' => __( 'Body', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_layout_body_color', 'title' => __( 'Body Background Color', 'boss' ), 'subtitle' => __( 'Select your color for body background.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'footer_color_info', 'desc' => __( 'Footer', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_layout_footer_top_color', 'title' => __( 'Footer Widgets Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for footer widget area.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_layout_footer_bottom_color', 'title' => __( 'Footer Bottom Text Color', 'boss' ), 'subtitle' => __( 'Select your color for footer bottom.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#999999' ),
+                array( 'slug' => 'boss_layout_footer_bottom_bgcolor', 'title' => __( 'Footer Bottom Background Color', 'boss' ), 'subtitle' => __( 'Select your color for footer bottom background.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'titlebar_desktop_info', 'desc' => __( 'Titlebar (Desktop)', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_panel_logo_color', 'title' => __( 'Logo Area Background', 'boss' ), 'subtitle' => __( 'Set background color for logo area.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#30445C' ),
+                array( 'slug' => 'boss_title_color', 'title' => __( 'Site Title Color', 'boss' ), 'subtitle' => __( 'Select your color for site title.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_layout_titlebar_bgcolor', 'title' => __( 'Titlebar Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_layout_titlebar_color', 'title' => __( 'Titlebar Text Color', 'boss' ), 'subtitle' => __( 'Select your text color for Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#999999' ),
+                array( 'slug' => 'titlebar_nobp_info', 'desc' => __( 'Titlebar (Desktop without BuddyPanel)', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_layout_nobp_titlebar_bgcolor', 'title' => __( 'Titlebar Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#30455c' ),
+                array( 'slug' => 'boss_layout_nobp_titlebar_color', 'title' => __( 'Titlebar Links Color', 'boss' ), 'subtitle' => __( 'Select your color for links in Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_layout_nobp_titlebar_hover_color', 'title' => __( 'Titlebar Links Hover Color', 'boss' ), 'subtitle' => __( 'Select your hover color for links in Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
+                array( 'slug' => 'titlebar_mobile_info', 'desc' => __( 'Titlebar (Mobile)', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_layout_mobiletitlebar_bgcolor', 'title' => __( 'Mobile Titlebar Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for mobile Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#39516e' ),
+                array( 'slug' => 'boss_layout_mobiletitlebar_color', 'title' => __( 'Mobile Titlebar Text Color', 'boss' ), 'subtitle' => __( 'Select your text color for mobile Titlebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'buddypanel_color_info', 'desc' => __( 'BuddyPanel', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_panel_color', 'title' => __( 'BuddyPanel Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for BuddyPanel.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#30445C' ),
+                array( 'slug' => 'boss_panel_title_color', 'title' => __( 'BuddyPanel Title Color', 'boss' ), 'subtitle' => __( 'Select your title color for BuddyPanel.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_panel_icons_color', 'title' => __( 'BuddyPanel Icons Color', 'boss' ), 'subtitle' => __( 'Select your color for icons in BuddyPanel.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#3c7a90' ),
+                array( 'slug' => 'boss_panel_open_icons_color', 'title' => __( 'BuddyPanel Open Icons Color', 'boss' ), 'subtitle' => __( 'Select your color for icons in BuddyPanel.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#366076' ),
+                array( 'slug' => 'cover_photo_color_info', 'desc' => __( 'Cover Photos', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_cover_color', 'title' => __( 'Cover Photo Background', 'boss' ), 'subtitle' => __( 'Select your background color for cover photo.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#3c7a90' ),
+                array( 'slug' => 'admin_screen_info', 'desc' => __( 'Admin Screen', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_admin_screen_background_color', 'title' => __( 'Admin Screen Background Color', 'boss' ), 'subtitle' => __( 'Select your background color for admin screen.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#30455c' ),
+                array( 'slug' => 'boss_admin_screen_text_color', 'title' => __( 'Admin Screen Text Color', 'boss' ), 'subtitle' => __( 'Select your text color for admin screen.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ffffff' ),
+                array( 'slug' => 'boss_admin_screen_button_color', 'title' => __( 'Admin Screen Links and Button Color', 'boss' ), 'subtitle' => __( 'Select your links hover color and buttons color for admin screen.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#4dcadd' ),
+                array( 'slug' => 'boss_edu_color_section', 'desc' => __( 'Social Learner Options', 'boss' ), 'type' => 'info' ),
+                array( 'slug' => 'boss_edu_active_link_color', 'title' => __( 'Active link color', 'boss' ), 'subtitle' => __( 'Set the color for active links.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#ea6645' ),
+                array( 'slug' => 'boss_edu_sidebar_bg', 'title' => __( 'Sidebar Background', 'boss' ), 'subtitle' => __( 'Set the color for sidebar.', 'boss' ), 'desc' => '', 'type' => 'color', 'default' => '#cdd7e2' ),
+            );
 
 			$style_elements = apply_filters( 'boss_filter_color_options', $style_elements );
 
@@ -990,7 +1023,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 					'boss_admin_screen_text_color'			 => '#ffffff',
 					'boss_admin_screen_button_color'		 => '#7effbe',
 				)
-			);            
+			);
 
 			$default_themes = array();
 
@@ -1002,9 +1035,9 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 			$default_themes[ 'mint' ]		 = $mint;
 			$default_themes[ 'iceberg' ]	 = $iceberg;
 			$default_themes[ 'nocturnal' ]	 = $nocturnal;
-            
+
             global $learner;
-            
+
             if($learner) {
                 $education = array(
                     'education' => array(
@@ -1043,7 +1076,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
                     )
                 );
 
-                $default_themes = array_merge( $education, $default_themes ); 
+                $default_themes = array_merge( $education, $default_themes );
             }
 
 			foreach ( $style_elements as $elem ) {
@@ -1066,8 +1099,8 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 					$style_fields[] = array(
 						'id'		 => $elem[ 'slug' ],
 						'type'		 => 'custom_image_select',
-						'title'		 => 'Color Presets',
-						'subtitle'	 => 'Change section colors based on these presets.',
+						'title'		 => __( 'Color Presets', 'boss' ),
+						'subtitle'	 => __( 'Change section colors based on these presets.', 'boss' ),
 						'presets'	 => true,
 						'customizer' => false,
 						'default'	 => 0,
@@ -1126,7 +1159,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 					array(
 						'id'		 => 'boss_copyright',
 						'type'		 => 'editor',
-						'default'	 => '&copy; ' . date( 'Y' ) . ' - Boss <span class="boss-credit">&middot; Powered by <a href="http://www.buddyboss.com" title="BuddyPress themes" target="_blank">BuddyBoss</a></span>',
+						'default'	 => '&copy; ' . date( 'Y' ) . ' - Boss <span class="boss-credit">&middot; Powered by <a href="https://www.buddyboss.com" title="BuddyPress themes" target="_blank">BuddyBoss</a></span>',
 						'args'		 => array(
 							'teeny'			 => true,
 							'media_buttons'	 => false,
@@ -1282,6 +1315,13 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 						'off'		 => __( 'No', 'boss' ),
 						'default'	 => '1',
 					),
+					array(
+						'id'		 => 'boss_excluded_inputs',
+						'type'		 => 'multi_text',
+						'title'		 => __( 'Excluded Inputs', 'boss' ),
+						'subtitle'   => __( 'Enter CSS selector, describing inputs to be excluded from Form Inputs JavaScript', 'boss' ),
+						'required'	 => array( 'boss_inputs', 'equals', '1' ),
+					)
 				)
 			);
 
@@ -1383,11 +1423,11 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
                 global $wpdb, $bp;
                 $field_groups = array();
 
-                $dbfields = $wpdb->get_results( 
+                $dbfields = $wpdb->get_results(
                     "SELECT g.id as 'group_id', g.name as 'group_name', f.id, f.name "
                     . " FROM {$bp->profile->table_name_fields} f JOIN {$bp->profile->table_name_groups} g ON f.group_id=g.id "
                     . " WHERE f.parent_id=0 "
-                    . " ORDER BY f.name ASC " 
+                    . " ORDER BY f.name ASC "
                 );
 
 
@@ -1400,7 +1440,7 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
                             );
                         }
 
-                        $field_groups[$dbfield->group_id]['fields'][$dbfield->id] = $dbfield->name; 
+                        $field_groups[$dbfield->group_id]['fields'][$dbfield->id] = $dbfield->name;
                     }
 
                     $show_opt_group = count( $field_groups ) > 1 ? true : false;
@@ -1504,17 +1544,17 @@ if ( !class_exists( 'boss_Redux_Framework_config' ) ) {
 			// SOCIAL ICONS -> Setup custom links in the footer for quick links in your panel footer icons.
 			$this->args[ 'share_icons' ][]	 = array(
 				'url'	 => 'https://www.facebook.com/BuddyBossWP',
-				'title'	 => 'Like us on Facebook',
+				'title'	 => __( 'Like us on Facebook', 'boss' ),
 				'icon'	 => 'el-icon-facebook'
 			);
 			$this->args[ 'share_icons' ][]	 = array(
 				'url'	 => 'https://twitter.com/buddybosswp',
-				'title'	 => 'Follow us on Twitter',
+				'title'	 => __( 'Follow us on Twitter', 'boss' ),
 				'icon'	 => 'el-icon-twitter'
 			);
 			$this->args[ 'share_icons' ][]	 = array(
 				'url'	 => 'https://www.linkedin.com/company/buddyboss',
-				'title'	 => 'Find us on LinkedIn',
+				'title'	 => __( 'Find us on LinkedIn', 'boss' ),
 				'icon'	 => 'el-icon-linkedin'
 			);
 

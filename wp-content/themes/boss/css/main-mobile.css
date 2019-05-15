@@ -93,6 +93,10 @@ This is the Mobile stylesheet, served to phones and tablets.
 1.13 - BP Profile Search
 1.14 - BuddyPress Group Email Subscription
 1.15 - Invite All
+1.16 - BuddyPress Docs
+1.17 - GD bbPress Attachments
+1.18 - Group Hierarchy
+1.19 - WP Job Manager
 2.0 - Some Custom media queries
     2.1 - Buddyboss media plugin
     2.2 - BuddyPress Global Search Results
@@ -154,9 +158,9 @@ body {
 /*  body.buddypress #content article.error404,*/
 .boxed #comments,
 .boxed .page-full-width #comments,
-body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment), 
+body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment),
 body.single:not(.buddypress):not(.bbpress).boxed .page-full-width .site-content article:not(.comment),
-body.page:not(.buddypress).boxed .site-content article:not(.comment), 
+body.page:not(.buddypress).boxed .site-content article:not(.comment),
 body.single:not(.buddypress):not(.bbpress).boxed .site-content article:not(.comment),
 .site-content nav.nav-single,
 .site-content #comments,
@@ -253,7 +257,8 @@ header#masthead .header-inner {
     display: none !important;
 }
 
-#mobile-header {
+#mobile-header,
+.subheadder {
     width: 100%;
     z-index: 2;
     background-color: #30455c;
@@ -267,7 +272,6 @@ header#masthead .header-inner {
     transform: translate3d(0,0,0);
     box-sizing: border-box;
 }
-
 #mobile-header.with-adminbar {
     position: static;
 }
@@ -305,7 +309,7 @@ header#masthead .header-inner {
 }
 
 #mobile-header h1 a {
-    margin: 0;
+    margin: 5px 0 0;
     line-height: 1;
     font-family: 'Pacifico', cursive;
     font-weight: 400;
@@ -319,7 +323,6 @@ header#masthead .header-inner {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
 #mobile-logo {
     text-align: center;
 }
@@ -352,11 +355,27 @@ header#masthead .header-inner {
     right: 0;
 }
 
-.sidebar-btn.fa {
+#cart-nav-wrap {
+    display: none;
+    right: 40px;
+}
+
+.sidebar-btn {
     font-size: 35px;
     color: #fff;
+    display: inline-block;
+    line-height: 1;
     width: 66px;
     text-align: center;
+}
+
+.sidebar-btn .fa,
+.sidebar-btn .fab,
+.sidebar-btn .fal,
+.sidebar-btn .far,
+.sidebar-btn .fas,
+.sidebar-btn .svg-inline--fa {
+    pointer-events: none; 
 }
 
 #profile-nav {
@@ -540,7 +559,7 @@ body:not(.logged-in) .menu-panel .bp_components a:not(:last-child) {
     transform: translate(0,0);
 }
 
-.logged-in .with-adminbar #mobile-menu, .logged-in .with-adminbar #left-panel {
+.logged-in .with-adminbar #mobile-menu-inner, .logged-in .with-adminbar #left-panel {
     padding-top: 46px;
     z-index: -1;
     opacity: 0;
@@ -567,7 +586,8 @@ body:not(.logged-in) .menu-panel .bp_components a:not(:last-child) {
 .menu-panel #header-menu > ul li a,
 .menu-panel .screen-reader-shortcut,
 #nav-menu ul li a:not(.open-submenu),
-.menu-panel .menupop a:not(.open-submenu) {
+.menu-panel .menupop a:not(.open-submenu),
+.menu-panel .menupop div.ab-item:not(.open-submenu) {
     font-size: 17px;
 }
 
@@ -597,6 +617,7 @@ body:not(.logged-in) .menu-panel .bp_components a:not(:last-child) {
 .menu-panel #nav-menu > ul > li > a,
 body:not(.left-menu-open) .menu-panel #nav-menu > ul > li > a,
 body:not(.left-menu-open) .menu-panel #header-menu > ul > li > a,
+.menu-panel #left-panel-inner .menupop > div.ab-item ,
 .menu-panel #left-panel-inner .menupop > a ,
 body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > a {
     height: auto;
@@ -609,6 +630,7 @@ body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > a {
 .menu-panel #header-menu > ul > li > a:not(.open-submenu),
 body:not(.left-menu-open) .menu-panel #nav-menu > ul > li > a:not(.open-submenu),
 body:not(.left-menu-open) .menu-panel #header-menu > ul > li > a:not(.open-submenu),
+.menu-panel #left-panel-inner .menupop > div.ab-item:not(.open-submenu),
 .menu-panel #left-panel-inner .menupop > a:not(.open-submenu),
 body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > a:not(.open-submenu) {
     padding-right: 25px;
@@ -619,7 +641,9 @@ body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > a:not(.open-s
 .menu-panel #nav-menu > ul > li > .open-submenu + a:not(.open-submenu),
 .menu-panel #header-menu > ul > li > .open-submenu + a:not(.open-submenu),
 body:not(.left-menu-open) .menu-panel #nav-menu > ul > li > .open-submenu + a:not(.open-submenu),
+.menu-panel #left-panel-inner .menupop > .open-submenu + div:not(.open-submenu),
 .menu-panel #left-panel-inner .menupop > .open-submenu + a:not(.open-submenu),
+body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > .open-submenu + div:not(.open-submenu),
 body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > .open-submenu + a:not(.open-submenu) {
     padding-right: 55px;
 }
@@ -640,6 +664,7 @@ body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > .open-submenu
 .menu-panel #header-menu > ul > li > a.open-submenu:before,
 .menu-panel .bp_components ul li ul li a.open-submenu:before {
     font-size: 23px;
+	font-weight: 900;
 }
 
 .menu-panel ul li > a span {
@@ -700,7 +725,8 @@ body:not(.left-menu-open) .menu-panel #left-panel-inner .menupop > .open-submenu
     -moz-osx-font-smoothing: grayscale;
     color: #3c7a90;
     display: inline-block;
-    font: 19px/1 FontAwesome;
+    font: 19px/1 'Font Awesome 5 Free';
+	font-weight: 900;
     margin-right: 20px;
     text-align: center;
     text-rendering: auto;
@@ -727,6 +753,9 @@ body.left-menu-open.error404 .search-wrap {
     box-shadow: inset 1px 0 2px rgba(0,0,0,0.1);
 }
 
+#header-menu .open-submenu:before {
+    display: none;
+}
 
 /*--------------------------------------------------------------
 1.0.5 - Mobile Post Content
@@ -808,8 +837,8 @@ body.left-menu-open.error404 .search-wrap {
 1.0.6 - Pages header
 --------------------------------------------------------------*/
 
-.boxed .page-full-width .archive-header, 
-.boxed.search-results .page-full-width .page-header, 
+.boxed .page-full-width .archive-header,
+.boxed.search-results .page-full-width .page-header,
 .boxed .page-full-width .activity-header.page-header,
 .boxed .archive-header,
 .boxed.search-results .page-header,
@@ -878,9 +907,10 @@ body.left-menu-open.error404 .search-wrap {
     padding: 12px;
 }
 
-.widget-area .widget_search input[type="text"], .widget-area .widget_display_search input[type="text"] {
+.widget-area .widget_search input[type="text"],
+.widget-area .widget_display_search input[type="text"] {
     height: 48px;
-    padding: 12px 20px 12px 50px;
+    padding: 12px 20px 12px 20px;
 }
 
 .widget-area .widget input:-webkit-autofill {
@@ -892,7 +922,7 @@ body.left-menu-open.error404 .search-wrap {
     display: block;
 }
 
-.widget-area .search-wrap #searchsubmit,
+.widget-area .search-wrap .searchsubmit,
 .widget-area .search-wrap input {
     height: 47px;
 }
@@ -950,7 +980,8 @@ div.footer-inner ul.footer-menu {
 }
 
 div.footer-inner ul.footer-menu li {
-    margin: 0 3px;
+    margin: 2px 10px 3px;
+    display: inline-block;
 }
 
 div.footer-inner ul.footer-menu li:before {
@@ -1011,6 +1042,62 @@ body.buddypress.error404 .entry-content, .error404 .entry-content {
 }
 
 /*--------------------------------------------------------------
+1.0.14 - Gallery
+--------------------------------------------------------------*/
+
+@media (max-width: 359px) {
+    .site-title {
+        font-weight: normal;
+    }
+    .site-description {
+        clip: rect(1px, 1px, 1px, 1px);
+        position: absolute;
+    }
+    .gallery {
+        margin-left: 0;
+    }
+
+    .gallery .gallery-item,
+    .gallery-columns-2.gallery-size-thumbnail .gallery-item {
+        max-width: none;
+        width: 49%;
+        width: -webkit-calc(50% - 4px);
+        width:         calc(50% - 4px);
+    }
+
+    .gallery-columns-1.gallery-size-medium,
+    .gallery-columns-1.gallery-size-thumbnail,
+    .gallery-columns-2.gallery-size-thumbnail,
+    .gallery-columns-3.gallery-size-thumbnail {
+        display: block;
+    }
+
+    .gallery-columns-1 .gallery-item,
+    .gallery-columns-1.gallery-size-medium .gallery-item,
+    .gallery-columns-1.gallery-size-thumbnail .gallery-item {
+        text-align: center;
+        width: 98%;
+        width: -webkit-calc(100% - 4px);
+        width:         calc(100% - 4px);
+    }
+
+    .gallery-columns-3 .gallery-item:nth-of-type(3n),
+    .gallery-columns-5 .gallery-item:nth-of-type(5n),
+    .gallery-columns-7 .gallery-item:nth-of-type(7n),
+    .gallery-columns-9 .gallery-item:nth-of-type(9n) {
+        margin-right: 4px;
+    }
+
+    .gallery br {
+        display: none;
+    }
+
+    .gallery .gallery-item:nth-of-type(even) {
+        margin-right: 0;
+    }
+}
+
+/*--------------------------------------------------------------
 1.1 - Some custom media queries
 --------------------------------------------------------------*/
 
@@ -1056,7 +1143,7 @@ body.buddypress.error404 .entry-content, .error404 .entry-content {
     body.boxed .page-full-width #woo-content,
     body.boxed #woo-content {
         margin-left: 15px;
-        margin-right: 15px;        
+        margin-right: 15px;
     }
     #secondary.widget-area .widget,
     .page-header {
@@ -1094,7 +1181,7 @@ body.buddypress.error404 .entry-content, .error404 .entry-content {
         font-size: 30px;
         padding-right: 0;
     }
-    
+
     .boxed .page-full-width .post-wrap,
     .boxed .post-wrap,
     body.blog .site-content article:not(.post) .page-header,
@@ -1146,6 +1233,7 @@ body.buddypress.error404 .entry-content, .error404 .entry-content {
 /*--------------------------------------------------------------
 1.1.7 - Front Page Template
 --------------------------------------------------------------*/
+
 .text-content.right.extra-padding,
 .text-content.left.extra-padding,
 .text-content.right,
@@ -1161,6 +1249,10 @@ body.buddypress.error404 .entry-content, .error404 .entry-content {
     .text-content.left {
         padding-left: 15px;
         padding-right: 15px;
+    }
+    .home-page:not(.boxed) #content .panel-grid {
+        margin-left: -15px;
+        margin-right: -15px;
     }
 }
 
@@ -1767,8 +1859,8 @@ body.activity-permalink #buddypress .activity-list li.mini .activity-comments {
 #bbpress-forums form#bbp-search-index-form a#clear-input:before,
 #buddypress div.dir-search a#clear-input:before,
 #buddypress div.message-search a#clear-input:before {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -1826,6 +1918,10 @@ body.activity-permalink #buddypress .activity-list li.mini .activity-comments {
 
 #primary #blogs-list .item-avatar img {
     margin-right: 0px;
+}
+
+.group-header-meta .group-subscription-div {
+    text-align: center;
 }
 
 
@@ -1963,8 +2059,25 @@ body.single-item #buddypress div#item-header span.activity {
     box-sizing: border-box;
 }
 
+#item-statistics .numbers {
+    padding-top: 23px;
+    padding-bottom: 4px;
+}
+
+#item-statistics .numbers span p {
+    color: #737373;
+}
+
+#item-statistics .numbers span p:first-child {
+    color: #000;
+}
+
 .bp-user #item-statistics .numbers {
-    display: none;
+    text-align: center;
+}
+
+#item-statistics .numbers span:first-child {
+    padding-left: 0;
 }
 
 #buddypress div#item-header div.generic-button {
@@ -2337,7 +2450,7 @@ body.has-activity #buddypress form#whats-new-form {
     padding: 20px 0;
 }
 
-.boxed #primary #buddypress .widget-area #groups-stream li div.item, 
+.boxed #primary #buddypress .widget-area #groups-stream li div.item,
 .boxed #primary #buddypress .widget-area #groups-list li div.item,
 .boxed #primary .widget-area #members-stream li div.item,
 .boxed #primary .widget-area #members-list li div.item,
@@ -2468,6 +2581,11 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
     width: 180px;
 }
 
+.group-admin.manage-members #buddypress #members-list div.action a,
+.group-admin.manage-members #buddypress #mods-list div.action a {
+    width: 100%;
+}
+
 #buddypress #admins-list li,
 #buddypress #mods-list li,
 #buddypress #members-stream li,
@@ -2556,7 +2674,7 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
 #buddypress #mobile-item-nav ul {
     height: 90px;
     display: block;
-    padding-top: 10px;
+    padding-top: 20px;
     margin: 0 !important;
     display: inline-block;
 }
@@ -2685,6 +2803,26 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
     height: auto;
 }
 #mobile-item-nav ul li span {
+    background-color: #f14e56;
+    margin: -73px 0px 0px -10px;
+    position: absolute;
+    background-color: #f14e56;
+    text-align: center;
+    color: #FFF;
+    min-width: 8px;
+    font-size: 13px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 13px;
+    font-weight: 800;
+    padding-left: 8px;
+    padding-right: 9px;
+    -webkit-transition: all .4s linear;
+    transition: all .4s linear;
+    -webkit-transition: color .2s linear;
+    transition: color .2s linear;
+}
+#mobile-item-nav ul li span.no-count {
     display: none;
 }
 
@@ -2692,9 +2830,9 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
 
 /* Generic Icon */
 #mobile-item-nav ul li:before {
-    font-family: 'FontAwesome';
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
     content: "\f005";
-    font-weight: normal;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -2711,74 +2849,85 @@ body.activity:not(.bp-user)  .item-list-tabs ul li a span,
 
 /* Wall */
 #mobile-item-nav ul li#activity-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f10e";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f10e";
     line-height: 64px;
 }
 
 /* Profile */
 #mobile-item-nav ul li#xprofile-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f007";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f007";
 }
 
 /* Sites */
 #mobile-item-nav ul li#blogs-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f02c";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f02c";
 }
 
 /* Notifications */
 #mobile-item-nav ul li#notifications-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f0f3";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f0f3";
 }
 
 /* Messages */
 #mobile-item-nav ul li#messages-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f0e0";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f0e0";
 }
 
 /* Friends and Group Members */
 #mobile-item-nav ul li#friends-personal-li:before,
 #mobile-item-nav ul li#members-groups-li:before {
-    font-family: 'FontAwesome';
-    content: "\f0c0";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f0c0";
 }
 
 /* Groups */
 #mobile-item-nav ul li#groups-personal-li:before,
 #mobile-item-nav ul li#home-groups-li:before {
-    font-family: 'FontAwesome';
-    content: "\f1b3";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f1b3";
 }
 
 /* Group Invites */
 #mobile-item-nav ul li#invite-groups-li:before {
-    font-family: 'FontAwesome';
-    content: "\f055";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f055";
 }
 
 /* Forums */
 #mobile-item-nav ul li#forums-personal-li:before,
 #mobile-item-nav ul li#nav-forum-groups-li:before {
-    font-family: 'FontAwesome';
-    content: "\f086";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f086";
 }
 
 /* Photos */
 #mobile-item-nav ul li#photos-personal-li:before,
 #mobile-item-nav ul li#media-personal-li:before {
-    font-family: 'FontAwesome';
-    content: "\f03e";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f03e";
 }
 
 /* Settings and Group Admin */
 #mobile-item-nav ul li#settings-personal-li:before,
 #mobile-item-nav ul li#admin-groups-li:before {
-    font-family: 'FontAwesome';
-    content: "\f013";
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
+	content: "\f013";
 }
 
 
@@ -2961,8 +3110,21 @@ div#whats-new-post-in-box ul li {
 /*--------------------------------------------------------------
 1.0.7 - Private Messaging Threads
 --------------------------------------------------------------*/
+
+.messages-container {
+    display: block;
+}
+
+#leftcolumn#leftcolumn {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    width: 100%;
+}
+
 #messages-layout {
-    margin-top: 60px;
+    width: 100%;
+    clear: both;
 }
 
 .messages.bp-user .entry-content > #buddypress > #item-body {
@@ -2988,7 +3150,7 @@ div#whats-new-post-in-box ul li {
     text-align: center;
 }
 
-#message-threads.messages-table tr th.thread-options, 
+#message-threads.messages-table tr th.thread-options,
 #message-threads.messages-table tr td.thread-options{
     text-align: right;
     padding-right: 0;
@@ -3246,8 +3408,8 @@ body.group-settings #buddypress #item-body form#group-settings-form ul{
     font-size: 12px;
 }
 #buddypress form#group-settings-form ul#members-list a.show-options:after {
-    font-family: 'FontAwesome';
-    font-weight: normal;
+	font-family: 'Font Awesome 5 Free';
+	font-weight: 900;
     font-style: normal;
     text-rendering: auto;
     text-decoration: inherit;
@@ -3320,7 +3482,10 @@ body.single-item.groups #buddypress ul.item-list li div.action {
 body.single-item.groups #buddypress ul.item-list li div.action a {
     display: block;
 }
-
+body.single-item.groups.is-mobile #buddypress ul.item-list li div.action {
+    padding: 0 0 5px;
+    width: 100%;
+}
 /*--------------------------------------------------------------
 1.0.9.2 - Group: Group Create
 --------------------------------------------------------------*/
@@ -3524,8 +3689,8 @@ body #buddypress form#send-invite-form div#message {
         padding: 0 0 15px 0;
     }
     .boxed .page-full-width .archive-header,
-     .boxed .archive-header, 
-     .boxed.search-results .page-full-width .page-header,  
+    .boxed .archive-header,
+    .boxed.search-results .page-full-width .page-header,
     .boxed.search-results .page-header,
     .boxed .page-full-width .activity-header.page-header + .entry-content,
     .boxed .page-full-width .activity-header.page-header, .page-header,
@@ -3898,7 +4063,7 @@ input[type="submit"]#messages-bulk-manage {
 
 @media screen and (max-width: 483px) {
     #messages-layout {
-        margin-top: 120px;
+        /*margin-top: 120px;*/
     }
 }
 
@@ -4107,6 +4272,7 @@ span.bbp-admin-links a{
     font-size: 12px;
 }
 body.reply-edit .bbp-breadcrumb,
+body.reply .bbp-breadcrumb,
 .bbp-topic-details, .bbp-forum-details {
     padding-left: 30px;
     padding-right: 30px;
@@ -4125,6 +4291,7 @@ body.reply-edit .bbp-breadcrumb,
 #bbpress-forums > h3 {
     padding-top: 20px;
 }
+body.reply #bbpress-forums div.reply,
 #bbpress-forums .bbp-replies div.topic,
 #bbpress-forums .bbp-replies div.reply {
     margin-left: 30px;
@@ -4177,7 +4344,7 @@ body.bbp-search div.bbp-breadcrumb {
 --------------------------------------------------------------*/
 
 @media screen and (max-width: 380px) {
- 
+
     .left-menu-open .bbp-reply-move,
     .left-menu-open .bbp-topic-split,
     .left-menu-open .bbp-topic-merge,
@@ -4224,7 +4391,7 @@ body.bbp-search div.bbp-breadcrumb {
 .boxed .page-full-width #woo-content,
 .boxed #woo-content {
     margin-left: 30px;
-    margin-right: 30px;        
+    margin-right: 30px;
 }
 .woocommerce ul.products,
 .woocommerce-page ul.products {
@@ -4924,6 +5091,31 @@ div#bp-group-edit-extras-submit-wrapper {
     width: -moz-calc(100% - 160px);
     width: calc(100% - 160px);
 }
+
+/*--------------------------------------------------------------
+1.19 - WP Job Manager
+--------------------------------------------------------------*/
+@media(max-width: 480px){
+    .single_job_listing .company img{
+        position: static;
+        left: auto;
+        float: none;
+    }
+
+    .single_job_listing .company .name,
+    .single_job_listing .company .tagline{
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    #job-manager-job-dashboard th.filled,
+    #job-manager-job-dashboard th.expires,
+    #job-manager-job-dashboard td.filled,
+    #job-manager-job-dashboard td.expires{
+        display: none;
+    }
+}
+
 /*--------------------------------------------------------------
 2.0 - Some Custom media queries
 --------------------------------------------------------------*/
@@ -5002,6 +5194,31 @@ div#bp-group-edit-extras-submit-wrapper {
 2.4 - Woocommerce
 --------------------------------------------------------------*/
 
+.woocommerce .product-remove {
+    overflow: hidden;
+}
+
+.woocommerce .product-remove a.remove {
+    display: inline-block;
+    height: auto;
+    line-height: 1;
+    border: none;
+    padding: 0 6px;
+}
+
+.woocommerce .product-remove a.remove:hover {
+    color: red!important;
+}
+
+.woocommerce table.shop_table td.product-quantity {
+    overflow: hidden;
+    padding-bottom: 2px;
+}
+
+td.product-quantity .quantity {
+    display: inline-block;
+}
+
 @media screen and (max-width: 480px){
     .woocommerce ul.products li.product,
     .woocommerce-page ul.products li.product {
@@ -5040,12 +5257,12 @@ div#bp-group-edit-extras-submit-wrapper {
         padding: 8px 10px;
         margin-right: 4px;
         font-size: 14px;
-    }    
+    }
 }
 
 @media screen and (max-width: 360px) {
     .sap-publish-popup.sap-publish-popup .button {
         padding: 8px 8px;
         margin-right: 2px;
-    }    
+    }
 }

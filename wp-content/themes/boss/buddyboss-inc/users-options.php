@@ -19,14 +19,20 @@ function buddyboss_get_user_social_array() {
 
 	$socials = array();
 
-	foreach ( $social_profiles as $label ) {
+    if ( ! is_array( $social_profiles ) || empty( $social_profiles ) )
+        return apply_filters( 'buddyboss_get_user_social_array', $socials );
 
-		if ( empty( $label['title'] ) ) {
-			continue;
+	foreach ( $social_profiles as $key => $label ) {
+
+        //Boss v2.1.1
+		if ( ! empty( $label['title'] ) ) {
+			$key             = sanitize_title( $label['title'] );
+			$socials[ $key ] = $label['title'];
 		}
-
-		$key = sanitize_title( $label['title'] );
-		$socials[ $key ] = $label['title'];
+        //Boss v2.1.0
+//		} else {
+//            $socials[ $key ] = ucwords( $key );
+//        }
 	}
 
 	return (array) @apply_filters( "buddyboss_get_user_social_array", $socials );
@@ -41,10 +47,13 @@ function buddyboss_user_social_remove_disabled( $socials ) {
 
 	$social_profiles = boss_get_option( 'profile_social_media_links' );
 
-	foreach ( $social_profiles as $key => $value ) {
+	if ( ! empty( $social_profiles ) ) {
 
-		if ( $value == '0' ) {
-			unset( $socials[ $key ] ); // unset fields from $socials array.
+		foreach ( $social_profiles as $key => $value ) {
+
+			if ( $value == '0' ) {
+				unset( $socials[ $key ] ); // unset fields from $socials array.
+			}
 		}
 	}
 
@@ -194,7 +203,15 @@ function buddyboss_user_social_fields_save( $user_id, $posted_field_ids, $errors
 			$url = $_POST[ "buddyboss_" . $social ];
 
 			//check if its valid URL
-			if ( filter_var( $url, FILTER_VALIDATE_URL ) || empty( $url ) ) {
+			if ( preg_match( "/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/" , $url ) || empty( $url ) ) {
+
+				// Append http:// prefix in url if not present
+				if  ( ! empty( $url ) && $ret = parse_url( $url ) ) {
+					if ( ! isset( $ret["scheme"] ) )  {
+						$url = "http://{$url}";
+					}
+				}
+
 				$socials[ $social ] = $url;
 				update_user_meta( $user_id, $social, $url ); //update it
 			}

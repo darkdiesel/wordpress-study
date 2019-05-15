@@ -18,7 +18,7 @@
 
 	<?php } else { ?>
 
-		<a href="#scroll-to" class="to-top fa fa-angle-up scroll"></a>
+		<a href="#scroll-to" class="to-top scroll"><i class="fa fa-angle-up"></i></a>
 
 	<?php } ?>
 

@@ -25,25 +25,28 @@
 							$current_blog_id = get_current_blog_id();
 
 							global $wp_admin_bar;
-							foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
-								switch_to_blog( $blog->userblog_id );
-								$blogname = empty( $blog->blogname ) ? $blog->domain : $blog->blogname;
-								?>
-								<li class="menupop">
-									<a class="ab-item" href="<?php echo home_url(); ?>"><?php echo $blogname; ?></a>
-									<div class="ab-sub-wrapper">
-										<ul class="ab-submenu">
-											<li>
-												<a href="<?php echo admin_url(); ?>"><?php _e( 'Dashboard', 'boss' ); ?></a>
-												<a href="<?php echo admin_url( 'admin.php?page=boss_options' ); ?>"><?php _e( 'Boss Options', 'boss' ); ?></a>
-												<a href="<?php echo admin_url( 'users.php' ); ?>"><?php _e( 'Users', 'boss' ); ?></a>
-												<a href="<?php echo admin_url( 'themes.php' ); ?>"><?php _e( 'Themes', 'boss' ); ?></a>
-												<a href="<?php echo admin_url( 'plugins.php' ); ?>"><?php _e( 'Plugins', 'boss' ); ?></a>
-											</li>
-										</ul>
-									</div>
-								</li>
-								<?php
+
+							if ( !empty( $wp_admin_bar ) ) {
+								foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
+									switch_to_blog( $blog->userblog_id );
+									$blogname = empty( $blog->blogname ) ? $blog->domain : $blog->blogname;
+									?>
+									<li class="menupop">
+										<a class="ab-item" href="<?php echo home_url(); ?>"><?php echo $blogname; ?></a>
+										<div class="ab-sub-wrapper">
+											<ul class="ab-submenu">
+												<li>
+													<a href="<?php echo admin_url(); ?>"><?php _e( 'Dashboard', 'boss' ); ?></a>
+													<a href="<?php echo admin_url( 'admin.php?page=boss_options' ); ?>"><?php _e( 'Boss Options', 'boss' ); ?></a>
+													<a href="<?php echo admin_url( 'users.php' ); ?>"><?php _e( 'Users', 'boss' ); ?></a>
+													<a href="<?php echo admin_url( 'themes.php' ); ?>"><?php _e( 'Themes', 'boss' ); ?></a>
+													<a href="<?php echo admin_url( 'plugins.php' ); ?>"><?php _e( 'Plugins', 'boss' ); ?></a>
+												</li>
+											</ul>
+										</div>
+									</li>
+									<?php
+								}
 							}
 
 							//switch back to current blog
@@ -55,34 +58,18 @@
 			<?php endif; ?>
 			<li class="menupop">
 				<a class="ab-item" href="<?php echo admin_url(); ?>"><?php _e( 'Dashboard', 'boss' ); ?></a>
-				<div class="ab-sub-wrapper">
-					<ul class="ab-submenu">
-						<li>
-							<a href="<?php echo admin_url( 'admin.php?page=boss_options' ); ?>"><?php _e( 'Boss Options', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'customize.php' ); ?>"><?php _e( 'Customize', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'widgets.php' ); ?>"><?php _e( 'Widgets', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'nav-menus.php' ); ?>"><?php _e( 'Menus', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'plugins.php' ); ?>"><?php _e( 'Plugins', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'themes.php' ); ?>"><?php _e( 'Themes', 'boss' ); ?></a>
-						</li>
-					</ul>
-				</div>
+				<?php
+				//Boss header nav Dashboard sub nav items
+				boss_header_dashboard_subnav_links()
+				?>
 			</li>
 		<?php else: ?>
 			<li class="menupop">
 				<a class="ab-item" href="<?php echo admin_url(); ?>"><?php _e( 'Dashboard', 'boss' ); ?></a>
-				<div class="ab-sub-wrapper">
-					<ul class="ab-submenu">
-						<li>
-							<a href="<?php echo admin_url( 'admin.php?page=boss_options' ); ?>"><?php _e( 'Boss Options', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'customize.php' ); ?>"><?php _e( 'Customize', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'widgets.php' ); ?>"><?php _e( 'Widgets', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'nav-menus.php' ); ?>"><?php _e( 'Menus', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'plugins.php' ); ?>"><?php _e( 'Plugins', 'boss' ); ?></a>
-							<a href="<?php echo admin_url( 'themes.php' ); ?>"><?php _e( 'Themes', 'boss' ); ?></a>
-						</li>
-					</ul>
-				</div>
+				<?php
+				//Boss header nav Dashboard sub nav items
+				boss_header_dashboard_subnav_links()
+				?>
 			</li>
 		<?php endif; ?>
 	</ul>

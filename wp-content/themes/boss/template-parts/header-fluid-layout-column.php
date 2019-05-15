@@ -5,7 +5,7 @@ $boxed = boss_get_option( 'boss_layout_style' );
 
 if ( 'fluid' == $boxed || '2' == $header_style ) {
 	?>
-	<div class="<?php echo ($rtl) ? 'right-col' : 'left-col'; ?>">
+	<div class="left-col">
 
 		<div class="table">
 

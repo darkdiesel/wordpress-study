@@ -66,7 +66,6 @@ if ( post_password_required() )
 		<?php comment_form(array(
                     'title_reply' => '',
                     'logged_in_as' => '',
-                    'comment_notes_after' => '',
 //                    'comment_field' =>  '<p class="comment-form-comment"><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true" placeholder="'.__('Your Comment...', 'boss').'"></textarea></p>',
                     'label_submit' => __('Comment', 'boss')
                 )); 

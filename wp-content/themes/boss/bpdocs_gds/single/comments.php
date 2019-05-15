@@ -18,7 +18,7 @@ foreach ( (array)$comments as $comment ) {
 <?php if ( current_user_can( 'bp_docs_read_comments' ) ) : ?>
 	<div id="comments">
 		<h3>
-			<?php printf( __( 'Discussion (%d)', 'bp-docs' ), $num_comments ) ?>
+			<?php printf( __( 'Discussion (%d)', 'buddypress-docs' ), $num_comments ) ?>
 		</h3>
 
 		<?php do_action( 'bp_before_blog_comment_list' ) ?>
@@ -40,7 +40,7 @@ foreach ( (array)$comments as $comment ) {
 		<?php else : ?>
 
 			<p class="comments-closed comments-empty">
-				<?php _e( 'There are no comments for this doc yet.', 'bp-docs' ) ?>
+				<?php _e( 'There are no comments for this doc yet.', 'buddypress-docs' ) ?>
 			</p>
 
 		<?php endif ?>
@@ -49,7 +49,7 @@ foreach ( (array)$comments as $comment ) {
 
 <?php else : ?>
 	<p class="comments-closed comment-display-disabled">
-		<?php _e( 'Comment display has been disabled on this doc.', 'bp-docs' ) ?>
+		<?php _e( 'Comment display has been disabled on this doc.', 'buddypress-docs' ) ?>
 	</p>
 
 <?php endif; ?>
@@ -58,6 +58,6 @@ foreach ( (array)$comments as $comment ) {
 	<?php comment_form( array(), get_the_ID() ) ?>
 <?php else : ?>
 	<p class="comments-closed comment-posting-disabled">
-		<?php _e( 'Comment posting has been disabled on this doc.', 'bp-docs' ) ?>
+		<?php _e( 'Comment posting has been disabled on this doc.', 'buddypress-docs' ) ?>
 	</p>
 <?php endif; ?>

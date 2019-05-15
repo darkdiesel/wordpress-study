@@ -17,7 +17,7 @@ if ( !function_exists( 'boss_get_option' ) ) {
 
 		/* Check if options are set */
 		if ( !isset( $boss_options ) ) {
-			return false;
+            $boss_options = get_option( 'boss_options', array() );
 		}
 
 		/* Check if array subscript exist in options */

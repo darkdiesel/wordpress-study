@@ -15,7 +15,7 @@ class BuddyBossLoginWidget extends WP_Widget
   function __construct()
   {
       $widget_ops = array('classname' => 'buddyboss-login-widget', 'description' => 'Displays BuddyPress login and profile info.' );
-      parent::__construct('BuddyBossLoginWidget', __('(BuddyBoss) Profile Login Widget'), $widget_ops);
+      parent::__construct('BuddyBossLoginWidget', __( '(BuddyBoss) Profile Login Widget', 'boss' ), $widget_ops);
   }
  
   function form($instance)
@@ -106,7 +106,9 @@ class BuddyBossLoginWidget extends WP_Widget
   }
  
 }
-add_action( 'widgets_init', create_function('', 'return register_widget("BuddyBossLoginWidget");') );
+add_action( 'widgets_init', function() {
+	return register_widget( 'BuddyBossLoginWidget' );
+} );
 
 
 /**
@@ -117,8 +119,8 @@ add_action( 'widgets_init', create_function('', 'return register_widget("BuddyBo
 class BuddyBossRecentPosts extends WP_Widget {
 
 	public function __construct() {
-		$widget_ops = array('classname' => 'widget_buddyboss_recent_post', 'description' => __( "Your site&#8217;s most recent Posts.") );
-		parent::__construct('recent-posts', __('(BuddyBoss) Recent Posts'), $widget_ops);
+		$widget_ops = array('classname' => 'widget_buddyboss_recent_post', 'description' => __( "Your site&#8217;s most recent Posts.", 'boss') );
+		parent::__construct('recent-posts', __( '(BuddyBoss) Recent Posts', 'boss' ), $widget_ops);
 		$this->alt_option_name = 'widget_buddyboss_recent_post';
 
 		add_action( 'save_post', array($this, 'flush_widget_cache') );
@@ -147,7 +149,7 @@ class BuddyBossRecentPosts extends WP_Widget {
 
 		ob_start();
 
-		$title = ( ! empty( $instance['title'] ) ) ? $instance['title'] : __( 'Recent Posts' );
+		$title = ( ! empty( $instance['title'] ) ) ? $instance['title'] : __( 'Recent Posts', 'boss' );
 
 		/** This filter is documented in wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
@@ -193,7 +195,7 @@ class BuddyBossRecentPosts extends WP_Widget {
                     <div class="content table-cell">
                         <h3><a href="<?php the_permalink(); ?>"><?php get_the_title() ? the_title() : the_ID(); ?></a></h3>
                         <?php 
-                            $content = strip_tags(get_the_content());
+                            $content = strip_shortcodes(get_the_content());
                             $content = wp_trim_words($content, 10, $more = null);
                             echo $content;
                         ?>
@@ -256,17 +258,18 @@ class BuddyBossRecentPosts extends WP_Widget {
 		$number    = isset( $instance['number'] ) ? absint( $instance['number'] ) : 5;
 		$show_date = isset( $instance['show_date'] ) ? (bool) $instance['show_date'] : false;
 ?>
-		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'boss' ); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></p>
 
-		<p><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php _e( 'Number of posts to show:' ); ?></label>
+		<p><label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php _e( 'Number of posts to show:', 'boss' ); ?></label>
 		<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="text" value="<?php echo $number; ?>" size="3" /></p>
 
 		<p><input class="checkbox" type="checkbox" <?php checked( $show_date ); ?> id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" />
-		<label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Display post date?' ); ?></label></p>
+		<label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Display post date?', 'boss' ); ?></label></p>
 <?php
 	}
 }
 
-add_action( 'widgets_init', create_function('', 'return register_widget("BuddyBossRecentPosts");') );
-
+add_action( 'widgets_init', function () {
+    return register_widget( 'BuddyBossRecentPosts' );
+});

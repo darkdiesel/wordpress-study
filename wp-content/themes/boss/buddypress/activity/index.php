@@ -74,45 +74,25 @@
 			<?php do_action( 'bp_activity_syndication_options' ); ?>
 
 		</ul>
-		
-		<div id="activity-filter-select">
-				<label for="activity-filter-by"><?php _e( 'Show:', 'boss' ); ?></label>
-				<select id="activity-filter-by">
-					<option value="-1"><?php _e( 'Everything', 'boss' ); ?></option>
-					<option value="activity_update"><?php _e( 'Updates', 'boss' ); ?></option>
 
-					<?php if ( bp_is_active( 'blogs' ) ) : ?>
+        <div id="activity-filter-select">
+            <label for="activity-filter-by"><?php _e( 'Show:', 'boss' ); ?></label>
 
-						<option value="new_blog_post"><?php _e( 'Posts', 'boss' ); ?></option>
-						<option value="new_blog_comment"><?php _e( 'Comments', 'boss' ); ?></option>
+            <select id="activity-filter-by">
+                <option value="-1"><?php _e( '&mdash; Everything &mdash;', 'buddypress' ); ?></option>
 
-					<?php endif; ?>
+				<?php bp_activity_show_filters(); ?>
 
-					<?php if ( bp_is_active( 'forums' ) ) : ?>
+				<?php
 
-						<option value="new_forum_topic"><?php _e( 'Forum Topics', 'boss' ); ?></option>
-						<option value="new_forum_post"><?php _e( 'Forum Replies', 'boss' ); ?></option>
+				/**
+				 * Fires inside the select input for activity filter by options.
+				 *
+				 * @since 1.2.0
+				 */
+				do_action( 'bp_activity_filter_options' ); ?>
 
-					<?php endif; ?>
-
-					<?php if ( bp_is_active( 'groups' ) ) : ?>
-
-						<option value="created_group"><?php _e( 'New Groups', 'boss' ); ?></option>
-						<option value="joined_group"><?php _e( 'Group Memberships', 'boss' ); ?></option>
-
-					<?php endif; ?>
-
-					<?php if ( bp_is_active( 'friends' ) ) : ?>
-
-						<option value="friendship_accepted,friendship_created"><?php _e( 'Friendships', 'boss' ); ?></option>
-
-					<?php endif; ?>
-
-					<option value="new_member"><?php _e( 'New Members', 'boss' ); ?></option>
-
-					<?php do_action( 'bp_activity_filter_options' ); ?>
-
-				</select>
+            </select>
         </div>
 	</div><!-- .item-list-tabs -->
 

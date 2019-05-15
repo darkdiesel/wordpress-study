@@ -199,6 +199,11 @@ body.login {
     margin: 0 0 6px 0;
     position: relative;
     line-height: 19px;
+    background-color: #444;
+}
+
+.wp-social-login-provider-list a:hover {
+    background-color: #333;
 }
 
 .wp-social-login-provider-list a:before {
@@ -212,6 +217,7 @@ body.login {
     background-image: url('../images/login-iconset.svg');
     background-repeat: no-repeat;
     background-size: auto 20px;
+    background-position: 0 -50px;
     border-right: 1px solid rgba(0,0,0,0.2);
 }
 
@@ -304,6 +310,18 @@ body.login {
 
 .wp-social-login-provider-list a.wp-social-login-provider-youtube:before {
     background-position: -180px 0;
+}
+
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr {
+    background-color: #35465c;
+}
+
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr:hover {
+    background-color: #11243C;
+}
+
+.wp-social-login-provider-list a.wp-social-login-provider-tumblr:before {
+    background-position: -210px 0;
 }
 
 .wp-social-login-provider-list img {

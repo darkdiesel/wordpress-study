@@ -40,6 +40,12 @@
                     function ( e ) {
                         var id = $( this ).closest( 'label' ).attr( 'for' );
 
+                        /**
+                         * unset name of boss_scheme_select hidden input before importing color preset to avoid submit multiple value of the color set
+                         * the one from selected radio and another is hidden boss_scheme_select input field
+                         */
+                        $('input[type="hidden"][name="boss_options[boss_scheme_select]"]').attr( 'name', '' );
+
                         $( this ).parents( "fieldset:first" ).find( '.redux-image-select-selected' ).removeClass( 'redux-image-select-selected' ).find( "input[type='radio']" ).attr(
                             "checked", false
                             );

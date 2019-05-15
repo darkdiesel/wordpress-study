@@ -3,7 +3,7 @@
 <div id="buddypress">
 
 	<?php do_action( 'bp_before_directory_groups' ); ?>
-    
+
     <div class="filters">
         <div class="row">
             <div class="col-6">
@@ -26,9 +26,19 @@
                 </div>
             </div>
             <div class="col-6">
-                <div id="group-dir-search" class="dir-search" role="search">
-                    <?php bp_directory_groups_search_form(); ?>
-                </div><!-- #group-dir-search -->
+                    <?php /* Backward compatibility for inline search form. Use template part instead. */ ?>
+                    <?php if ( has_filter( 'bp_directory_groups_search_form' ) ) : ?>
+
+                        <div id="group-dir-search" class="dir-search" role="search">
+                            <?php bp_directory_groups_search_form(); ?>
+                        </div><!-- #group-dir-search -->
+
+                    <?php else: ?>
+
+                        <?php bp_get_template_part( 'common/search/dir-search-form' ); ?>
+
+                    <?php endif; ?>
+
             </div>
         </div>
     </div>
@@ -51,6 +61,9 @@
 
 			</ul>
 		</div><!-- .item-list-tabs -->
+
+        <!-- needed for group list scroll -->
+        <div id="subnav"></div>
 
 		<div id="groups-dir-list" class="groups dir-list">
 			<?php bp_get_template_part( 'groups/groups-loop' ); ?>

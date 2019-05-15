@@ -13,7 +13,7 @@ body:not(.logged-in) .right-col {
 .boxed .site-header .right-col {
     padding-left: 0;
 }
-.boxed .site-header #searchform input[type="text"] {
+.boxed .site-header .searchform input[type="text"] {
     position: relative;
 }
 body:not(.left-menu-open) #mastlogo h1.site-title a span {
@@ -62,9 +62,9 @@ body:not(.left-menu-open) #mastlogo h1.site-title a span {
 #titlebar-search form > div {
     height: 100%;
 }
-body #titlebar-search #searchform {
+body #titlebar-search .searchform {
     height: 100%;
-    position: absolute;      
+    position: absolute;
     right: 0px;
     display: none;
     z-index: 2;
@@ -96,7 +96,7 @@ body #titlebar-search #searchform {
 .boxed #titlebar-search form .search-wrapper:before {
     bottom: 0;
 }
-#titlebar-search form #searchsubmit {
+#titlebar-search form .searchsubmit {
     position: absolute;
     right: 0px;
     top: 0;
@@ -111,12 +111,12 @@ body #titlebar-search #searchform {
     vertical-align: baseline;
     font-size: 20px;
 }
-#titlebar-search form #searchsubmit i {
+#titlebar-search form .searchsubmit i {
     position: relative;
     top: 0;
     left: -1px;
 }
-#titlebar-search form #searchsubmit:hover {
+#titlebar-search form .searchsubmit:hover {
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -131,7 +131,7 @@ body #titlebar-search #searchform {
     -o-transition: none;
     transition: none;
 }
-#searchsubmit:hover i,
+.searchsubmit:hover i,
 #search-open i {
     -ms-transform: none;
     -webkit-transform: none;
@@ -175,6 +175,7 @@ body #titlebar-search #searchform {
 }
 .header-navigation > div > ul > li {
     vertical-align: middle;
+    height: 74px;
     line-height: 74px;
     position: relative;
 }
@@ -183,6 +184,7 @@ body #titlebar-search #searchform {
 }
 .header-navigation .sub-menu li {
     line-height: 1.2;
+    white-space: nowrap;
 }
 .header-navigation ul li a span {
     padding: 2px 4px;
@@ -199,17 +201,16 @@ body #titlebar-search #searchform {
 .header-navigation > div > ul {
     text-align: center;
     top: 100%;
-    line-height: 3;
-    height: 74px;
     overflow: hidden;
     padding-top: 0;
 }
 .header-navigation li.hideshow ul {
     top: 100%;
-/*    margin-top: 2px;*/
+    /*    margin-top: 2px;*/
 }
 .header-navigation .sub-menu {
     position: absolute;
+    display: table;
 }
 .header-navigation ul li a:after {
     content: "";

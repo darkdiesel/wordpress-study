@@ -26,7 +26,7 @@
 .bp-user.events #posts-filter .search-box input[type="submit"] {
     float: right;
 }
-.bp-user.events #posts-filter .search-box input[type="submit"], 
+.bp-user.events #posts-filter .search-box input[type="submit"],
 .bp-user.events .add-new-h2 {
     width: auto;
     padding-left: 26px;
@@ -137,8 +137,8 @@ div#subnav {
 .bp-user.events.my-locations #buddypress .widefat input[type="checkbox"].styled + strong:before {
     width: 13px;
     height: 13px;
-    -webkit-box-shadow: 0px 0px 0px 2px rgba(0,0,0,.2);     
-    -moz-box-shadow: 0px 0px 0px 2px rgba(0,0,0,.2);     
+    -webkit-box-shadow: 0px 0px 0px 2px rgba(0,0,0,.2);
+    -moz-box-shadow: 0px 0px 0px 2px rgba(0,0,0,.2);
     box-shadow: 0px 0px 0px 2px rgba(0,0,0,.2);
 }
 .bp-user.events.my-locations #buddypress .widefat input[type="checkbox"].styled + strong:before {
@@ -177,7 +177,7 @@ div#subnav {
     margin-right: 5px;
     margin-bottom: 10px;
 }
-.em-bookings-table .em-bookings-table-export, 
+.em-bookings-table .em-bookings-table-export,
 .em-bookings-table .em-bookings-table-settings {
     width: 36px;
     height: 36px;
@@ -209,7 +209,8 @@ div#subnav {
 .events .ui-dialog .ui-state-default .ui-icon:before {
     content: "\f00d";
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+	font: normal normal normal 14px/1 'Font Awesome 5 Free';
+	font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -221,15 +222,15 @@ div#subnav {
     line-height: 15px;
     padding-left: 1px;
 }
-.events .ui-dialog .ui-state-hover, .ui-widget-content .ui-state-hover, 
-.events .ui-dialog .ui-widget-header .ui-state-hover, .ui-state-focus, 
+.events .ui-dialog .ui-state-hover, .ui-widget-content .ui-state-hover,
+.events .ui-dialog .ui-widget-header .ui-state-hover, .ui-state-focus,
 .events .ui-dialog .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus,
 .events .ui-dialog .ui-state-default .ui-icon {
     color: #4dcadd;
     border-color: #4dcadd;
     background-image: none;
     background: #f1f1f1;
-} 
+}
 .events .ui-datepicker .ui-widget-header .ui-state-hover {
     border: none;
     background: #fff;
@@ -547,7 +548,7 @@ body.page:not(.buddypress).events-page .events-list-content table:after {
 }
 #em-wrapper .events-list-content table td,
 #em-wrapper .events-list-content table th {
-    padding: 18px 0; 
+    padding: 18px 0;
     border-top: none;
 }
 #em-wrapper .events-list-content table td {
@@ -574,9 +575,9 @@ body.page:not(.buddypress).events-page .events-list-content table:after {
 .entry-content .bb-events-list table {
     border-bottom: none;
 }
-.widget-area .widget_em_locations_widget li.bb-location a, 
-.widget-area .widget_em_widget li.bb-event a, 
-.bb-events-list .event-item a:not(.event-image), 
+.widget-area .widget_em_locations_widget li.bb-location a,
+.widget-area .widget_em_widget li.bb-event a,
+.bb-events-list .event-item a:not(.event-image),
 #em-wrapper .events-list-content table .event-details a {
     font-size: 18px;
     border-bottom: 1px solid rgba(0,0,0,0.11);
@@ -619,7 +620,7 @@ div.css-search div.em-search-main div {
     box-sizing: border-box;
 }
 div.css-search .em-search-scope input,
-div.css-search.has-search-geo.has-search-term input.em-search-text, 
+div.css-search.has-search-geo.has-search-term input.em-search-text,
 div.css-search.has-search-geo.has-search-term input.em-search-geo {
     height: 50px;
     -webkit-box-shadow: none;
@@ -631,7 +632,7 @@ div.css-search.has-search-geo.has-search-term input.em-search-geo {
     line-height: 22px;
     padding-left: 20px;
 }
-div.css-search.has-search-geo.has-search-term input.em-search-text, 
+div.css-search.has-search-geo.has-search-term input.em-search-text,
 div.css-search.has-search-geo.has-search-term input.em-search-geo {
     width: 100%;
 }
@@ -664,7 +665,7 @@ div.css-search div.em-search-main .em-search-submit:hover:after {
     -moz-box-shadow: inset 0 0 1000px rgba(0,0,0,.15);
     box-shadow: inset 0 0 1000px rgba(0,0,0,.15);
 }
-div.css-search.has-search-geo.has-search-term input.em-search-geo::-webkit-input-placeholder, 
+div.css-search.has-search-geo.has-search-term input.em-search-geo::-webkit-input-placeholder,
 div.css-search.has-search-geo.has-search-term input.em-search-text::-webkit-input-placeholder {
     color: #585858;
 }
@@ -747,32 +748,32 @@ div.css-search div.em-search-main .em-search-submit img {
 @media screen and (min-width: 1200px) {
     .page-fullwidth .bb-events-list .event-item {
         width: 20%;
-    }   
+    }
 }
 @media screen and (min-width: 1300px) {
     .page-full-width .bb-events-list .event-item {
         width: 16.666666%;
-    }   
+    }
 }
 @media screen and (min-width: 1580px) {
     .page-full-width .bb-events-list .event-item {
         max-width: 210px;
-    }     
+    }
 }
 @media screen and (min-width: 1360px) {
     .page-right-sidebar .bb-events-list .event-item {
         width: 20%;
-    }   
+    }
 }
 @media screen and (min-width: 1580px) {
     .page-right-sidebar .bb-events-list .event-item {
         width: 16.666666%;
-    }   
+    }
 }
 @media screen and (min-width: 1700px) {
     .page-right-sidebar .bb-events-list .event-item {
         max-width: 210px;
-    }     
+    }
 }
 .bb-events-list .event-item .event-image {
     width: 100%;
@@ -790,7 +791,7 @@ div.css-search div.em-search-main .em-search-submit img {
     font-size: 11px;
     color: #444;
 }
-.widget-area .widget_em_widget li.bb-event div span, 
+.widget-area .widget_em_widget li.bb-event div span,
 .bb-events-list .event-item .event-time span {
     text-transform: uppercase;
     color: rgba(0,0,0,0.2);
@@ -824,24 +825,24 @@ div.css-search div.em-search-main .em-search-submit img {
 .widget table.em-calendar tbody tr:first-child td {
     padding-top: 10px;
 }
-table.em-calendar td.eventful a, 
+table.em-calendar td.eventful a,
 table.em-calendar td.eventful-today a {
     color: #4dcadd;
 }
-.widget table.em-calendar td.eventful a, 
+.widget table.em-calendar td.eventful a,
 .widget table.em-calendar td.eventful-today a {
     border-bottom: 1px solid #4dcadd;
 }
 table.em-calendar td.eventless-today, table.em-calendar td.eventful-today {
     background: rgba(0,0,0,0.02);
 }
-.widget table.em-calendar td.eventless-today, 
+.widget table.em-calendar td.eventless-today,
 .widget table.em-calendar td.eventful-today {
     color: #fff;
     border-bottom: 1px solid #fff;
     background-color: #4dcadd;
 }
-.widget table.em-calendar td.eventless-today a, 
+.widget table.em-calendar td.eventless-today a,
 .widget table.em-calendar td.eventful-today a {
     color: #fff;
 }
@@ -883,7 +884,8 @@ table.em-calendar td.eventless-today, table.em-calendar td.eventful-today {
 .em-calnav-prev:before,
 .em-calnav-next:before {
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+	font: normal normal normal 14px/1 'Font Awesome 5 Free';
+	font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -1017,12 +1019,12 @@ table.fullcalendar.em-calendar tbody td.eventful-today ul li,
 table.fullcalendar.em-calendar tbody td.eventful ul li {
     background-color: #4dcadd;
 }
-.widget table.em-calendar td.eventful-pre a, 
+.widget table.em-calendar td.eventful-pre a,
 .widget table.em-calendar td.eventful-post a {
     color: #aaa;
     text-decoration: underline;
 }
-table.fullcalendar.em-calendar td.eventful-pre a, 
+table.fullcalendar.em-calendar td.eventful-pre a,
 table.fullcalendar.em-calendar td.eventful-post a,
 table.fullcalendar.em-calendar tbody td.eventful-today ul li a,
 table.fullcalendar.em-calendar tbody td.eventful ul li a {
@@ -1032,7 +1034,7 @@ table.fullcalendar.em-calendar tbody td.eventful ul li a {
     color: #fff;
     padding: 5px 10px;
     font-weight: 400;
-} 
+}
 
 /* WP Fullcalendar Plugin */
 .fc-toolbar button {
@@ -1046,7 +1048,7 @@ table.fullcalendar.em-calendar tbody td.eventful ul li a {
     line-height: 17px;
     color: #737373;
 }
-.fc .fc-button-group > button.ui-state-active span:before, 
+.fc .fc-button-group > button.ui-state-active span:before,
 .fc .fc-button-group > button.ui-state-hover span:before {
     color: #4dcadd;
 }
@@ -1064,7 +1066,7 @@ table.fullcalendar.em-calendar tbody td.eventful ul li a {
 .fc .fc-left .fc-button-group > button {
     padding-left: 6px;
     padding-right: 6px;
-} 
+}
 .fc .fc-right .fc-button-group button:nth-child(2),
 .fc .fc-right .fc-button-group button:first-child,
 .fc .fc-button-group > .fc-prev-button  {
@@ -1126,7 +1128,7 @@ table.fullcalendar.em-calendar tbody td.eventful ul li a {
 .entry-content .fc-body td.ui-widget-content {
     padding: 0;
     width: 14.2857%;
-} 
+}
 .fc-body .ui-widget-content {
     background: transparent;
     border-color: #ccc;
@@ -1183,7 +1185,7 @@ body.page:not(.buddypress).page-template-page-fullcalendar .site-content article
     border-bottom: 1px solid rgba(0,0,0,0.11);
 }
 .page-template-page-fullcalendar footer.entry-meta {
-    padding-left: 30px;   
+    padding-left: 30px;
 }
 .page-template-page-fullcalendar .fc-view-container {
     padding: 0 30px 30px;

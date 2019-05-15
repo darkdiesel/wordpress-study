@@ -389,7 +389,14 @@ span.description {
     display: none;
 }
 
+.redux-main fieldset[id^=boss_options] .color-transparency-check {
+    margin-top: 20px !important;
+}
 
+.redux-main fieldset[id^=boss_options] input.color-transparency {
+    margin: 0;
+}
+/*
 @media (min-width: 782px) {
     body:not(.wp-customizer) #boss_options-boss_tracking_code {
         margin-top: -50px;
@@ -414,3 +421,4 @@ span.description {
         margin-top: -20px;
     }
 }
+*/

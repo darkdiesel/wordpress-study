@@ -1,79 +1,79 @@
 <?php
-
 /**
  * BuddyPress - Users Messages
  *
  * @package Boss
  * @subpackage bp-legacy
  */
-
 ?>
 
-<div id="messages-layout">
-    <div id="contentcolumn">
-    
-    <?php if ( bp_is_messages_inbox() || bp_is_messages_sentbox() ) : ?>
+<div class="messages-container">
 
-        <div class="message-search"><?php bp_message_search_form(); ?></div>
+	<div id="leftcolumn">
 
-    <?php endif; ?>
-    
-    <?php
-    switch ( bp_current_action() ) :
+		<div class="item-list-tabs no-ajax" id="subnav" role="navigation">
+			<ul>
+				<?php bp_get_options_nav(); ?>
+			</ul>
+		</div><!-- .item-list-tabs -->
 
-        // Inbox/Sentbox
-        case 'inbox'   :
-        case 'sentbox' :
-            do_action( 'bp_before_member_messages_content' ); ?>
+	</div>
 
-            <div class="messages" role="main">
-                <?php bp_get_template_part( 'members/single/messages/messages-loop' ); ?>
-            </div><!-- .messages -->
+	<div id="messages-layout">
 
-            <?php do_action( 'bp_after_member_messages_content' );
-            break;
+		<?php if ( bp_is_messages_inbox() || bp_is_messages_sentbox() ) : ?>
 
-        // Single Message View
-        case 'view' :
-            bp_get_template_part( 'members/single/messages/single' );
-            break;
+			<div class="message-search"><?php bp_message_search_form(); ?></div>
 
-        // Compose
-        case 'compose' :
-            bp_get_template_part( 'members/single/messages/compose' );
-            break;
+		<?php endif; ?>
 
-        // Sitewide Notices
-        case 'notices' :
-            do_action( 'bp_before_member_messages_content' ); ?>
+		<?php
+		switch ( bp_current_action() ) :
 
-            <div class="messages" role="main">
-                <?php bp_get_template_part( 'members/single/messages/notices-loop' ); ?>
-            </div><!-- .messages -->
+			// Inbox/Sentbox
+			case 'inbox' :
+			case 'sentbox' :
+				do_action( 'bp_before_member_messages_content' );
+				?>
 
-            <?php do_action( 'bp_after_member_messages_content' );
-            break;
+				<div class="messages" role="main">
+					<?php bp_get_template_part( 'members/single/messages/messages-loop' ); ?>
+				</div><!-- .messages -->
 
-        // Any other
-        default :
-            bp_get_template_part( 'members/single/plugins' );
-            break;
-    endswitch;
-    ?>
+				<?php
+				do_action( 'bp_after_member_messages_content' );
+				break;
 
-    </div>
+			// Single Message View
+			case 'view' :
+				bp_get_template_part( 'members/single/messages/single' );
+				break;
+
+			// Compose
+			case 'compose' :
+				bp_get_template_part( 'members/single/messages/compose' );
+				break;
+
+			// Sitewide Notices
+			case 'notices' :
+				do_action( 'bp_before_member_messages_content' );
+				?>
+
+				<div class="messages" role="main">
+					<?php bp_get_template_part( 'members/single/messages/notices-loop' ); ?>
+				</div><!-- .messages -->
+
+				<?php
+				do_action( 'bp_after_member_messages_content' );
+				break;
+
+			// Any other
+			default :
+				bp_get_template_part( 'members/single/plugins' );
+				break;
+		endswitch;
+		?>
+
+	</div>
+
 </div>
-
-<div id="leftcolumn">
-    <div class="item-list-tabs no-ajax" id="subnav" role="navigation">
-
-        <ul>
-
-            <?php bp_get_options_nav(); ?>
-
-        </ul>
-
-    </div><!-- .item-list-tabs -->
-</div>
-
-<?php

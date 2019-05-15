@@ -19,7 +19,21 @@
  */
 var jq = $ = jQuery;
 
+/**
+ * Utility function to generate css selector to use in Selects and initCheckBox
+ * @param input_select
+ * @returns {*}
+ */
+function excluded_inputs_selector( input_select ) {
 
+	if ( BuddyBossOptions.excluded_inputs.length ) {
+		return BuddyBossOptions.excluded_inputs.filter(Boolean).reduce(function(accumulator, currentValue){
+			return accumulator + ':not('+ currentValue +')';
+		}, input_select );
+	}
+
+	return input_select;
+}
 
 /**
  * 2. Main BuddyBoss Class
@@ -124,6 +138,53 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
         var webkitVer = parseInt( ( /WebKit\/([0-9]+)/.exec( navigator.appVersion ) || 0 )[1], 10 ) || void 0; // also match AppleWebKit
         var isNativeAndroid = isAndroid && webkitVer <= 534 && navigator.vendor.indexOf( 'Google' ) == 0;
 
+		/* get querystring value */
+		function getQueryVariable( query, variable ) {
+			if ( typeof query !== 'string' || query == '' || typeof variable == 'undefined' || variable == '' )
+				return '';
+
+			var vars = query.split( "&" );
+
+			for ( var i = 0; i < vars.length; i ++ ) {
+				var pair = vars[i].split( "=" );
+
+				if ( pair[0] == variable ) {
+					return pair[1];
+				}
+			}
+			return( false );
+		}
+
+        /**
+         * Observe and unwrap traditional buddyboss-select from the Select2 DropDowns
+         * @type {MutationObserver}
+         */
+        var select2Observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === "class") {
+                    var attributeValue = $(mutation.target).prop(mutation.attributeName);
+                    var isBuddyBossSelect = $(mutation.target).parent().hasClass('buddyboss-select-inner');
+                    if ( attributeValue.includes('select2-hidden-accessible') && isBuddyBossSelect ) {
+                        $(mutation.target).parent('.buddyboss-select-inner').children('span').first().remove();
+                        $(mutation.target).unwrap('.buddyboss-select-inner');
+                        $(mutation.target).unwrap('.buddyboss-select');
+                    }
+                }
+            });
+        });
+
+        function boss_select2() {
+			var selectbox = Array.prototype.slice.call( document.querySelectorAll('select') );
+            if ( selectbox.length > 0 ) {
+                selectbox.forEach(function(select){
+                    select2Observer.observe(select, {
+                        attributes: true
+                    });
+                });
+            }
+        }
+
+
         /*------------------------------------------------------------------------------------------------------
          1.0 - Core Functions
          --------------------------------------------------------------------------------------------------------*/
@@ -173,6 +234,24 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
             return has_item_nav;
         }
 
+		/**
+		 * Transfer item-nav into mobile device compatible items nav
+		 */
+		function transfer_item_nav_into_mobile() {
+			var $item_nav = $buddypress.find( '#item-nav' );
+
+			// Runs once, first time we experience a mobile resolution
+			$mobile_nav_wrap = $( '<div id="mobile-item-nav-wrap" class="mobile-item-nav-container mobile-item-nav-scroll-container">' );
+			$mobile_item_wrap = $( '<div class="mobile-item-nav-wrapper">' ).appendTo( $mobile_nav_wrap );
+			$mobile_item_nav = $( '<div id="mobile-item-nav" class="mobile-item-nav">' ).appendTo( $mobile_item_wrap );
+			$mobile_item_nav.append( $item_nav.html() );
+
+			$mobile_item_nav.css( 'width', ( $item_nav.find( 'li' ).length * 94 ) );
+			$mobile_nav_wrap.insertBefore( $item_nav ).show();
+			$( '#mobile-item-nav-wrap, .mobile-item-nav-scroll-container, .mobile-item-nav-container' ).addClass( 'fixed' );
+			$item_nav.css( { display: 'none' } );
+		}
+
         function render_layout() {
             var
                 window_height = $window.height(), // window height - 60px (Header height) - carousel_nav_height (Carousel Navigation space)
@@ -184,9 +263,9 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 $( '#page' ).css( 'min-height', $window.height() - ( $( '#mobile-header' ).height() + $( '#colophon' ).height() ) );
             }
 
-            if ( is_mobile ) {
-                $( '#messages-layout' ).css( 'margin-top', $( '#leftcolumn' ).height() );
-            }
+            //if ( is_mobile ) {
+            //$( '#messages-layout' ).css( 'margin-top', $( '#leftcolumn' ).height() );
+            //}
 
             // Swipe/panel shut area
             if ( is_mobile && $( '#buddyboss-swipe-area' ).length && Panels.state ) {
@@ -218,15 +297,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
             // Runs once, first time we experience a mobile resolution
             if ( is_mobile && has_item_nav && !mobile_modified ) {
                 mobile_modified = true;
-                $mobile_nav_wrap = $( '<div id="mobile-item-nav-wrap" class="mobile-item-nav-container mobile-item-nav-scroll-container">' );
-                $mobile_item_wrap = $( '<div class="mobile-item-nav-wrapper">' ).appendTo( $mobile_nav_wrap );
-                $mobile_item_nav = $( '<div id="mobile-item-nav" class="mobile-item-nav">' ).appendTo( $mobile_item_wrap );
-                $mobile_item_nav.append( $item_nav.html() );
-
-                $mobile_item_nav.css( 'width', ( $item_nav.find( 'li' ).length * 94 ) );
-                $mobile_nav_wrap.insertBefore( $item_nav ).show();
-                $( '#mobile-item-nav-wrap, .mobile-item-nav-scroll-container, .mobile-item-nav-container' ).addClass( 'fixed' );
-                $item_nav.css( { display: 'none' } );
+                transfer_item_nav_into_mobile();
             }
             // Resized to non-mobile resolution
             else if ( !is_mobile && has_item_nav && mobile_modified ) {
@@ -288,6 +359,28 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
             throttle = setTimeout( do_render, 150 );
         } );
 
+		/**
+		 * Transfer search result main item list into icon menu
+		 */
+		$( document ).ajaxComplete(function( event, xhr, settings ) {
+
+			var action = getQueryVariable( settings.data, 'action' );
+
+			if ( typeof action == 'undefined' || action != 'bboss_global_search_ajax' )
+				return;
+
+			setTimeout( function() {
+				// Transfer search result category list into mobile nav menu
+				if ( is_mobile && has_item_nav ) {
+					mobile_modified = true;
+					transfer_item_nav_into_mobile();
+				}
+				// Init swiper on transferred search result page
+				swiper = false;
+				mobile_carousel();
+			}, 100 );
+		});
+
         /*------------------------------------------------------------------------------------------------------
          2.1 - Mobile/Tablet Carousels
          --------------------------------------------------------------------------------------------------------*/
@@ -306,7 +399,9 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                         scrollContainer: true,
                         slideElement: 'div',
                         slideClass: 'mobile-item-nav',
-                        wrapperClass: 'mobile-item-nav-wrapper'
+                        wrapperClass: 'mobile-item-nav-wrapper',
+                        slidesPerView: 'auto',
+                        freeMode: true
                     } );
                 }
             }
@@ -318,6 +413,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
         if ( typeof Selects !== 'undefined' ) {
             if ( $.isFunction( Selects.init_select ) ) {
                 Selects.init_select( is_mobile, inputsEnabled );
+                boss_select2();
             }
         }
 
@@ -326,6 +422,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 setTimeout( function () {
                     if ( $.isFunction( Selects.init_select ) ) {
                         Selects.init_select( is_mobile, inputsEnabled );
+                        boss_select2();
                     }
                     if ( typeof Selects !== 'undefined' ) {
                         if ( $.isFunction( Selects.populate_select_label ) ) {
@@ -343,6 +440,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 setTimeout( function () {
                     if ( $.isFunction( Selects.init_select ) ) {
                         Selects.init_select( is_mobile, inputsEnabled );
+                        boss_select2();
                     }
                     if ( typeof Selects !== 'undefined' ) {
                         if ( $.isFunction( Selects.populate_select_label ) ) {
@@ -353,19 +451,20 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 }, 500 );
             } );
         }
-        
+
         /* Reset selects on Event booking options changed */
 
-        $(document).on('em_bookings_filtered', function(){
+        $( document ).on( 'em_bookings_filtered', function () {
             if ( $.isFunction( Selects.init_select ) ) {
                 Selects.init_select( is_mobile, inputsEnabled );
+                boss_select2();
             }
             if ( typeof Selects !== 'undefined' ) {
                 if ( $.isFunction( Selects.populate_select_label ) ) {
                     Selects.populate_select_label( is_mobile );
                 }
             }
-         }); 
+        } );
 
         /*------------------------------------------------------------------------------------------------------
          3.0 - Content
@@ -517,7 +616,14 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
 
             // This ensures that after and Ajax call we check again for
             // videos to resize.
-            $( document ).ajaxSuccess( videosWidth );
+            $( document ).ajaxSuccess( function ( event, xhr, settings ) {
+				var action = getQueryVariable( settings.data, 'action' );
+
+				if ( action === 'heartbeat' )
+					return;
+
+				videosWidth();
+			} );
         }
 
         /*------------------------------------------------------------------------------------------------------
@@ -536,7 +642,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                     'position': 'relative'
                 } );
 
-                if ( $( '#scroll-area' ).outerHeight() + $( '#masthead' ).outerHeight() < height ) {
+                if ( $( '#scroll-area' ).outerHeight() + $( '#masthead' ).outerHeight() + $( '#wpadminbar' ).outerHeight() < height ) {
                     $( '#scroll-area' ).css( {
                         'position': 'fixed'
                     } );
@@ -549,13 +655,31 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
             }
         }
 
+        /**
+         * Set min height of the Primary content section
+         *
+         * This function will stretch #primary div when BuddyPanel height is
+         * more than the #primary div so there won't be unoccupied area at the
+         * bottom of the page
+         */
+        function setPrimarySectionMinHeight() {
+            var $primary = $( '#primary' );
+            var left_panel_height = $( '#menu-buddypanel' ).height();
+
+            if ( !is_mobile && $primary.length > 0 && left_panel_height > $primary.height() ) {
+                $primary.css({'min-height': left_panel_height+'px' });
+            }
+        }
+
+        setPrimarySectionMinHeight();
+
         imagesLoaded( 'body', function ( instance ) {
             fixBuddyPanel();
         } );
 
-
         $window.resize( function () {
             fixBuddyPanel();
+            setPrimarySectionMinHeight();
         } );
 
         // Ajax complete Sidebars Fix
@@ -569,6 +693,35 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
             $( ".right-col" ).toggleClass( "open" );
             fixBuddyPanel();
         }, 500 );
+
+        // Reposition BuddyPanel Sub Menu
+        $( "#menu-buddypanel li.menu-item-has-children:not(.current-menu-item)" ).hover(
+            function() {
+                var $subMenuWrap = $('.sub-menu-wrap', this);
+                var position = $(this).offset().top - $(window).scrollTop();
+                var subMenuHeight = $subMenuWrap.height();
+                var windowHeight = $(window).height();
+                var submenuPosition = position + subMenuHeight;
+
+                if ( submenuPosition >= windowHeight) {
+                    var topOffset = windowHeight - submenuPosition;
+                    $subMenuWrap.css({'top': topOffset+'px'});
+                    $("<style type='text/css' id='buddypanel-dynamic' />").appendTo("head");
+                    var pusdoOffset = Math.abs(topOffset) + 18;
+                    $("#buddypanel-dynamic").text(
+                        "body.left-menu-open .menu-panel .sub-menu-wrap:before," +
+                        "body.left-menu-open .sub-menu-wrap:after," +
+                        "body:not(.left-menu-open) .menu-panel .sub-menu-wrap:before," +
+                        "body:not(.left-menu-open) .sub-menu-wrap:after"+
+                        "{ top:" + pusdoOffset + "px;}"
+                    );
+                }
+            }, function() {
+                var $subMenuWrap = $('.sub-menu-wrap', this);
+                $subMenuWrap.css({'top': 0});
+                $("#buddypanel-dynamic").remove();
+            }
+        );
 
         /*--------------------------------------------------------------------------------------------------------
          3.7 - Comment placeholder
@@ -774,7 +927,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                         $( ".right-col" ).toggleClass( "open" );
                     }
                     $window.trigger( 'resize' );
-
+                    setPrimarySectionMinHeight();
                 }, 500 );
 
                 // arrows for tablet
@@ -851,20 +1004,20 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
          --------------------------------------------------------------------------------------------------------*/
 
         function attachArrows() {
-            if ( $( '.menu-panel .open-submenu' ).length == 0 ) {
-                $( '.menu-panel .bp_components ul li ul li.menupop' ).prepend( '<a class="open-submenu fa fa-angle-left" href="#"></a>' );
+            if ( $( '.menu-panel .open-submenu' ).length === 0 ) {
+                $( '.menu-panel .bp_components ul li ul li.menupop' ).prepend( '<a class="open-submenu" href="#"><i class="fa fa-angle-right"></i></a>' );
 
                 $( '.menu-panel #nav-menu > ul > li' ).each( function () {
-                    if ( $( this ).children( '.sub-menu-wrap' ).length ) {
-                        $( this ).prepend( '<a class="open-submenu fa fa-angle-left" href="#"></a>' );
+                    if ( $( this ).children( '.sub-menu-wrap' ).length && $( this ).children( '.open-submenu' ).length === 0 ) {
+                        $( this ).prepend( '<a class="open-submenu" href="#"><i class="fa fa-angle-right"></i></a>' );
                     }
                 } );
 
                 $( window ).on( 'load', function () {
                     $( '.menu-panel #header-menu .sub-menu-wrap' ).hide();
-                    $( '.menu-panel #header-menu > ul > li' ).each( function () {
-                        if ( $( this ).children( '.sub-menu-wrap' ).length ) {
-                            $( this ).prepend( '<a class="open-submenu fa fa-angle-left" href="#"></a>' );
+                    $( '.menu-panel #header-menu ul li' ).each( function () {
+                        if ( $( this ).children( '.sub-menu-wrap' ).length && $( this ).children( '.open-submenu' ).length === 0 ) {
+                            $( this ).prepend( '<a class="open-submenu" href="#"><i class="fa fa-angle-right"></i></a>' );
                         }
                     } );
                 } );
@@ -879,7 +1032,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 $( this ).next().next().slideToggle( "fast", function () {
                 } );
 
-                $( this ).toggleClass( 'fa-angle-down' );
+                $( this ).find('.fa, .svg-inline--fa').toggleClass( 'fa-angle-down fa-angle-right' );
                 $( this ).closest( 'li' ).toggleClass( 'dropdown' );
             } );
         }
@@ -914,6 +1067,30 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 $( this ).find( '.pop' ).toggleClass( 'hover' );
             } );
         }
+
+        // Reposition admin bar sub menu
+        $( ".header-account-login ul#wp-admin-bar-my-account-buddypress > li.menupop, .header-account-login ul#menu-my-profile > li.menu-item-has-children" ).hover(
+            function() {
+                var $subMenuWrap = $('div.ab-sub-wrapper, ul.sub-menu', this);
+                var position = $(this).offset().top - $(window).scrollTop();
+                var subMenuHeight = $subMenuWrap.height();
+                var windowHeight = $('div.user-pop-links').height();
+                var submenuPosition = position + subMenuHeight;
+
+                if ( submenuPosition >= windowHeight) {
+                    var topOffset = windowHeight - submenuPosition;
+                    $subMenuWrap.css({'top': topOffset+'px'});
+                    $("<style type='text/css' id='my-account-dynamic' />").appendTo("head");
+                    var pusdoOffset = Math.abs(topOffset) + 11;
+                    $("#my-account-dynamic").text(".header-account-login .pop .bp_components .menupop:not(#wp-admin-bar-my-account) > .ab-sub-wrapper:before," +
+                        ".header-account-login .pop .links li > .sub-menu:before { top:" + pusdoOffset + "px;}");
+                }
+            }, function() {
+                var $subMenuWrap = $('div.ab-sub-wrapper, ul.sub-menu', this);
+                $subMenuWrap.css({'top': 0});
+                $("#my-account-dynamic").remove();
+            }
+        );
 
         /*--------------------------------------------------------------------------------------------------------
          3.13 - Add spinner
@@ -981,8 +1158,12 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                     }
                 } );
             } else {
-                //all fields
-                $( 'input[type="checkbox"], input[type="radio"]' ).each( function () {
+
+				var checkbox = excluded_inputs_selector('input[type="checkbox"]'),
+					radio    = excluded_inputs_selector('input[type="radio"]');
+
+				//all fields
+				$( checkbox + ',' + radio ).each( function () {
                     var $this = $( this );
                     if ( $this.val() == 'gf_other_choice' ) {
                         $this.addClass( 'styled' );
@@ -1176,7 +1357,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 e.preventDefault();
 
                 var $this = $( this ),
-                    $search_wrap = $( '#searchform' );
+                    $search_wrap = $( '.searchform' );
 
                 if ( $this.hasClass( 'closed' ) ) {
                     $this.removeClass( 'closed' );
@@ -1195,7 +1376,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
 
             $( document ).click( function ( e )
             {
-                var container = $( "#searchform" ),
+                var container = $( '.searchform' ),
                     toggle = $( '.search-toggle' );
 
                 if ( !container.is( e.target ) && !toggle.is( e.target ) && toggle.has( e.target ).length === 0
@@ -1225,19 +1406,19 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
          3.21 - Responsive Menus (...)
          --------------------------------------------------------------------------------------------------------*/
         if ( !is_mobile ) {
-            $( "#item-nav" ).find( "#nav-bar-filter" ).jRMenuMore( 60 );
+            $( "#item-nav > .item-list-tabs > ul" ).jRMenuMore( 60 );
 
 
             //Initialize jRMenuMore menu when it actually start falling outside of screen width
             var members_menu_items_width = 0;
-            $('#members-directory-form div.item-list-tabs ul:first-child li').each(function() {
-                members_menu_items_width += $(this).outerWidth();
-            });
+            $( '#members-directory-form div.item-list-tabs ul:first-child li' ).each( function () {
+                members_menu_items_width += $( this ).outerWidth();
+            } );
 
-            var members_ul_menu_width = $('#members-directory-form div.item-list-tabs ul:first-child').width();
+            var members_ul_menu_width = $( '#members-directory-form div.item-list-tabs ul:first-child' ).width();
 
-            if( members_menu_items_width > members_ul_menu_width ) {
-                $('#members-directory-form div.item-list-tabs ul:first-child').jRMenuMore( 60 );
+            if ( members_menu_items_width > members_ul_menu_width ) {
+                $( '#members-directory-form div.item-list-tabs ul:first-child' ).jRMenuMore( 140 );
             }
 
             if ( '2' == $body.data( 'header' ) ) {
@@ -1246,6 +1427,29 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 $( "#header-menu > ul" ).jRMenuMore( 70 );
             }
         }
+
+		/**
+		 * Adjust vertical item nav menu height to fix menu list overflow
+		 */
+		var adjustItemNavHeight = (function() {
+        	function doAdjustItemNavHeight() {
+				if (!is_mobile) {
+					var itemNavHeight = $("#item-nav > .item-list-tabs > ul > .hideshow > ul").height();
+					var itemBodyHeight = $('#item-body').height();
+
+					if ( itemNavHeight > itemBodyHeight ) {
+						$("#item-nav > .item-list-tabs > ul > .hideshow > ul").css({
+							'height': itemBodyHeight + 'px',
+							'overflow-y': 'auto'
+						});
+					}
+				}
+			}
+			// Return the function
+			return doAdjustItemNavHeight;
+		})();
+
+        $window.resize(adjustItemNavHeight);
 
         /*--------------------------------------------------------------------------------------------------------
          3.22 - BuddyPanel bubbles
@@ -1337,8 +1541,8 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 //            console.log(jq(window).scrollTop() + '  '+ jq(window).height() + ' '+ pos.top);
 
                 if ( jq( window ).scrollTop() + jq( window ).height() > pos.top ) {
-
-                    load_more_activity();
+	                load_more_btn.find( 'a' ).trigger('click');
+                    //bb_load_more_activity();
                 }
 
             } );
@@ -1348,7 +1552,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
              * We call it whenever we reach the bottom of the activity listing.
              *
              */
-            function load_more_activity() {
+            function bb_load_more_activity() {
 
                 //Check if activity is loading, which means another request is already doing this.
                 //If yes, just return and let the other request handle it.
@@ -1501,7 +1705,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                     } );
                 }
             } );
-        }       
+        }
 
         /*------------------------------------------------------------------------------------------------------
          Equal Pricing tables - Membership plugin
@@ -1649,6 +1853,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                 } );
                 /**********messages type************/
                 if ( data.unread_message > 0 ) { //has count
+                    jQuery( "#user-messages" ).find( "span" ).html( '<b>' + data.unread_message + '</b>' ).removeClass( "no-alert" );
                     jQuery( "#user-messages" ).find( "span" ).text( data.unread_message );
                     jQuery( ".ab-item[href*='/messages/']" ).each( function () {
                         jQuery( this ).append( "<span class='count'>" + data.unread_message + "</span>" );
@@ -1657,6 +1862,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                         }
                     } );
                 } else {
+                    jQuery( "#user-messages" ).find( "span" ).html( '<b>' + data.unread_message + '</b>' ).addClass( "no-alert" );
                     jQuery( "#user-messages" ).find( "span" ).text( data.unread_message );
                     jQuery( ".ab-item[href*='/messages/']" ).each( function () {
                         jQuery( this ).find( ".count" ).remove();
@@ -1684,88 +1890,29 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                     jQuery( this ).find( "span" ).remove();
                 } );
 
-                //notification content
-                jQuery( ".header-notifications .pop" ).html( data.notification_content );
+                // notification content
+				if ( data.notification_content
+					&& 0 < data.notification_content.length ) {
+					jQuery( ".header-notifications.all-notifications .pop" ).html( data.notification_content );
+				}
+
+				// messages content
+				if ( data.message_content
+					&& 0 < data.message_content.length ) {
+					jQuery( ".header-notifications.user-messages .pop-links-inner" ).html( data.message_content );
+				}
             }
         } );
 
-    }
+        // Send unread notification and messages count in heartbeat data
+		$( document ).on( 'heartbeat-send', function( event, data ) {
+			var unread_notifications = +$('#ab-pending-notifications').text();
+			var unread_messages = +$('.header-notifications #user-messages > .count').text();
+			data.unread_notifications = unread_notifications;
+			data.unread_messages = unread_messages;
+		} );
 
-    /*================================================================================================
-     ** Cover Photo Functions **
-     ==================================================================================================*/
-
-    buddyboss_cover_photo = function ( option ) {
-
-        object = $( ".bb-cover-photo" ).first().data( "obj" );
-        object_id = $( ".bb-cover-photo" ).first().data( "objid" );
-        nonce = $( ".bb-cover-photo" ).first().data( "nonce" );
-
-        ploption = {
-            runtimes: 'html5,flash,silverlight,html4',
-            browse_button: 'update-cover-photo-btn', // you can pass in id...
-            container: jQuery( ".bb-cover-photo" ).get( 0 ), // ... or DOM Element itself
-            max_file_size: '4mb',
-            url: ajaxurl,
-            multi_selection: false,
-            flash_swf_url: option.flash_swf_url || '',
-            silverlight_xap_url: option.uploader_xap_url || '',
-            multipart_params: {
-                'action': 'buddyboss_cover_photo',
-                'cookie': encodeURIComponent( document.cookie ),
-                'object': object,
-                'object_id': object_id,
-                'nonce': option.nonce
-            },
-            filters: [
-                { title: "Image files", extensions: "jpg,gif,png,jpeg" },
-            ],
-            init: {
-                FilesAdded: function ( up, files ) {
-                    uploader.start(); //auto start
-                },
-                PostInit: function () {
-                },
-                UploadProgress: function ( up, file ) {
-                    $( "#update-cover-photo-btn" ).prop( "disabled", true ).removeClass( 'uploaded' ).addClass( 'disabled' ).find( "i" ).fadeIn();
-                    $( '.bb-cover-photo' ).find( ".progress" ).show().find( "span" ).css( "width", file.percent + '%' );
-                },
-                Error: function ( up, err ) {
-                    $( '.bb-cover-photo' ).find( ".progress" ).hide().find( "span" ).css( "width", '0%' );
-
-                    $.growl.error( { message: err.message } );
-                    //$('console').innerHTML += "\nError #" + err.code + ": " + err.message;
-                },
-                FileUploaded: function ( up, file, info ) {
-                    var responseJSON = $.parseJSON( info.response );
-
-                    $( "#update-cover-photo-btn" ).prop( "disabled", false ).removeClass( 'disabled' ).addClass( 'uploaded' ).find( "i.fa-spin" ).fadeOut();
-                    $( '.bb-cover-photo' ).find( ".progress" ).fadeOut().find( "span" ).css( "width", '0%' );
-
-                    if ( !responseJSON ) {
-                        $.growl.error( { title: "", message: BuddyBossOptions.bb_cover_photo_failed_upload } );
-                    }
-
-                    if ( responseJSON.error ) {
-                        $.growl.error( { title: "", message: responseJSON.error } );
-                    } else {
-                        image = responseJSON.image;
-                        $( '.bb-cover-photo' ).find( ".holder" ).remove();
-                        $( '.bb-cover-photo' ).append( '<div class="holder"></div>' );
-                        $( '.bb-cover-photo' ).find( ".holder" ).css( "background-image", 'url(' + image + ')' );
-                        $.growl.notice( { title: "", message: responseJSON.success } );
-                    }
-
-                }
-            }
-        };
-        var uploader = new plupload.Uploader( ploption );
-
-        uploader.init();
-
-    }
-
-    /** --------------------------------------------------------------- */
+	}
 
     /**
      * BuddyPress Legacy Support
@@ -1795,79 +1942,11 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
 
     buddyboss_cover_photo = function ( option ) {
 
-        object = $( ".bb-cover-photo" ).first().data( "obj" );
-        object_id = $( ".bb-cover-photo" ).first().data( "objid" );
-        nonce = $( ".bb-cover-photo" ).first().data( "nonce" );
+        $bb_cover_photo = $( "#page .bb-cover-photo:last" );
+        object = $bb_cover_photo.data( "obj" ); // user or group
+        object_id = $bb_cover_photo.data( "objid" ); // id of user or group
+        nonce = $bb_cover_photo.data( "nonce" );
         $refresh_button = $( "#refresh-cover-photo-btn" );
-
-
-        ploption = {
-            runtimes: 'html5,flash,silverlight,html4',
-            browse_button: 'update-cover-photo-btn', // you can pass in id...
-            container: jQuery( ".bb-cover-photo" ).get( 0 ), // ... or DOM Element itself
-            max_file_size: '4mb',
-            url: ajaxurl,
-            multi_selection: false,
-            flash_swf_url: option.flash_swf_url || '',
-            silverlight_xap_url: option.uploader_xap_url || '',
-            multipart_params: {
-                'action': 'buddyboss_cover_photo',
-                'cookie': encodeURIComponent( document.cookie ),
-                'object': object,
-                'object_id': object_id,
-                'nonce': option.nonce
-            },
-            filters: [
-                { title: "Image files", extensions: "jpg,gif,png,jpeg" },
-            ],
-            init: {
-                FilesAdded: function ( up, files ) {
-                    uploader.start(); //auto start
-                },
-                PostInit: function () {
-                },
-                UploadProgress: function ( up, file ) {
-                    $( "#update-cover-photo-btn" ).prop( "disabled", true ).removeClass( 'uploaded' ).addClass( 'disabled' ).find( "i" ).fadeIn();
-                    $( '.bb-cover-photo' ).find( ".progress" ).show().find( "span" ).css( "width", file.percent + '%' );
-                },
-                Error: function ( up, err ) {
-                    $( '.bb-cover-photo' ).find( ".progress" ).hide().find( "span" ).css( "width", '0%' );
-
-                    $.growl.error( { message: err.message } );
-                    //$('console').innerHTML += "\nError #" + err.code + ": " + err.message;
-                },
-                FileUploaded: function ( up, file, info ) {
-                    var responseJSON = $.parseJSON( info.response );
-
-                    $( "#update-cover-photo-btn" ).prop( "disabled", false ).removeClass( 'disabled' ).addClass( 'uploaded' ).find( "i.fa-spin" ).fadeOut();
-                    $( '.bb-cover-photo' ).find( ".progress" ).fadeOut().find( "span" ).css( "width", '0%' );
-
-                    if ( !responseJSON ) {
-                        $.growl.error( { title: "", message: BuddyBossOptions.bb_cover_photo_failed_upload } );
-                    }
-
-                    if ( responseJSON.error ) {
-                        $.growl.error( { title: "", message: responseJSON.error } );
-                    } else {
-                        image = responseJSON.image;
-                        $( '.bb-cover-photo' ).find( ".holder" ).remove();
-                        $( '.bb-cover-photo' ).append( '<div class="holder"></div>' );
-                        $( '.bb-cover-photo' ).find( ".holder" ).css( "background-image", 'url(' + image + ')' );
-                        $.growl.notice( { title: "", message: responseJSON.success } );
-                        if ( $refresh_button.length > 0 ) {
-                            $refresh_button.find( '.fa-refresh' ).removeClass( 'fa-refresh' ).addClass( 'fa-times' );
-                            $refresh_button.find( '>div' ).html( BuddyBossOptions.bb_cover_photo_remove_title + '<i class="fa fa-spinner fa-spin" style="display: none;"></i>' );
-                            $refresh_button.attr( 'title', BuddyBossOptions.bb_cover_photo_remove_title );
-                            $refresh_button.data( 'routine', 'remove' );
-                        }
-                    }
-
-                }
-            }
-        };
-        var uploader = new plupload.Uploader( ploption );
-
-        uploader.init();
 
         rebind_refresh_cover_events = function () {
             $refresh_button.click( function () {
@@ -1898,12 +1977,13 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                         if ( responseJSON.error ) {
                             $.growl.error( { title: "", message: responseJSON.error } );
                         } else {
-                            $( '.bb-cover-photo' ).find( ".holder" ).remove();
-                            if ( 'refresh' == $refresh_button.data( 'routine' ) ) {
-                                image = responseJSON.image;
-                                $( '.bb-cover-photo' ).append( '<div class="holder"></div>' );
-                                $( '.bb-cover-photo' ).find( ".holder" ).css( "background-image", 'url(' + image + ')' );
+                            $bb_cover_photo.find( ".holder" ).remove();
 
+                            image = responseJSON.image;
+                            $bb_cover_photo.append( '<div class="holder"></div>' );
+                            $bb_cover_photo.find( ".holder" ).css( "background-image", 'url(' + image + ')' );
+
+                            if ( 'refresh' == $refresh_button.data( 'routine' ) ) {
                                 $refresh_button.parent().toggleClass( 'no-photo' );
                                 $refresh_button.find( '.fa-refresh' ).removeClass( 'fa-refresh' ).addClass( 'fa-times' );
                                 $refresh_button.find( '>div' ).html( BuddyBossOptions.bb_cover_photo_remove_title + '<i class="fa fa-spinner fa-spin" style="display: none;"></i>' );
@@ -1920,7 +2000,7 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
                         }
                     },
                     error: function ( ) {
-                        $( '.bb-cover-photo' ).find( ".progress" ).hide().find( "span" ).css( "width", '0%' );
+                        $bb_cover_photo.find( ".progress" ).hide().find( "span" ).css( "width", '0%' );
 
                         $.growl.error( { message: 'Error' } );
                     }
@@ -2150,26 +2230,26 @@ var BuddyBossMain = ( function ( $, window, undefined ) {
 
                 $( obj ).find( "li.hideshow > a" ).click( function ( e ) {
                     e.preventDefault();
-                    var $horizontal_menu_ul =  $( this ).parent( 'li.hideshow' ).children( "ul" );
+                    var $horizontal_menu_ul = $( this ).parent( 'li.hideshow' ).children( "ul" );
                     $horizontal_menu_ul.toggle();
                     $( this ).parent( 'li.hideshow' ).parent( "ul" ).toggleClass( 'open' );
 
                     //Members Index > Too many member types
-                    var $members_type_menu = $('#members-directory-form div.item-list-tabs ul:first-child');
+                    var $members_type_menu = $( '#members-directory-form div.item-list-tabs ul:first-child' );
 
-                    if( 0 < $members_type_menu.length ) {
+                    if ( 0 < $members_type_menu.length ) {
 
                         //Change horizontal menu display from flex to block for member types tab
-                        if( $horizontal_menu_ul.is(':visible') ) {
-                            $horizontal_menu_ul.css('display', 'block');
+                        if ( $horizontal_menu_ul.is( ':visible' ) ) {
+                            $horizontal_menu_ul.css( 'display', 'block' );
                         } else {
-                            $horizontal_menu_ul.css('display', 'none');
+                            $horizontal_menu_ul.css( 'display', 'none' );
                         }
 
                         //Horizontal responsive menu right offset fix
-                        var $horizontal_menu = $('div.item-list-tabs .horizontal-responsive-menu');
-                        var right_offset = ( $(window).width() - ( $horizontal_menu.offset().left + $horizontal_menu.outerWidth() ) );
-                        $('div.item-list-tabs li.hideshow > ul').css({ right: right_offset });
+                        var $horizontal_menu = $( 'div.item-list-tabs .horizontal-responsive-menu' );
+                        var right_offset = ( $( window ).width() - ( $horizontal_menu.offset().left + $horizontal_menu.outerWidth() ) );
+                        $( 'div.item-list-tabs li.hideshow > ul' ).css( { right: right_offset } );
                     }
 
                 } );

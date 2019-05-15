@@ -2,7 +2,7 @@
 
 	<?php do_action( 'bp_before_messages_compose_content' ); ?>
 
-	<label for="send-to-input"><?php _e("Send To (Username or Friend's Name)", 'buddypress' ); ?></label>
+	<label for="send-to-input"><?php _e("Send To (Username or Friend's Name)", 'boss' ); ?></label>
 	<ul class="first acfb-holder">
 		<li>
             <?php
@@ -26,14 +26,14 @@
 		<span>
 			<input type="checkbox" id="send-notice" name="send-notice" value="1" />
 		</span>
-		<span class="text"><?php _e( "This is a notice to all users.", "buddypress" ); ?></span>
+		<span class="text"><?php _e( "This is a notice to all users.", "boss" ); ?></span>
 	</label>
 	<?php endif; ?>
 
-	<label for="subject"><?php _e( 'Subject', 'buddypress' ); ?></label>
+	<label for="subject"><?php _e( 'Subject', 'boss' ); ?></label>
 	<input type="text" name="subject" id="subject" value="<?php echo ( isset($draft_detail->draft_subject) && !empty($draft_detail->draft_subject) ) ? $draft_detail->draft_subject : bp_get_messages_subject_value(); ?>" />
 
-	<label for="content"><?php _e( 'Message', 'buddypress' ); ?></label>
+	<label for="content"><?php _e( 'Message', 'boss' ); ?></label>
 
     <?php
     $content = ( isset($draft_detail->draft_content) && !empty($draft_detail->draft_content) ) ? $draft_detail->draft_content : bp_get_messages_content_value();
@@ -41,6 +41,7 @@
     if(!$editor_feature){
         echo '<textarea name="content" id="message_content" rows="15" cols="40">'.$content.'</textarea>';
     }else{
+
         $editor_id = 'message_content';
         $settings = array(
             'media_buttons' => false,
@@ -57,7 +58,7 @@
 	<?php do_action( 'bp_after_messages_compose_content' ); ?>
 
 	<div class="submit">
-		<input type="submit" value="<?php esc_attr_e( "Send Message", 'buddypress' ); ?>" name="send" id="send" />
+		<input type="submit" value="<?php esc_attr_e( "Send Message", 'boss' ); ?>" name="send" id="send" />
 	</div>
 
 	<?php wp_nonce_field( 'messages_send_message' ); ?>

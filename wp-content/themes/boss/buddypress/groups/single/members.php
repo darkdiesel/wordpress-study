@@ -2,7 +2,7 @@
 
 	<?php do_action( 'bp_before_group_members_content' ); ?>
 
-	
+
 	<?php
 	//only add markup if do action have output.
 	$action_out = null;
@@ -10,7 +10,7 @@
 	do_action( 'bp_members_directory_member_sub_types' );
 	$action_out = ob_get_contents(); //capture the do action content into var.
 	ob_end_clean();
-	if(!empty($action_out)):	
+	if(!empty($action_out)):
 	?>
 	<div class="item-list-tabs" id="subnav" role="navigation">
 		<ul>
@@ -47,7 +47,7 @@
 
                         <?php bp_group_member_avatar_thumb('type=full&width=70&height=70'); ?>
 
-                    </a>  
+                    </a>
 			    </div>
 
 				<div class="item">
@@ -80,7 +80,7 @@
 
 	<?php do_action( 'bp_after_group_members_list' ); ?>
 
-	<div id="pag-bottom" class="pagination no-ajax">
+	<div id="pag-bottom" class="pagination">
 
 		<div class="pag-count" id="member-count-bottom">
 

@@ -27,10 +27,10 @@
 		<?php if ( has_post_thumbnail() ) : ?>
 			<a class="entry-post-thumbnail" href="<?php the_permalink(); ?>">
 				<?php
-				$thumb	 = get_post_thumbnail_id();
-				$image	 = buddyboss_resize( $thumb, '', 2.5, null, null, true );
+				$thumb	        = get_post_thumbnail_id();
+				$image_url	    = buddyboss_resize( $thumb, '', 2.5, null, null, true );
 				?>
-				<img src="<?php echo $image[ 'url' ]; ?>" alt="<?php the_title(); ?>"/>
+				<img src="<?php echo $image_url; ?>" alt="<?php the_title(); ?>"/>
 
 			</a>
 		<?php else : ?>

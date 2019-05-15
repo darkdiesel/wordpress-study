@@ -95,8 +95,6 @@ if ( bp_has_message_threads(bp_ajax_querystring('messages') . 'drafts=true') || 
 
                     <?php do_action('bp_messages_inbox_list_item'); ?>
 
-                    <td class="thread-star"></td>
-
                     <td class="thread-options">
                         <a class="delete" href="<?php echo bbm_draft_delete_link($bbm_draft_id); ?>" title="<?php esc_attr_e("Delete Message", "buddyboss-inbox"); ?>"><?php _e('Delete', 'boss'); ?></a>
                     </td>
@@ -168,9 +166,7 @@ if ( bp_has_message_threads(bp_ajax_querystring('messages') . 'drafts=true') || 
 
                         <?php do_action('bp_messages_inbox_list_item'); ?>
 
-                        <td class="thread-star"></td>
-
-                        <td class="thread-options">
+                       <td class="thread-options">
                             <a class="delete" href="<?php echo bbm_draft_delete_link($draft_detail->bbm_draft_id); ?>" title="<?php esc_attr_e("Delete Message", "buddyboss-inbox"); ?>"><?php _e('Delete', 'boss'); ?></a>
                         </td>
                     </tr>

@@ -77,7 +77,7 @@ if ( ! function_exists('boss_edu_profile_achievements') ) {
 
                             if ( $thecount == $number_to_show && $number_to_show != 0 ) {
                                 echo '<li id="widget-achievements-listing-item-more" class="widget-achievements-listing-item">';
-                                echo '<a class="badgeos-item-thumb" href="' . bp_core_get_user_domain( get_current_user_id() ) . '/achievements/"><span class="fa fa-ellipsis-h"></span></a>';
+                                echo '<a class="badgeos-item-thumb" href="' . bp_core_get_user_domain( get_current_user_id() ) . '/achievements/"><i class="fa fa-ellipsis-h"></i></a>';
                                 echo '<a class="widget-badgeos-item-title ' . esc_attr( $class ) . '" href="' . bp_core_get_user_domain( get_current_user_id() ) . '/achievements/">' . __( 'See All', 'boss' ) . '</a>';
                                 echo '</li>';
                                 break;

@@ -326,6 +326,9 @@ li.hideshow > ul li a {
 --------------------------------------------------------------*/
 #mastlogo {
     background-color: #30455c;
+    -webkit-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
+    -moz-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
+    box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
 }
 
 #mastlogo .site-title a {
@@ -376,7 +379,8 @@ li.hideshow > ul li a {
 }
 
 #header-menu > ul > li {
-    height: 48px;
+    height: 74px;
+    line-height: 74px;
 }
 
 body[data-logo="1"] .site-header .left-col .table {
@@ -425,7 +429,7 @@ body:not(.logged-in) .site-header .right-col-inner {
     width: 320px;
 }
 
-.site-header .search-form #searchform {
+.site-header .search-form .searchform {
     height: 50px;
 }
 
@@ -482,6 +486,29 @@ body:not(.logged-in) .site-header .right-col-inner {
     vertical-align: middle;
 }
 
+.header-notifications.user-messages .bb-user-notifications a {
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.header-notifications.user-messages .bb-user-notifications .avatar {
+    border-radius: 100%;
+    margin-right: 10px;
+    margin-top: -3px;
+    vertical-align: middle;
+}
+
+.header-notifications.user-messages .bb-user-notifications .bb-message-link {
+    text-transform: lowercase;
+}
+
+.header-notifications.user-messages .pop {
+    min-width: 250px;
+    width: 100%;
+    line-height: 34px;
+    padding: 10px 0 10px 10px;
+}
+
 .header-inner .middle-col {
     width: 60%;
     padding-right: 20px;
@@ -503,7 +530,6 @@ body:not(.bp-active).logged-in .middle-col {
 .header-navigation .sub-menu {
     position: absolute;
     background-color: #fff;
-    width: 174px;
     z-index: 1;
     padding: 16px 0 20px;
     top: 100%;
@@ -529,6 +555,7 @@ body:not(.bp-active).logged-in .middle-col {
 .header-navigation .sub-menu {
     opacity: 0;
     visibility: hidden;
+    display: table;
 }
 
 .header-navigation li:hover > .sub-menu-wrap > .sub-menu,
@@ -546,9 +573,11 @@ body:not(.bp-active).logged-in .middle-col {
 .header-navigation li.hideshow > ul li,
 .header-navigation .sub-menu li {
     display: block;
+    line-height: 1.2;
     text-align: left;
     padding: 0 12px;
     box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .header-navigation li.hideshow > ul li a,
@@ -560,7 +589,9 @@ body:not(.bp-active).logged-in .middle-col {
     margin-bottom: 10px;
 }
 
-.header-navigation li.hideshow > a > i {
+.site-header .header-navigation li.hideshow > a > i,
+.site-header .header-navigation li.hideshow > a > .svg-inline--fa {
+    display: block;
     position: relative;
     top: 1px;
 }
@@ -574,13 +605,14 @@ body:not(.bp-active).logged-in .middle-col {
 }
 
 .header-navigation > div > ul {
-    height: 1.7em;
+    /*height: 1.7em;*/
+    height: 74px;
     list-style: none;
     margin: 0;
     overflow: hidden;
     padding: 0;
     text-align: right;
-    padding-top: 3px;
+    /*padding-top: 3px;*/
 }
 
 .header-navigation:hover ul,
@@ -598,8 +630,13 @@ body:not(.bp-active).logged-in .middle-col {
     color: #999;
 }
 
-.header-navigation ul li a:before {
-    content: '';
+.header-navigation ul li a .fa,
+.header-navigation ul li a .fab,
+.header-navigation ul li a .fal,
+.header-navigation ul li a .far,
+.header-navigation ul li a .fas,
+.header-navigation ul li a .svg-inline--fa {
+    display: none;
 }
 
 .header-navigation ul li a:hover,
@@ -652,10 +689,13 @@ body:not(.bp-active).logged-in .middle-col {
     min-width: 50px;
 }
 
+.header-notifications.cart + .header-account-login {
+    padding-left: 0;
+}
 /* Disable click on tablet */
 .tablet #wp-admin-bar-shortcode-secondary .menupop:after,
-.tablet .header-notifications > a:after,
-.tablet .header-account-login > a:before {
+.tablet .header-notifications.all-notifications:before,
+.tablet .header-account-login:before {
     content: '';
     width: 100%;
     height: 100%;
@@ -663,12 +703,12 @@ body:not(.bp-active).logged-in .middle-col {
     top: 0;
     left: 0;
     z-index: 1;
+    display: block;
 }
 
-.tablet .header-notifications > a,
-.tablet .header-account-login > a {
+.tablet .header-notifications.all-notifications,
+.tablet .header-account-login {
     position: relative;
-    z-index: -1;
 }
 
 .tablet #wp-admin-bar-shortcode-secondary .ab-sub-wrapper.hover,
@@ -680,7 +720,8 @@ body:not(.bp-active).logged-in .middle-col {
 .header-account-login .user-link span.name:after {
     content: "\f107";
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -722,7 +763,8 @@ body:not(.bp-active).logged-in .middle-col {
 
 .header-notifications .pop {
     width: 180px;
-    padding: 15px 27px 15px;
+    padding: 15px 20px 15px;
+    z-index: 1;
 }
 
 #wp-admin-bar-shortcode-secondary .ab-sub-wrapper {
@@ -795,7 +837,7 @@ body:not(.tablet) .header-account-login:hover .pop {
     display: none;
     position: absolute;
     width: 187px;
-    left: -187px;
+    left: -188px;
     top: 0;
     background-color: #fff;
     -webkit-box-shadow: 0px 1px 4px 0px rgba(50, 50, 50, 0.2);
@@ -881,12 +923,42 @@ body:not(.tablet) .header-account-login:hover .pop {
     -o-transition: width 0.5s;
 }
 
+/* 18px This create issue when BuddyPanel is closed */
 body[data-logo="1"] #mastlogo {
-    padding: 12px 0 8px 22px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+div#logo {
+    width: 100%; /* Occupy max parent width */
+}
+
+/* This create issue when BuddyPanel is closed */
+span.bb-title-small {
+    /*    display: block;
+        margin: 0 auto;*/
+}
+
+.boss-logo.large + .bb-title-small {
+    margin-left: 14px;
+    width: 28px;
+}
+
+body #mastlogo {
+    min-height: 74px;
+    padding: 0px 18px;
+
+    /* Vertical Alignment */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
 }
 
 .error404 #mastlogo {
-    padding: 16px 20px 16px 25px;
+    /*padding: 16px 20px 16px 25px;*/
 }
 
 body.left-menu-open #mastlogo {
@@ -902,10 +974,20 @@ body.left-menu-open #mastlogo {
     max-width: 100%;
     width: 45px;
     vertical-align: bottom;
+    display: block;
+    margin: 0 auto;
 }
 
 body.left-menu-open #mastlogo #logo img {
+    /* Width is same as mentioned in function `boss_logo_height()` */
     width: 187px;
+}
+
+/*
+ * Boxed layout
+ */
+body.boxed.is-desktop.left-menu-open[data-logo="1"] #left-panel-inner {
+    padding-top: 74px;
 }
 
 body.left-menu-open .site-title.small,
@@ -917,12 +999,72 @@ body.left-menu-open #mastlogo #logo img.large {
     display: block;
 }
 
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li > a > i,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li > a > .svg-inline--fa {
+    margin-right: 20px;
+    padding-right: 22px;
+}
+
+body:not(.left-menu-open) .menu-panel #nav-menu .sub-menu-wrap i {
+    display: none;
+}
+
+body:not(.left-menu-open) .menu-panel .menupop > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-blogs-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-blogs-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-blogs > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-activity-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-activity-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-activity > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-profile-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-profile-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-xprofile > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-notifications-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-notifications-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-notifications > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-messages-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-messages-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-messages > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-friends-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-friends-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-friends > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-followers-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li.bp-followers-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-follow > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-following-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-following-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-groups-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-groups-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-groups > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-forums-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-forums-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-forums > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-settings-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-settings-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-settings > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #wp-admin-bar-my-account-photos > .ab-item:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-logout-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-logout-nav > a:before,
+body:not(.left-menu-open) .menu-panel .screen-reader-shortcut:before,
+body:not(.left-menu-open) .menu-panel a.login-link:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-login-nav > a:before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-courses-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li.bp-courses-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel #header-menu > ul > li.bp-achievements-nav > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li.bp-achievements-nav > a:not(.open-submenu):before,
+body:not(.left-menu-open) .menu-panel a.register-link:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul li.bp-register-nav > a:before {
+    margin-right: 20px;
+    padding-right: 22px;
+    display: inline-block;
+}
+
 /*--------------------------------------------------------------
 1.0.7 - Left Panel
 --------------------------------------------------------------*/
 
 #left-panel-inner {
-    padding-top: 75px;
+    padding-top: 74px;
 }
 
 .bp_components {
@@ -953,6 +1095,10 @@ body.left-menu-open #mastlogo #logo img.large {
     line-height: 1;
 }
 
+body.left-menu-open[data-logo="1"] #mastlogo .site-title {
+    text-align: center;
+}
+
 #mastlogo .site-title.small {
     padding-left: 11px;
 }
@@ -961,11 +1107,20 @@ body.left-menu-open #mastlogo #logo img.large {
     text-decoration: none;
     color: white;
     white-space: nowrap;
+
     display: inline-block;
+
     -webkit-transition: none;
     -moz-transition: none;
     -o-transition: none;
     transition: none;
+}
+
+body[data-logo="0"].left-menu-open #mastlogo .site-title a {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    line-height: 70px;
 }
 
 body:not(.left-menu-open) #mastlogo .site-title a {
@@ -1037,6 +1192,7 @@ body:not(.tablet) .menu-panel ul li .menupop:hover {
 body:not(.tablet) .menu-panel .screen-reader-shortcut:hover:before,
 body:not(.tablet) .menu-panel #nav-menu > ul > li:hover > a:before,
 body:not(.tablet) .menu-panel #header-menu > ul > li:hover > a:before,
+body:not(.left-menu-open) .menu-panel #nav-menu > ul > li:hover > a > i,
 body:not(.tablet) .menu-panel .bp_components ul li ul li.menupop:hover > a:before {
     color: #4dcadd;
 }
@@ -1066,6 +1222,10 @@ body:not(.left-menu-open) .menu-panel ul li > a span {
     padding-left: 6px;
     padding-right: 7px;
     border-radius: 13px;
+}
+
+.left-menu-open .menu-panel ul.sub-menu li a span {
+    top: 0px;
 }
 
 .tablet.left-menu-open .menu-panel ul li a span {
@@ -1236,7 +1396,8 @@ body:not(.left-menu-open) .bp_components ul li ul li.menupop.active:hover .ab-su
 
 /**** Tablet ***/
 
-body.tablet.left-menu-open #nav-menu > ul > li > a.open-submenu, body.tablet.left-menu-open .menu-panel .menupop > a.open-submenu {
+body.tablet.left-menu-open #nav-menu > ul > li > a.open-submenu,
+body.tablet.left-menu-open .menu-panel .menupop > a.open-submenu {
     padding: 15px 20px;
     border-bottom: none;
 }
@@ -1253,6 +1414,7 @@ body.tablet.left-menu-open #nav-menu > ul > li > a:after, body.tablet.left-menu-
 
 .tablet.left-menu-open .menu-panel #nav-menu > ul > li > .open-submenu + a:not(.open-submenu),
 .tablet.left-menu-open .menu-panel #header-menu > ul > li > .open-submenu + a:not(.open-submenu),
+.tablet.left-menu-open .menu-panel #left-panel-inner .menupop > .open-submenu + div:not(.open-submenu),
 .tablet.left-menu-open .menu-panel #left-panel-inner .menupop > .open-submenu + a:not(.open-submenu) {
     padding-right: 55px;
 }
@@ -1364,11 +1526,28 @@ body.tablet.left-menu-open #nav-menu > ul > li > a:after, body.tablet.left-menu-
     z-index: 3;
 }
 
-/** Left Panel ***/
 
-#left-panel-inner {
-    padding-top: 75px;
+body:not(.page-template-front-page):not(.boxed) #right-panel-inner .vc_row[data-vc-stretch-content] {
+    left: -55px !important;
 }
+
+body:not(.page-template-front-page):not(.boxed).left-menu-open .page-right-sidebar .vc_row[data-vc-stretch-content] {
+    padding-right: 66%;
+}
+
+body:not(.page-template-front-page):not(.left-menu-open.boxed) .page-right-sidebar .vc_row[data-vc-stretch-content] {
+    padding-right: 43%;
+}
+
+body:not(.page-template-front-page):not(.boxed).left-menu-open .page-full-sidebar .vc_row[data-vc-stretch-content] {
+    padding-right: 20%;
+}
+
+body:not(.page-template-front-page):not(.left-menu-open.boxed) .page-full-sidebar .vc_row[data-vc-stretch-content] {
+    padding-right: 4.5%;
+}
+
+/** Left Panel ***/
 
 #left-panel-inner #scroll-area {
     overflow: visible;
@@ -1517,6 +1696,9 @@ body:not(.left-menu-open) #right-panel-inner {
     -webkit-transition: margin-left 0.5s;
     -moz-transition: margin-left 0.5s;
     -o-transition: margin-left 0.5s;
+    -webkit-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
+    -moz-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
+    box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
 }
 
 body.left-menu-open .header-outher {
@@ -1527,9 +1709,6 @@ header#masthead {
     box-sizing: border-box;
     position: fixed;
     width: 100%;
-    -webkit-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
-    -moz-box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
-    box-shadow: 0 2px 2px rgba(0,0,0,0.05),0 1px 0 rgba(0,0,0,0.05);
 }
 
 #right-panel {
@@ -1614,7 +1793,7 @@ body:not(.left-menu-open) #right-panel-inner {
 }
 
 .page-template-page-no-buddypanel:not(.boxed) .header-notifications a.notification-link,
-.page-template-page-no-buddypanel[data-header="1"] #masthead #searchsubmit {
+.page-template-page-no-buddypanel[data-header="1"] #masthead .searchsubmit {
     color: #fff;
 }
 
@@ -1957,6 +2136,12 @@ body:not(.left-menu-open) #right-panel-inner {
     }
 }
 
+.boxed.bp-user.shop #buddypress div#subnav.item-list-tabs {
+    padding-left: 0;
+    padding-right: 30px;
+}
+
+
 @media screen and (max-width: 1000px) {
     body.left-menu-open .page-right-sidebar {
         display: block;
@@ -1969,11 +2154,12 @@ body:not(.left-menu-open) #right-panel-inner {
         border: none;
     }
 
+    .boxed.bp-user.shop #buddypress div#subnav.item-list-tabs,
     .boxed #comments,
     .boxed .page-full-width #comments,
-    body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment), 
+    body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment),
     body.single:not(.buddypress):not(.bbpress).boxed .page-full-width .site-content article:not(.comment),
-    body.page:not(.buddypress).boxed .site-content article:not(.comment), 
+    body.page:not(.buddypress).boxed .site-content article:not(.comment),
     body.single:not(.buddypress):not(.bbpress).boxed .site-content article:not(.comment),
     .boxed.left-menu-open #buddypress div#item-body,
     .boxed .post-wrap {
@@ -1990,7 +2176,7 @@ body:not(.left-menu-open) #right-panel-inner {
         padding-right: 70px;
     }
 
-    .boxed.left-menu-open .page-full-width, 
+    .boxed.left-menu-open .page-full-width,
     .boxed.left-menu-open .page-right-sidebar {
         padding-left: 0;
         padding-right: 0;
@@ -2073,7 +2259,8 @@ body:not(.left-menu-open) #right-panel-inner {
 }
 
 @media screen and (max-width: 1120px) {
-    .widget-area .widget button[type="submit"], .widget-area .widget input[type="submit"]:not(.button),
+    .widget-area .widget button[type="submit"]:not(.searchsubmit),
+    .widget-area .widget input[type="submit"]:not(.button),
     .widget-area .widget.widget_bp_core_login_widget .bp-login-widget-register-link a,
     .widget-area .widget.buddyboss-login-widget a.sidebar-wp-register {
         width: 100%;
@@ -2084,7 +2271,8 @@ body:not(.left-menu-open) #right-panel-inner {
 }
 
 @media screen and (max-width: 1295px) {
-    .left-menu-open .widget-area .widget button[type="submit"], .left-menu-open .widget-area .widget input[type="submit"]:not(.button),
+    .left-menu-open .widget-area .widget button[type="submit"]:not(.searchsubmit),
+    .left-menu-open .widget-area .widget input[type="submit"]:not(.button),
     .left-menu-open .widget-area .widget.widget_bp_core_login_widget .bp-login-widget-register-link a,
     .left-menu-open .widget-area .widget.buddyboss-login-widget a.sidebar-wp-register {
         width: 100%;
@@ -2097,6 +2285,18 @@ body:not(.left-menu-open) #right-panel-inner {
 /*--------------------------------------------------------------
 1.1.11 - Front Page Template
 --------------------------------------------------------------*/
+
+.home-page:not(.boxed) #content .panel-grid {
+    margin-left: -70px;
+    margin-right: -70px;
+}
+
+@media screen and (max-width: 822px) {
+    .home-page.left-menu-open:not(.boxed) #content .panel-grid {
+        margin-left: -30px;
+        margin-right: -30px;
+    }
+}
 
 @media screen and (max-width: 1180px) {
     .panel-grid:nth-child(even) .text-content {
@@ -2208,6 +2408,11 @@ body:not(.left-menu-open) #right-panel-inner {
 --------------------------------------------------------------*/
 #buddypress .item-body {
     padding: 30px 70px;
+}
+
+.bp-user.shop #buddypress div#subnav.item-list-tabs {
+    padding-left: 70px;
+    padding-right: 70px;
 }
 
 #buddypress div#item-body {
@@ -2436,6 +2641,32 @@ body.activity:not(.bp-user)  .item-list-tabs ul ,
     /* NEW - Chrome */
     display: flex;
     /* NEW, Spec - Opera 12.1, Firefox 20+ */;
+}
+
+.dir-form .item-list-tabs {
+    padding: 18px 70px 8px 70px;
+    overflow: visible;
+}
+
+.dir-form .item-list-tabs > ul {
+    padding: 0 2px;
+}
+
+.dir-form .item-list-tabs ul li {
+    margin-bottom: 10px;
+    margin-left: -2px;
+    padding: 8px 30px;
+    min-width: 180px;
+
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
 }
 
 #buddypress #activity-stream > li {
@@ -2832,7 +3063,7 @@ body.activity-permalink #buddypress .activity-list li.mini .activity-comments {
 }
 
 #buddypress .acomment-options {
-    margin: 9px 0 30px 70px;
+    margin: 9px 0 50px 70px;
 }
 
 #buddypress .acomment-options a {
@@ -2872,29 +3103,6 @@ div#mobile-check {
 /*--------------------------------------------------------------
 1.0.13 - Messaging
 --------------------------------------------------------------*/
-
-#contentcolumn {
-    margin-left: 273px;
-    border-left: 1px solid rgba(0,0,0,0.11);
-    padding-top: 1px;
-    min-height: 500px;
-}
-
-#leftcolumn:after {
-    background: #ddd;
-    content: ' ';
-    display: block;
-    position: absolute;
-    height: 100%;
-    right: 0;
-    top: 0;
-    width: 1px;
-}
-
-#buddypress .messages {
-    min-height: 300px;
-}
-
 body.messages #buddypress td.thread-avatar {
     max-width: 69px;
 }
@@ -2943,7 +3151,7 @@ body.messages #buddypress td.thread-avatar {
     font-family: inherit;
     line-height: 25.5px;
     cursor: pointer;
-    margin: 18px 0 18px 70px;
+    margin: 17px 0 17px 70px;
 }
 
 .bp-user.messages #buddypress div#subnav.item-list-tabs ul li a {
@@ -2961,7 +3169,8 @@ body.messages #buddypress td.thread-avatar {
     color: #fff;
     background-color: #4dcadd;
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 "Font Awesome 5 Free";
+    font-weight: 900;
     font-size: inherit;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -3134,7 +3343,7 @@ input[type="submit"]#messages-bulk-manage {
     .boxed .page-full-width #woo-content,
     .boxed #woo-content {
         margin-left: 70px;
-        margin-right: 70px;        
+        margin-right: 70px;
     }
     .left-menu-open #secondary.widget-area .widget {
         padding-left: 70px;
@@ -3255,7 +3464,7 @@ input[type="submit"]#messages-bulk-manage {
         padding-left: 30px;
     }
 
-    .boxed.left-menu-open .page-full-width .dir-list, 
+    .boxed.left-menu-open .page-full-width .dir-list,
     .boxed.left-menu-open .page-full-width .dir-form .item-list-tabs {
         padding-right: 30px;
     }
@@ -3273,11 +3482,11 @@ input[type="submit"]#messages-bulk-manage {
     }
 
     .boxed.left-menu-open .page-full-width #groups-dir-list,
-    .boxed.left-menu-open #groups-dir-list, 
+    .boxed.left-menu-open #groups-dir-list,
     .left-menu-open #groups-dir-list {
         padding: 0 15px;
     }
-   
+
     body:not(.boxed).left-menu-open #groups-stream li .item,
     body:not(.boxed).left-menu-open #groups-stream li .action,
     body:not(.boxed).left-menu-open #groups-list li .item,
@@ -3312,13 +3521,13 @@ input[type="submit"]#messages-bulk-manage {
     .boxed .page-full-width #woo-content,
     .boxed #woo-content {
         margin-left: 30px;
-        margin-right: 30px;        
+        margin-right: 30px;
     }
     .boxed #comments,
     .boxed .page-full-width #comments,
-    body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment), 
+    body.page:not(.buddypress).boxed .page-full-width .site-content article:not(.comment),
     body.single:not(.buddypress):not(.bbpress).boxed .page-full-width .site-content article:not(.comment),
-    body.page:not(.buddypress).boxed .site-content article:not(.comment), 
+    body.page:not(.buddypress).boxed .site-content article:not(.comment),
     body.single:not(.buddypress):not(.bbpress).boxed .site-content article:not(.comment),
     .left-menu-open .group-header .cover-content .table-cell:first-child,
     .left-menu-open #secondary.widget-area .widget {
@@ -3463,6 +3672,10 @@ input[type="submit"]#messages-bulk-manage {
     #item-header .group-header-meta {
         padding: 5px 30px;
     }
+    body:not(.left-menu-open) .group-header-meta .group-subscription-div {
+        margin-left: 40px;
+        margin-right: 40px;
+    }
 }
 
 @media screen and (max-width: 480px) {
@@ -3562,7 +3775,7 @@ input[type="submit"]#messages-bulk-manage {
     }
 
     body:not(.left-menu-open) .group-single #secondary {
-        margin-bottom: -182px;
+        /* margin-bottom: -182px; */
     }
 }
 
@@ -3590,7 +3803,7 @@ input[type="submit"]#messages-bulk-manage {
     }
 
     .left-menu-open .group-single #secondary {
-        margin-bottom: -182px;
+        /* margin-bottom: -182px; */
     }
 }
 
@@ -3782,7 +3995,7 @@ input[type="submit"]#messages-bulk-manage {
     .left-menu-open .group-single #buddypress #item-header-cover > .table-cell:first-child {
         padding-left: 30px;
     }
-    
+
     /* this is global */
     body:not(.boxed).left-menu-open #buddypress div#item-nav .item-list-tabs ul {
         padding-left: 15px;
@@ -3791,21 +4004,22 @@ input[type="submit"]#messages-bulk-manage {
         padding-left: 30px;
         padding-right: 30px;
     }
-    
+
     .boxed .group-single #buddypress #item-header-cover > .table-cell:first-child,
     .left-menu-open .below-cover-photo #group-description {
         padding-left: 30px;
         padding-right: 30px;
     }
-    
+
     body.boxed.left-menu-open #buddypress div#item-nav .item-list-tabs ul {
         padding-left: 10px;
     }
-    
+
     .boxed.left-menu-open .group-single #buddypress #item-header-cover > .table-cell:first-child {
         padding-left: 30px;
-    }    
+    }
 
+    .boxed.bp-user.shop #buddypress div#subnav.item-list-tabs,
     .boxed.left-menu-open #buddypress .full-width div#item-body,
     .boxed.left-menu-open #buddypress div#item-body {
         padding-left: 30px;
@@ -3880,6 +4094,7 @@ input[type="submit"]#messages-bulk-manage {
 
     .page-right-sidebar #leftcolumn {
         width: 200px;
+        flex: 0 0 250px;
     }
 
     .bp-user.messages .page-right-sidebar #buddypress div#subnav.item-list-tabs ul li:first-child a,
@@ -4000,7 +4215,7 @@ input[type="submit"]#messages-bulk-manage {
     height: 74px;
 }
 
-.boxed button#searchsubmit {
+.boxed button.searchsubmit {
     width: 70px;
     height: 100%;
     position: absolute;
@@ -4026,6 +4241,15 @@ input[type="submit"]#messages-bulk-manage {
     padding-left: 30px;
 }
 
+.boxed .header-navigation li:not(.hideshow) .fa,
+.boxed .header-navigation li:not(.hideshow) .fab,
+.boxed .header-navigation li:not(.hideshow) .fal,
+.boxed .header-navigation li:not(.hideshow) .far,
+.boxed .header-navigation li:not(.hideshow) .fas,
+.boxed .header-navigation li:not(.hideshow) .svg-inline--fa {
+    display: none;
+}
+
 .boxed .header-inner {
     padding-left: 0;
 }
@@ -4039,22 +4263,22 @@ input[type="submit"]#messages-bulk-manage {
     position: relative;
 }
 
-.boxed .site-header #searchform,
-.boxed .site-header #searchform input[type="text"],
-.boxed .site-header #searchform {
+.boxed .site-header .searchform,
+.boxed .site-header .searchform input[type="text"],
+.boxed .site-header .searchform {
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
 }
 
-.boxed .site-header #searchform {
+.boxed .site-header .searchform {
     display: none;
     width: calc(100% + 70px);
     left: 0;
 }
 
-.boxed .site-header #searchform input[type="text"] {
+.boxed .site-header .searchform input[type="text"] {
     border: none;
     background-color: #fff;
     font-size: 18px;
@@ -4111,7 +4335,7 @@ body.left-menu-open.boxed #left-panel-inner #scroll-area {
     .boxed .right-sidebar {
         display: block;
     }
-    
+
     .boxed .right-sidebar #item-main-content {
         border-right: none;
         width: 100%;
@@ -4129,7 +4353,7 @@ body.left-menu-open.boxed #left-panel-inner #scroll-area {
     .boxed.search-results .page-header,
     body.activity:not(.bp-user).boxed div.activity,
     body.activity:not(.bp-user).boxed .item-list-tabs,
-    body.activity:not(.bp-user).boxed form#whats-new-form, 
+    body.activity:not(.bp-user).boxed form#whats-new-form,
     .boxed .activity-header.page-header + .entry-content,
     .boxed .activity-header.page-header,
     .boxed .dir-list,
@@ -4146,12 +4370,12 @@ body.left-menu-open.boxed #left-panel-inner #scroll-area {
         padding-left: 70px;
     }
     .boxed .page-full-width .archive-header,
-    .boxed.search-results .page-full-width .page-header,   
+    .boxed.search-results .page-full-width .page-header,
     body.activity:not(.bp-user).boxed .page-full-width div.activity,
     body.activity:not(.bp-user).boxed .page-full-width .item-list-tabs,
     body.activity:not(.bp-user).boxed .page-full-width form#whats-new-form,
     .boxed .page-full-width .activity-header.page-header + .entry-content,
-    .boxed .page-full-width .activity-header.page-header,    
+    .boxed .page-full-width .activity-header.page-header,
     .boxed .page-full-width .dir-list,
     .boxed .page-full-width .dir-form .item-list-tabs,
     .boxed .page-full-width #buddypress .filters {
@@ -4172,30 +4396,34 @@ body.left-menu-open.boxed #left-panel-inner #scroll-area {
 .left-menu-open #bbp-search-results li.bbp-body > div,
 .left-menu-open.bbpress footer.entry-meta,
 .left-menu-open #bbpress-forums > h3,
-.left-menu-open .bbp-reply-move, 
-.left-menu-open .bbp-topic-split, 
-.left-menu-open .bbp-topic-merge, 
-left-menu-open .bbp-topic-form, 
-.left-menu-open .bbp-reply-form, 
+.left-menu-open .bbp-reply-move,
+.left-menu-open .bbp-topic-split,
+.left-menu-open .bbp-topic-merge,
+.left-menu-open .bbp-topic-form,
+.left-menu-open .bbp-reply-form,
 .left-menu-open .bbp-topic-tag-form,
 .left-menu-open .bbp-pagination,
-body.left-menu-open.reply-edit .bbp-breadcrumb,
-.left-menu-open .bbp-topic-details, 
+.left-menu-open.reply-edit .bbp-breadcrumb,
+.left-menu-open.reply .bbp-breadcrumb,
+.left-menu-open .bbp-topic-details,
 .left-menu-open .bbp-forum-details,
-.left-menu-open #bbpress-forums li.bbp-header, 
+.left-menu-open #bbpress-forums li.bbp-header,
 .left-menu-open #bbpress-forums li.bbp-footer,
-.left-menu-open #bbpress-forums .subheader 
+.left-menu-open #bbpress-forums .subheader
 {
     padding-left: 30px;
     padding-right: 30px;
 }
 
 .bp-user.my-account.forums.left-menu-open #bbpress-forums h2,
-.left-menu-open #bbpress-forums li.bbp-body ul.forum, .left-menu-open #bbpress-forums li.bbp-body ul.topic {
+.left-menu-open #bbpress-forums li.bbp-body ul.forum,
+.left-menu-open #bbpress-forums li.bbp-body ul.topic {
     margin-left: 30px;
     margin-right: 30px;
 }
 
+.left-menu-open #bbpress-forums > .bbp-template-notice,
+body.left-menu-open.reply #bbpress-forums div.reply,
 .left-menu-open #bbpress-forums .bbp-forums + .bbp-template-notice,
 .left-menu-open .bbp-topic-details + .bbp-template-notice,
 .left-menu-open .bbp-forum-details + .bbp-template-notice,
@@ -4210,35 +4438,37 @@ body.bbp-search div.bbp-breadcrumb {
 }
 
 @media screen and (min-width:823px){
-    .bp-user.my-account.forums.left-menu-open #buddypress div#subnav.item-list-tabs,
+    .left-menu-open.bp-user.my-account.forums #buddypress div#subnav.item-list-tabs,
     .left-menu-open.groups .forum-header.page-header,
     .left-menu-open.groups #bbp-search-results li.bbp-body > div,
     .left-menu-open.bbpress.groups footer.entry-meta,
     .left-menu-open.groups #bbpress-forums > h3,
-    .left-menu-open.groups .bbp-reply-move, 
-    .left-menu-open.groups .bbp-topic-split, 
-    .left-menu-open.groups .bbp-topic-merge, 
-    left-menu-open.groups .bbp-topic-form, 
+    .left-menu-open.groups .bbp-reply-move,
+    .left-menu-open.groups .bbp-topic-split,
+    .left-menu-open.groups .bbp-topic-merge,
+    .left-menu-open.groups .bbp-topic-form,
     .left-menu-open.groups .bbp-reply-form,
     .left-menu-open.groups .bbp-topic-tag-form,
     .left-menu-open.groups .bbp-pagination,
-    body.left-menu-open.reply-edit.groups .bbp-breadcrumb,
-    .left-menu-open.groups .bbp-topic-details, 
-    .left-menu-open .bbp-forum-details,
-    .bp-user.left-menu-open #bbpress-forums li.bbp-header, 
-    .left-menu-open.groups #bbpress-forums li.bbp-header, 
-    .left-menu-open #bbpress-forums li.bbp-footer,
+    .left-menu-open.reply-edit.groups .bbp-breadcrumb,
+    .left-menu-open.groups .bbp-topic-details,
+    .left-menu-open.groups .bbp-forum-details,
+    .left-menu-open.bp-user #bbpress-forums li.bbp-header,
+    .left-menu-open.groups #bbpress-forums li.bbp-header,
+    .left-menu-open.groups #bbpress-forums li.bbp-footer,
     .left-menu-open.groups #bbpress-forums .subheader {
         padding-left: 70px;
         padding-right: 70px;
     }
-    
-    .bp-user.my-account.forums.left-menu-open #bbpress-forums h2,
-    .left-menu-open.groups #bbpress-forums li.bbp-body ul.forum, .left-menu-open #bbpress-forums li.bbp-body ul.topic {
+
+    .left-menu-open.bp-user.my-account.forums #bbpress-forums h2,
+    .left-menu-open.groups #bbpress-forums li.bbp-body ul.forum,
+    .left-menu-open.groups #bbpress-forums li.bbp-body ul.topic {
         margin-left: 70px;
         margin-right: 70px;
     }
 
+    .left-menu-open.groups #bbpress-forums > .bbp-template-notice,
     .left-menu-open.groups #bbpress-forums .bbp-forums + .bbp-template-notice,
     .left-menu-open.groups .bbp-topic-details + .bbp-template-notice,
     .left-menu-open.groups .bbp-forum-details + .bbp-template-notice,
@@ -4249,30 +4479,34 @@ body.bbp-search div.bbp-breadcrumb {
     }
 }
 
-@media screen and (min-width:823px){   
+@media screen and (min-width:823px){
     .left-menu-open.groups.boxed .forum-header.page-header,
     .left-menu-open.groups.boxed #bbp-search-results li.bbp-body > div,
     .left-menu-open.bbpress.groups.boxed footer.entry-meta,
     .left-menu-open.groups.boxed #bbpress-forums > h3,
-    .left-menu-open.groups.boxed .bbp-reply-move, 
-    .left-menu-open.groups.boxed .bbp-topic-split, 
-    .left-menu-open.groups.boxed .bbp-topic-merge, 
-    left-menu-open.groups.boxed .bbp-topic-form, 
+    .left-menu-open.groups.boxed .bbp-reply-move,
+    .left-menu-open.groups.boxed .bbp-topic-split,
+    .left-menu-open.groups.boxed .bbp-topic-merge,
+    .left-menu-open.groups.boxed .bbp-topic-form,
     .left-menu-open.groups.boxed .bbp-reply-form,
     .left-menu-open.groups.boxed .bbp-topic-tag-form,
     .left-menu-open.groups.boxed .bbp-pagination,
-    body.left-menu-open.reply-edit.groups.boxed .bbp-breadcrumb,
-    .left-menu-open.groups.boxed .bbp-topic-details, .left-menu-open .bbp-forum-details,
-    .bp-user.left-menu-open.boxed #bbpress-forums li.bbp-header, 
-    .left-menu-open.groups.boxed #bbpress-forums li.bbp-header, .left-menu-open #bbpress-forums li.bbp-footer,
+    .left-menu-open.reply-edit.groups.boxed .bbp-breadcrumb,
+    .left-menu-open.groups.boxed .bbp-topic-details,
+    .left-menu-open.groups.boxed .bbp-forum-details,
+    .left-menu-open.bp-user.boxed #bbpress-forums li.bbp-header,
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-header,
+    .left-menu-open.groups #bbpress-forums li.bbp-footer,
     .left-menu-open.groups.boxed #bbpress-forums .subheader {
         padding-left: 30px;
     }
-    
-    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.forum, .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.topic {
+
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.forum,
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.topic {
         margin-left: 30px;
     }
 
+    .left-menu-open.groups.boxed #bbpress-forums > .bbp-template-notice,
     .left-menu-open.groups.boxed #bbpress-forums .bbp-forums + .bbp-template-notice,
     .left-menu-open.groups.boxed .bbp-topic-details + .bbp-template-notice,
     .left-menu-open.groups.boxed .bbp-forum-details + .bbp-template-notice,
@@ -4287,21 +4521,24 @@ body.bbp-search div.bbp-breadcrumb {
     .left-menu-open.groups.boxed #bbp-search-results li.bbp-body > div,
     .left-menu-open.bbpress.groups.boxed footer.entry-meta,
     .left-menu-open.groups.boxed #bbpress-forums > h3,
-    .left-menu-open.groups.boxed .bbp-reply-move, 
-    .left-menu-open.groups.boxed .bbp-topic-split, 
-    .left-menu-open.groups.boxed .bbp-topic-merge, 
-    left-menu-open.groups.boxed .bbp-topic-form, 
+    .left-menu-open.groups.boxed .bbp-reply-move,
+    .left-menu-open.groups.boxed .bbp-topic-split,
+    .left-menu-open.groups.boxed .bbp-topic-merge,
+    left-menu-open.groups.boxed .bbp-topic-form,
     .left-menu-open.groups.boxed .bbp-reply-form,
     .left-menu-open.groups.boxed .bbp-topic-tag-form,
     .left-menu-open.groups.boxed .bbp-pagination,
-    body.left-menu-open.reply-edit.groups.boxed .bbp-breadcrumb,
-    .left-menu-open.groups.boxed .bbp-topic-details, .left-menu-open .bbp-forum-details,
-    .left-menu-open.groups.boxed #bbpress-forums li.bbp-header, .left-menu-open #bbpress-forums li.bbp-footer,
+    .left-menu-open.reply-edit.groups.boxed .bbp-breadcrumb,
+    .left-menu-open.groups.boxed .bbp-topic-details,
+    .left-menu-open.groups.boxed .bbp-forum-details,
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-header,
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-footer,
     .left-menu-open.groups.boxed #bbpress-forums .subheader {
         padding-left: 70px;
     }
-    
-    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.forum, .left-menu-open #bbpress-forums li.bbp-body ul.topic {
+
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.forum,
+    .left-menu-open.groups.boxed #bbpress-forums li.bbp-body ul.topic {
         margin-left: 70px;
     }
 
@@ -4311,9 +4548,8 @@ body.bbp-search div.bbp-breadcrumb {
     .left-menu-open.groups.boxed #bbpress-forums .bbp-replies div.topic,
     .left-menu-open.groups.boxed #bbpress-forums .bbp-replies div.reply {
         margin-left: 70px;
-    }    
+    }
 }
-
 
 /*--------------------------------------------------------------
 >>> PLUGINS
@@ -4569,7 +4805,6 @@ body.articles #buddypress div#item-body {
 1.0.8 - BuddyPress Group Email Subscription
 --------------------------------------------------------------*/
 #buddypress .group-subscription-options {
-    width: inherit;
     font-size: inherit;
 }
 

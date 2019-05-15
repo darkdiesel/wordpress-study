@@ -23,8 +23,11 @@ get_header(); ?>
        
         <header class="archive-header page-header">
             <h1 class="archive-title main-title"> <?php single_cat_title( '', true ) ; ?></h1>
+            <?php the_archive_description( '<div class="taxonomy-description">', '</div>' ); ?>
         </header><!-- .archive-header -->
-        
+
+        <div class="clear"></div>
+
 		<?php if ( have_posts() ) : ?>
 
 			<?php

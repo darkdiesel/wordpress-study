@@ -1,6 +1,6 @@
 <div id="buddypress">                    
 
-    <?php if ( bp_has_groups( array( 'include'=>bp_doc_single_group_id() ) ) ) : while ( bp_groups() ) : bp_the_group(); ?>
+    <?php if ( bp_is_active( 'groups' ) && bp_has_groups( array( 'include'=>bp_doc_single_group_id() ) ) ) : while ( bp_groups() ) : bp_the_group(); ?>
 
     <?php do_action( 'bp_before_group_home_content' ); ?>
 
@@ -52,6 +52,7 @@
                      */
                     do_action( 'bp_after_group_body' ); ?>
 
+                    <?php comments_template( '', true ); ?>
             </div><!-- #item-body -->
 
 

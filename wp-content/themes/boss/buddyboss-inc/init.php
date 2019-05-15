@@ -90,7 +90,7 @@ Class BuddyBoss_Theme {
 	 */
 	public function globals() {
 		global $bp, $buddyboss_debug_log, $buddyboss_js_params;
-        
+
 		// Get theme path
 		$this->tpl_dir = get_template_directory();
 
@@ -132,9 +132,15 @@ Class BuddyBoss_Theme {
 	 */
 	public function includes() {
         global $learner;
-        
-		// Add Redux Framework
-		require_once( $this->inc_dir . '/buddyboss-framework/admin-init.php' );
+
+        if ( $this->backend_should_load() ) {
+            // Add Redux Framework
+            require_once( $this->inc_dir . '/buddyboss-framework/admin-init.php' );
+        }
+
+        if(!is_admin()) {
+            add_action( 'wp_head', array( $this, 'output_typography_css' ), 150 );
+        }
 
 		// Customizer to redux
 		require_once( $this->inc_dir . '/customizer-to-redux.php' );
@@ -173,8 +179,61 @@ Class BuddyBoss_Theme {
 
 		// Allow automatic updates via the WordPress dashboard
 		require_once( $this->inc_dir . '/buddyboss-theme-updater.php' );
-		new buddyboss_updater_theme( 'http://update.buddyboss.com/theme', basename( get_template_directory() ), 44 );
+		//new buddyboss_updater_theme( 'http://update.buddyboss.com/theme', basename( get_template_directory() ), 44 );
+
+		// Ensure is_plugin_active function is loaded
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
 	}
+
+
+    function backend_should_load() {
+
+        if(is_admin()) {
+            return true;
+        }
+
+        $boss_typography = get_transient("boss_typography");
+
+        if(empty($boss_typography)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Output the theme typography css
+     *
+     */
+    public function output_typography_css() {
+
+        $boss_typography = get_transient("boss_typography");
+
+        if ( empty( $boss_typography ) ) {
+
+            global $reduxConfig;
+
+            $reduxFramework     = $reduxConfig->ReduxFramework;
+            $protocol           = ( ! empty ( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ) ? "https:" : "http:";
+            $typography         = new ReduxFramework_typography ( null, null, $reduxFramework );
+            $google_fontlink    = $protocol.$typography->makeGoogleWebfontLink( $reduxFramework->typography );
+
+            $boss_typography["google_font_link"] = $google_fontlink;
+            $boss_typography["css"] = $reduxFramework->outputCSS;
+
+            set_transient( 'boss_typography', $boss_typography );
+
+        }
+
+        $google_fontlink    = $boss_typography["google_font_link"];
+        $outputCSS          = $boss_typography["css"];
+
+        wp_enqueue_style( 'redux-google-fonts-boss-options', $google_fontlink, array(), '1.0' );
+
+        echo '<style type="text/css" title="dynamic-css" class="options-output">' . $outputCSS . '</style>';
+    }
 
 	/**
 	 * Actions and filters

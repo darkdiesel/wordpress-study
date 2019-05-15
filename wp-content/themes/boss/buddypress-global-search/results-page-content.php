@@ -10,7 +10,7 @@
 		<div class="bboss_search_results_wrapper">
 		    <div id="item-nav">
                 <div class="search_filters item-list-tabs no-ajax" role="navigation">
-                    <ul>
+                    <ul id="nav-bar-filter">
                         <?php buddyboss_global_search_filters();?>
                     </ul>
                 </div>

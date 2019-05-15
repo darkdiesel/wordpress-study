@@ -11,7 +11,7 @@
 <?php
 //output cover photo.
 if(boss_get_option('boss_cover_profile')) {
-    if ( boss_get_option( 'boss_layout_style' ) != 'boxed' && !bp_is_current_component('events') || ( bp_is_current_component('events') && 'profile' == bp_current_action() ) ) { // show here for fluid and if not Events Manager page or My Profile of Events
+    if ( boss_get_option( 'boss_layout_style' ) != 'boxed' ) { // show here for fluid if not Events Manager page or if it is My Profile of Events
         echo buddyboss_cover_photo( "user", bp_displayed_user_id() );
     }
 } else {
@@ -27,25 +27,25 @@ if(boss_get_option('boss_cover_profile')) {
 
             <div class="table-cell">
                 <div id="item-header-avatar">
-                
-				<?php if(bp_displayed_user_id()==bp_loggedin_user_id()){ ?>
-                    <a href="<?php bp_displayed_user_link(); ?>profile/change-avatar/">
-                <?php } else { ?>
-                <a href="<?php bp_displayed_user_link(); ?>">
-                <?php } ?>
-                <?php bp_displayed_user_avatar( 'type=full' ); ?>
-                </a>
+
+                    <?php if(bp_displayed_user_id()==bp_loggedin_user_id()){ ?>
+                    <a href="<?php bp_displayed_user_link(); bp_profile_slug(); ?>/change-avatar/">
+                    <?php } else { ?>
+                    <a href="<?php bp_displayed_user_link(); ?>">
+                    <?php } ?>
+                    <?php bp_displayed_user_avatar( 'type=full' ); ?>
+                    </a>
 
                 </div><!-- #item-header-avatar -->
 
                 <div id="item-header-content">
                     <div class="basic">
                         <h1><?php echo bp_get_displayed_user_fullname(); ?></h1><span class="sep"><?php _e( ', ', 'boss' ); ?></span>
-                        <h2 class="user-nicename">@<?php bp_displayed_user_username(); ?></h2>
+                        <h2 class="user-nicename">@<?php bp_is_active( 'activity' ) ? bp_displayed_user_mentionname() : bp_displayed_user_username(); ?></h2>
 						<?php
 						$show			 = boss_get_option( 'boss_cover_profile' );
 						$address_field	 = boss_get_option( 'boss_misc_profile_field_address' );
-						if ( $show && $address_field ) {
+						if ( $show && $address_field && function_exists( 'bp_get_profile_field_data' ) ) {
 							$address = bp_get_profile_field_data( array( 'field' => $address_field ) );
 							if ( $address ) {
 								if ( is_array( $address ) ) {
@@ -72,24 +72,40 @@ if(boss_get_option('boss_cover_profile')) {
 						if ( ! empty( $profile_social_media_links_switch ) ):
 						$social_profiles = (array)boss_get_option( 'profile_social_media_links' );
 
-						foreach ( $social_profiles as $social  ):
+						foreach ( $social_profiles as $key => $social  ):
 
-							if ( empty( $social['title'] ) ) {
-								continue;
-							}
+                             //Boss v2.1.1
+                            if ( isset( $social['title'] ) ) {
+                                $social_key = sanitize_title( $social['title'] );
+                                $social_title = $social['title'];
 
-							$social_key                 = sanitize_title( $social['title'] );
-							$background_image_style     = '';
-							$icon_url                   = $social['thumb'];
-							$url                        = buddyboss_get_user_social( bp_displayed_user_id(), $social_key ); //Get user social link
+                                //Boss v2.1.0
+                            } else {
+                                $social_key = sanitize_title( $key );
+                                $social_title = ucwords( $key );
+                            }
+
+                            $background_image_style = '';
+
+                            if ( ! empty( $social['thumb'] ) ) {
+                                $icon_url = $social['thumb'];
+                            } else {
+                                //Show default supported social site icon
+                                $icon_path = TEMPLATEPATH."/images/social-icon-white/{$social_key}-white.png";
+                                $icon_url = '';
+                                if ( file_exists( $icon_path ) ) {
+                                    $icon_url = get_template_directory_uri()."/images/social-icon-white/{$social_key}-white.png";
+                                }
+                            }
+
+							$url  = buddyboss_get_user_social( bp_displayed_user_id(), $social_key ); //Get user social link
 
 							//Set profile icon
-							if ( ! empty ( $icon_url) ) {
-								$background_image_style = "background-image: url($icon_url);  background-size: cover;";
-							}
+                            $background_image_style = "background-image: url($icon_url);  background-size: cover;";
+
 							?>
 							<?php if ( !empty( $url ) ): ?>
-								<a class="btn" href="<?php echo $url; ?>" title="<?php echo esc_attr( $social['title'] ); ?>" target="_blank"><i style="<?php echo $background_image_style ?>" class="alt-social-icon alt-<?php echo empty( $background_image_style ) ? $social_key : ''; ?>"></i> </a>
+								<a class="btn" href="<?php echo $url; ?>" title="<?php echo esc_attr( $social_title ); ?>" target="_blank"><i style="<?php echo $background_image_style ?>" class="alt-social-icon alt-<?php echo empty( $background_image_style ) ? $social_key : ''; ?>"></i> </a>
 							<?php endif; ?>
 
 						<?php endforeach;
@@ -113,6 +129,8 @@ if(boss_get_option('boss_cover_profile')) {
 					$followers	 = bp_follow_total_follow_counts( array( "user_id" => bp_displayed_user_id() ) );
 				} elseif ( function_exists( "bp_add_friend_button" ) ) {
 					$showing = "friends";
+				} elseif ( function_exists( "bp_send_private_message_button" ) ) {
+					$showing = "private_message";
 				}
 				?>
 
@@ -122,7 +140,7 @@ if(boss_get_option('boss_cover_profile')) {
 	                    <?php  if(!empty($GLOBALS['badgeos'])): ?>
 		                    <span>
                                 <p><?php $points = badgeos_get_users_points(bp_displayed_user_id()); echo number_format($points); ?></p>
-                                <p><?php printf( _n( 'Point', 'Points', $points, 'social-learner' ) ); ?></p>
+                                <p><?php printf( _n( 'Point', 'Points', $points, 'boss' ) ); ?></p>
                             </span>
 	                    <?php  endif; ?>
 
@@ -159,6 +177,12 @@ if(boss_get_option('boss_cover_profile')) {
 							} else {
 								remove_action( 'bp_member_header_actions', 'bp_send_public_message_button', 20 );
 							}
+						} elseif ( $showing == "private_message" ) {
+							if ( bp_is_active( 'messages' ) ) {
+								remove_action( 'bp_member_header_actions', 'bp_send_private_message_button', 20 );
+							} else {
+								remove_action( 'bp_member_header_actions', 'bp_send_public_message_button', 20 );
+							}
 						} else {
 							remove_action( 'bp_member_header_actions', 'bp_send_public_message_button', 20 );
 						}
@@ -184,13 +208,12 @@ if(boss_get_option('boss_cover_profile')) {
 										 bp_add_friend_button();
 									 } elseif ( bp_is_active( 'messages' ) ) {
 										 bp_send_private_message_button();
-									 } else {
-										 bp_send_public_message_button();
 									 }
-								 } else {
-									 if ( bp_is_active( 'activity' ) ) {
-										 bp_send_public_message_button();
-									 }
+
+								 } elseif ( $showing == "private_message" ) {
+									 if ( bp_is_active( 'messages' ) ) {
+										 bp_send_private_message_button();
+                                                                         }
 								 }
 								 ?>
                         </div>

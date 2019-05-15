@@ -12,6 +12,15 @@
 
 ?>
 
+<?php include_once( ABSPATH . 'wp-admin/includes/plugin.php' ); ?>
+
+<?php
+$b_wall = false;
+if ( is_plugin_active( 'buddyboss-wall/buddyboss-wall.php' ) ) {
+	$b_wall = true;
+}
+?>
+
 <?php do_action( 'bp_before_activity_entry' ); ?>
 
 <li class="<?php bp_activity_css_class(); ?>" id="activity-<?php bp_activity_id(); ?>">
@@ -47,7 +56,9 @@
 
 			<?php if ( bp_get_activity_type() == 'activity_comment' ) : ?>
 
-				<a href="<?php bp_activity_thread_permalink(); ?>" class="fa fa-external-link-square view bp-secondary-action" title="<?php esc_attr_e( 'View Conversation', 'boss' ); ?>"></a>
+				<a href="<?php bp_activity_thread_permalink(); ?>" class="view bp-secondary-action" title="<?php esc_attr_e( 'View Conversation', 'boss' ); ?>">
+					<i class="fas fa-external-link-square-alt"></i>
+				</a>
 
 			<?php endif; ?>
 
@@ -55,19 +66,33 @@
 
 				<?php if ( bp_activity_can_comment() ) : ?>
 
-					<a href="<?php bp_activity_comment_link(); ?>" class="fa fa-reply acomment-reply bp-primary-action" id="acomment-comment-<?php bp_activity_id(); ?>">
+					<a href="<?php bp_activity_comment_link(); ?>" class="acomment-reply bp-primary-action" id="acomment-comment-<?php bp_activity_id(); ?>">
+						<i class="fa fa-reply"></i>
+					</a>
 
 				<?php endif; ?>
 
 				<?php if ( bp_activity_can_favorite() ) : ?>
 
+					<?php $like_count = (int) bp_activity_get_meta( bp_get_activity_id(), 'favorite_count' ); ?>
+
 					<?php if ( !bp_get_activity_is_favorite() ) : ?>
 
-						<a href="<?php bp_activity_favorite_link(); ?>" class="button fa fa-star-o fav bp-secondary-action" title="<?php esc_attr_e( 'Mark as Favorite', 'boss' ); ?>"></a>
+						<a href="<?php bp_activity_favorite_link(); ?>" class="button fav bp-secondary-action" title="<?php esc_attr_e( 'Mark as Favorite', 'boss' ); ?>">
+							<i class="far fa-star"></i>
+							<?php if ( $b_wall && 0 < $like_count ) : ?>
+								<span class="likes-count"><?php echo $like_count; ?></span>
+							<?php endif; ?>
+						</a>
 
 					<?php else : ?>
 
-						<a href="<?php bp_activity_unfavorite_link(); ?>" class="button fa fa-star unfav bp-secondary-action" title="<?php esc_attr_e( 'Remove Favorite', 'boss' ); ?>"></a>
+						<a href="<?php bp_activity_unfavorite_link(); ?>" class="button unfav bp-secondary-action" title="<?php esc_attr_e( 'Remove Favorite', 'boss' ); ?>">
+							<i class="far fa-star"></i>
+							<?php if ( $b_wall && 0 < $like_count ) : ?>
+								<span class="likes-count"><?php echo $like_count; ?></span>
+							<?php endif; ?>
+						</a>
 
 					<?php endif; ?>
 

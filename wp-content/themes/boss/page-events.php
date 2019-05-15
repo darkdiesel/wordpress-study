@@ -38,8 +38,8 @@ get_header();
                             }
                             ?>
                             <div id="events-switch-layout" class="btn-group">
-                                <a href="#" id="list" class="btn <?php echo ( 'list' == $layout )?'active':''; ?>"><span class="fa fa-th-list"></span></a>
-                                <a href="#" id="grid" class="btn <?php echo ( 'grid' == $layout )?'active':''; ?>"><span class="fa fa-th"></span></a>
+                                <a href="#" id="list" class="btn <?php echo ( 'list' == $layout )?'active':''; ?>"><i class="fa fa-th-list"></i></a>
+                                <a href="#" id="grid" class="btn <?php echo ( 'grid' == $layout )?'active':''; ?>"><i class="fa fa-th"></i></a>
                             </div>
                         </header>
                         <?php endif; ?>

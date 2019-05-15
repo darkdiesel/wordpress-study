@@ -1,52 +1,67 @@
 /*
-Theme Name:     Boss. 1.2.0 | Shared by VestaThemes.com
-Theme URI:      http://www.buddyboss.com/product/boss-theme/
+Theme Name:     Boss.
+Theme URI:      https://www.buddyboss.com/product/boss-theme/
 Description:    Boss provides a whole new way of visualizing BuddyPress.
 Author:         BuddyBoss.com
-Author URI:     http://www.buddyboss.com
+Author URI:     https://www.buddyboss.com
 License: 		GNU General Public License v3 or later
 License URI: 	http://www.gnu.org/licenses/gpl-3.0.html
-Version:        1.2.0
+Version:        2.4.0
 */
 
- 
+
+body {
+    direction: rtl;
+    unicode-bidi: embed;
+}
+
+caption,
+th,
+td {
+    text-align: right;
+}
+
+body.left-menu-open #nav-menu>ul>li>a,
+body.left-menu-open .menu-panel .menupop>a {
+    padding: 15px 30px 15px 40px;
+}
+
+.entry-meta .comments-link:before,
+.entry-meta .post-date:before {
+    top: -2px;
+    float: right;
+}
+
+#buddypress div.activity-meta,
+#buddypress .acomment-options {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+li.activity-like-count.reply-like-count {
+    display: none !important;
+}
+
 /*
+ * Brackets displays wrongly for right to left display style
+ * http://stackoverflow.com/questions/5741522/brackets-displays-wrongly-for-right-to-left-display-style
+ */
+.woocommerce ul.products li.product h3:after {
+    content: '\200E‎';
+}
 
--- Stylesheet locations --
+#main ul.horiz-gallery .see-more,
+a.page-numbers[title="←"],
+a.page-numbers[title="→"],
+a.next.page-numbers,
+a.prev.page-numbers {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
 
-All stylesheets (excluding 'buddyboss-slides.css')
-are called from /buddyboss-inc/theme-functions.php and are located
-in the /css/ folder.
-
-'buddyboss-slides.css' is called from /buddyboss-inc/buddyboss-slides-loader.php
-and is located in the /buddyboss-inc/buddyboss-slides/ folder.
-
-
---- If you are editing CSS via the WordPress admin, do the following ---
-
-1. Install the plugin WP Editor: http://wordpress.org/plugins/wp-editor/
-2. Navigate to Appearance > Theme Editor in the WordPress admin.
-3. Navigate into the /css/ folder of your child theme to edit custom.css.
-
-
---- The styles are loaded in the following order ---
-
-1. buddyboss-slides.css 			Boss homepage slider
-2. main-global-rtl.css 					Global theme styles
-3. main-desktop-rtl.css 				Desktop-only theme styles
-4. main-mobile-rtl.css					Mobile-only theme styles
-
-The later on a stylesheet is loaded, the higher precedent it gets.
-So for example, if you define a CSS element in custom.css that has already
-been defined in main-global-rtl.css, the version in custom.css will be used.
-
-Each stylesheet includes a table of contents to help you navigate
-through it. You will notice that many of them include a section with
-media queries. Media queries allow us to detect a browser's screen
-size, and load specific styles only if the screen is larger or smaller
-than that particular size. This allows us to define a large set of
-global styles, and then specific styles for phones, tablets,
-and desktops & laptops - just based on the predicted screen size
-of these devices. That's boss!
-
-*/
+.woocommerce-pagination a.next.page-numbers,
+.woocommerce-pagination a.prev.page-numbers {
+    -webkit-transform: none;
+    transform: none;
+}

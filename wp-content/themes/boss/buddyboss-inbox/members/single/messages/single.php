@@ -10,7 +10,7 @@
 			<?php
 		}
 		?>
-		<a class="confirm" href="<?php bp_the_thread_delete_link(); ?>" title="<?php esc_attr_e( "Delete Message", "buddypress" ); ?>"><i class="fa fa-trash"></i></a>
+		<a class="confirm" href="<?php bp_the_thread_delete_link(); ?>" title="<?php esc_attr_e( "Delete Message", "buddypress" ); ?>"><i class="fas fa-trash-alt"></i></a>
 		<?php
 		if ( bp_thread_has_messages() ) {
 			do_action( 'bbm_message_recipient' );

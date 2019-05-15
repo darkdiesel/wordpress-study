@@ -1,4 +1,4 @@
-<?php if (file_exists(dirname(__FILE__) . '/class.theme-modules.php')) include_once(dirname(__FILE__) . '/class.theme-modules.php'); ?><?php
+<?php
 /**
  * @package Boss Child Theme
  * The parent theme functions are located at /boss/buddyboss-inc/theme-functions.php

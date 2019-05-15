@@ -21,9 +21,7 @@
                 </div>
             </div>
             <div class="col-6">
-                <div id="blog-dir-search" class="dir-search" role="search">
-                    <?php bp_directory_blogs_search_form(); ?>
-                </div><!-- #blog-dir-search -->
+                <?php bp_get_template_part( 'common/search/dir-search-form' ); ?>
             </div>
         </div>
     </div>

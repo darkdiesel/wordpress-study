@@ -1,6 +1,6 @@
-<div id="buddypress">                    
+<div id="buddypress">
 
-    <?php if ( bp_has_groups( array( 'include'=>bp_doc_single_group_id() ) ) ) : while ( bp_groups() ) : bp_the_group(); ?>
+    <?php if ( bp_is_active( 'groups' ) && bp_has_groups( array( 'include'=> bp_doc_single_group_id(), 'orderby' => 'alphabetic', 'user_id' => bp_loggedin_user_id() ) ) ) : while ( bp_groups() ) : bp_the_group(); ?>
 
     <?php do_action( 'bp_before_group_home_content' ); ?>
 
@@ -33,7 +33,7 @@
 
             <div id="item-body">
 
-                    <?php 
+                    <?php
                     /**
                      * Fires before the display of the group home body.
                      *
@@ -44,7 +44,7 @@
 
                     <?php get_template_part( 'docs/single/edit', 'inner' ); ?>
 
-                    <?php 
+                    <?php
                     /**
                      * Fires after the display of the group home body.
                      *
@@ -102,13 +102,13 @@ $groups_template_safe = $groups_template;
 
                 endif; ?>
 
-            </div><!-- #item-actions -->                           
+            </div><!-- #item-actions -->
 
-            <?php dynamic_sidebar( 'group' ); ?>   
+            <?php dynamic_sidebar( 'group' ); ?>
         </div>
-    </div><!-- #secondary -->	
-    
-<?php 
+    </div><!-- #secondary -->
+
+<?php
 //restore the oringal $groups_template before sidebar.
 $groups_template = $groups_template_safe;
 

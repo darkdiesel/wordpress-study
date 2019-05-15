@@ -9,7 +9,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210"
+   width="240"
    height="20"
    id="svg3011"
    version="1.1"
@@ -49,16 +49,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="102.79786"
-     inkscape:cy="-0.92094488"
+     inkscape:zoom="2.8"
+     inkscape:cx="103.10861"
+     inkscape:cy="24.079055"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1714"
+     inkscape:window-width="1440"
      inkscape:window-height="812"
-     inkscape:window-x="62"
-     inkscape:window-y="40"
+     inkscape:window-x="158"
+     inkscape:window-y="13"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata3016">
@@ -68,7 +68,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -112,5 +112,10 @@
        id="path4-57"
        style="fill:#ffffff"
        inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff"
+       d="m 220.528,1048.3345 0.96146,2.8483 q -0.27642,0.4207 -1.33402,0.7932 -1.05761,0.3726 -2.12724,0.3846 -1.2499,0.024 -2.28948,-0.3124 -1.03958,-0.3366 -1.7126,-0.8894 -0.67302,-0.5528 -1.14174,-1.2739 -0.46871,-0.7211 -0.66701,-1.4422 -0.1983,-0.7211 -0.1983,-1.4182 l 0,-6.5379 -2.01907,0 0,-2.5839 q 0.86532,-0.3125 1.55036,-0.8353 0.68504,-0.5228 1.09366,-1.0817 0.40862,-0.5588 0.69706,-1.2258 0.28844,-0.667 0.40862,-1.1898 0.12018,-0.5228 0.18027,-1.0636 0.012,-0.06 0.0541,-0.1022 0.0421,-0.042 0.0901,-0.042 l 2.93246,0 0,5.0958 4.00208,0 0,3.0286 -4.0141,0 0,6.2254 q 0,0.3606 0.0781,0.6731 0.0781,0.3124 0.27041,0.6309 0.19229,0.3185 0.59491,0.4988 0.40261,0.1803 0.97948,0.1682 0.93743,-0.024 1.61045,-0.3485 z"
+       id="path4-05" />
   </g>
 </svg>

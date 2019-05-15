@@ -13,7 +13,7 @@
 //output cover photo.
 if ( boss_get_option( 'boss_layout_style' ) != 'boxed' && boss_get_option('boss_cover_group') ) {
 	echo buddyboss_cover_photo( "group", bp_get_group_id() );
-} 
+}
 ?>
 
 <div id="item-header-cover" class="table">

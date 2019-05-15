@@ -12,7 +12,7 @@ if ( $is_group_single_doc )
 <?php
 // Boxed layout cover
 if(boss_get_option('boss_cover_profile')){
-    if ( boss_get_option( 'boss_layout_style' ) == 'boxed' && !bp_is_current_component('events') || ( bp_is_current_component('events') && 'profile' == bp_current_action() ) ) { // show here for boxed and if not Events Manager page or My Profile of Events
+    if ( boss_get_option( 'boss_layout_style' ) == 'boxed' ) { 
         if ( bp_is_user() ) {
             echo buddyboss_cover_photo( "user", bp_displayed_user_id() );
         }
@@ -37,7 +37,7 @@ if(boss_get_option('boss_cover_profile')){
                 </div>
             </div><!-- #item-statistics -->
         </header><!-- .group-header -->
-        <?php do_action( 'bp_before_directory_groups_content' ); ?>    
+        <?php do_action( 'bp_before_directory_groups_content' ); ?>
     </div>
 </div>
 <?php endif; ?>
@@ -77,7 +77,7 @@ if (
  ( is_active_sidebar( 'forums' ) && bp_is_current_component( 'forums' ) && !bp_is_user() ) ||
  ( $is_group_single_doc )
  ):
-	?>	
+	?>
 	<div class="page-right-sidebar <?php echo $class; ?>">
 
 		<!-- if not, hide the sidebar -->
@@ -92,7 +92,7 @@ if (
 
 			<?php endwhile; // end of the loop. ?>
 		<?php else: ?>
-		
+
 			<!-- BuddyPress template content -->
 			<div id="primary" class="site-content">
 

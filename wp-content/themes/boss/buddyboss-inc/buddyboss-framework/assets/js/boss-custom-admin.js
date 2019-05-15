@@ -45,8 +45,8 @@
                     },
                     success: function ( data ) {
                         if ( data.success === false ) {
-                            data = ((typeof data.data != "string" || data.data == "0")?"You don't have permission to install plugin.":data.data);
-                            alert(data);
+                            data = ( ( typeof data.data != "string" || data.data == "0" ) ? "You don't have permission to install plugin." : data.data );
+                            alert( data );
                             elem.next().remove();
                         } else {
                             location.reload();
@@ -70,7 +70,7 @@
             jQuery( '#boss_options-boss_header li' ).each( function () {
                 var curr_el = jQuery( this );
                 var scheme_val = jQuery( curr_el ).find( 'input' ).val();
-                console.log(BuddyBossReduxOptions.boss_header);
+                //console.log(BuddyBossReduxOptions.boss_header);
                 if ( scheme_val === BuddyBossReduxOptions.boss_header ) {
                     jQuery( this ).find( 'label' ).addClass( 'redux-image-select-selected' );
                 }

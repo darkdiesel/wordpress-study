@@ -7,7 +7,7 @@ if ( !function_exists( 'register_buddyboss_menu_page' ) ) {
 
 	function register_buddyboss_menu_page() {
 		// Set position with odd number to avoid confict with other plugin/theme.
-		add_menu_page( 'BuddyBoss', 'BuddyBoss', 'manage_options', 'buddyboss-settings', '', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/images/logo.svg', 60 );
+		add_menu_page( 'BuddyBoss', 'BuddyBoss', 'manage_options', 'buddyboss-settings', '', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/images/logo.svg', 64.99 );
 		// To remove empty parent menu item.
 		add_submenu_page( 'buddyboss-settings', 'BuddyBoss', 'BuddyBoss', 'manage_options', 'buddyboss-settings' );
 		remove_submenu_page( 'buddyboss-settings', 'buddyboss-settings' );
@@ -111,10 +111,16 @@ if ( !function_exists( 'boss_custom_panel_styles_scripts' ) ) {
 			'boss_header' => boss_get_option( 'boss_header' )
 		);
 
-		wp_register_style( 'redux-custom-panel', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/css/redux-custom-panel.css', array( 'redux-admin-css' ), time(), 'all' );
+		/**
+		 * Assign the Boss version to a var
+		 */
+		$theme 		    = wp_get_theme( 'boss' );
+		$boss_version   = $theme['Version'];
+
+		wp_register_style( 'redux-custom-panel', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/css/redux-custom-panel.css', array( 'redux-admin-css' ), $boss_version, 'all' );
 		wp_enqueue_style( 'redux-custom-panel' );
 
-		wp_register_script( 'redux-custom-script', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/js/boss-custom-admin.js' );
+		wp_register_script( 'redux-custom-script', get_template_directory_uri() . '/buddyboss-inc/buddyboss-framework/assets/js/boss-custom-admin.js', array(), $boss_version );
 		wp_enqueue_script( 'redux-custom-script' );
 
 		$buddyboss_redux_js_vars = apply_filters( 'buddyboss_redux_js_vars', $buddyboss_redux_js_vars );
@@ -211,4 +217,35 @@ if ( function_exists( 'boss_edu_remove_redux_field' ) ) {
 	}
 
 	add_action( 'init', 'boss_edu_set_default_header' );
+}
+
+/**
+ * When the last save mode is the normal save options
+ */
+if ( !function_exists('redux_options_boss_saved' ) ) {
+
+    function redux_options_boss_saved() {
+
+        if(isset($_POST["action"]) && $_POST["action"] == "boss_options_ajax_save") {
+            delete_transient('boss_typography');
+            delete_transient('boss_compressed_custom_css');
+        }
+
+    }
+
+    add_action( 'redux/options/boss_options/saved', 'redux_options_boss_saved' );
+
+}
+
+if ( !function_exists( 'redux_options_boss_validation_css_class_path' ) ) {
+
+	function redux_options_boss_validation_css_class_path( $class_file ) {
+
+		$class_file = dirname( __FILE__ ) . '/redux-validation-css.php';
+
+		return $class_file;
+	}
+
+	add_filter( 'redux/validate/boss_options/class/css', 'redux_options_boss_validation_css_class_path', 999 );
+	add_filter( 'redux/validate//class/css', 'redux_options_boss_validation_css_class_path', 999 );
 }

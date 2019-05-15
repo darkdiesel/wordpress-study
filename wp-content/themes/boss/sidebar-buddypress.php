@@ -81,7 +81,18 @@
 
                             endif; ?>
 
-                        </div><!-- #item-actions -->                           
+                        </div><!-- #item-actions -->
+
+						<?php if ( $group_type_list =  bp_get_group_type_list( bp_get_group_id(), array( 'label' => false ) ) ): ?>
+							<div id="group-types-list">
+
+								<h3><?php _e("Group Types",'boss'); ?></h3>
+
+								<?php echo $group_type_list ?>
+
+							</div><!-- #group-types-list-->
+						<?php endif; ?>
+
                         <?php dynamic_sidebar( 'group' ); ?> 
                           
                     </div><!-- .secondary-inner -->

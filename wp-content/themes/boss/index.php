@@ -16,17 +16,19 @@
 
 get_header(); ?>
 
-<?php if ( is_active_sidebar('sidebar') ) : ?>
-    <div class="page-right-sidebar">
-<?php else : ?>
-    <div class="page-full-width">
-<?php endif; ?>
+<?php
+if ( is_active_sidebar( 'sidebar' ) ) :
+	echo '<div class="page-right-sidebar">';
+else :
+	echo '<div class="page-full-width">';
+endif;
+?>
 
 	<div id="primary" class="site-content">
 		<div id="content" role="main">
-		
+
 		<!-- Display page title and content -->
-	
+
 		<?php
 		if ( 'page' == get_option('show_on_front') && get_option('page_for_posts') && is_home() ) : the_post();
 			$page_for_posts_id = get_option('page_for_posts');
@@ -94,9 +96,12 @@ get_header(); ?>
 
 		</div><!-- #content -->
 	</div><!-- #primary -->
-	
-<?php if ( is_active_sidebar('sidebar')) : 
-    get_sidebar('sidebar'); 
-endif; ?>
 
-<?php get_footer(); ?>
+<?php if ( is_active_sidebar( 'sidebar' ) ) :
+	get_sidebar( 'sidebar' );
+endif;
+
+// page-left-sidebar or page-full-width
+echo '</div>';
+
+get_footer();

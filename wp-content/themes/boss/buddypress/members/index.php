@@ -26,9 +26,7 @@
                 </div>
             </div>
             <div class="col-6">
-            	<div id="members-dir-search" class="dir-search" role="search">
-                    <?php bp_directory_members_search_form(); ?>
-                </div><!-- #members-dir-search -->
+                <?php bp_get_template_part( 'common/search/dir-search-form' ); ?>
             </div>
         </div>
     </div>
@@ -51,6 +49,9 @@
 
 			</ul>
 		</div><!-- .item-list-tabs -->
+
+        <!-- needed for member list scroll -->
+        <div id="subnav"></div>
 
 		<div id="members-dir-list" class="members dir-list">
 			<?php bp_get_template_part( 'members/members-loop' ); ?>

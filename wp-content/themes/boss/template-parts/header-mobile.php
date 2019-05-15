@@ -1,3 +1,4 @@
+<?php global $woocommerce; ?>
 <div id="mobile-header" class="table <?php echo ( boss_get_option( 'boss_adminbar' ) ) ? 'with-adminbar' : ''; ?>">
 
 	<!-- Toolbar for Mobile -->
@@ -7,7 +8,7 @@
 
 			<!-- Custom menu trigger button -->
 			<div id="custom-nav-wrap" class="btn-wrap">
-				<a href="#" id="custom-nav" class="sidebar-btn fa fa-bars"></a>
+				<a href="#" id="custom-nav" class="sidebar-btn"><i class="fa fa-bars"></i></a>
 			</div>
 
 			<?php
@@ -30,14 +31,23 @@
 			}
 			?>
 
+            <!-- Woocommerce Notification for the users-->
+            <?php echo boss_mobile_cart_icon_html(); ?>
+
 			<!-- Profile menu trigger button -->
-			<?php if ( is_user_logged_in() || (!is_user_logged_in() && buddyboss_is_bp_active() && !bp_hide_loggedout_adminbar( false ) ) ) { ?>
+			<?php if ( is_user_logged_in() || (!is_user_logged_in() && buddyboss_is_bp_active() ) ) { ?>
 
 				<div id="profile-nav-wrap" class="btn-wrap">
-					<a href="#" id="profile-nav" class="sidebar-btn fa fa-user table-cell"><span id="ab-pending-notifications-mobile" class="pending-count no-alert"></span></a>
+					<a href="#" id="profile-nav" class="sidebar-btn table-cell">
+						<i class="fa fa-user"></i>
+						<span id="ab-pending-notifications-mobile" class="pending-count no-alert"></span>
+					</a>
 				</div>
 
 			<?php } ?>
+
+
+
 		</div>
 
 	</div>

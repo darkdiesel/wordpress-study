@@ -11,7 +11,7 @@
 	</ul>
 
 	<?php if ( bp_current_user_can( 'bp_moderate' ) ) : ?>
-		<label for="send-notice"><input type="checkbox" id="send-notice" name="send-notice" value="1" /> <span><?php _e( "This is a notice to all users.", "boss" ); ?></label></span>
+		<label for="send-notice"><input type="checkbox" id="send-notice" name="send-notice" value="1" /> <span><?php _e( "This is a notice to all users.", "boss" ); ?></span></label>
 	<?php endif; ?>
 
 	<label for="subject"><?php _e( 'Subject', 'boss' ); ?></label>

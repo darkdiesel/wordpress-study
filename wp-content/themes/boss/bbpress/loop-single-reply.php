@@ -59,7 +59,7 @@
 
 	</div><!-- .bbp-reply-author -->
 
-	<div class="bbp-reply-content">
+	<div class="bbp-reply-content entry-content">
 
 		<?php do_action( 'bbp_theme_before_reply_content' ); ?>
 

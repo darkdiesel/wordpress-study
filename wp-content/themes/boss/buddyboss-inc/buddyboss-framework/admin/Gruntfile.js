@@ -107,11 +107,13 @@ module.exports = function( grunt ) {
             // JavaScript linting with JSHint.
             jshint: {
                 options: {
-                    jshintrc: '.jshintrc'
+                    jshintrc: '.jshintrc',
+                    reporterOutput: ''
                 },
                 files: [
                     //'Gruntfile.js',
-                    //'ReduxCore/assets/js/import_export/import_export.js',
+                    //'ReduxCore/assecd ..
+                    //ts/js/import_export/import_export.js',
                     'ReduxCore/assets/js/media/media.js',
                     'ReduxCore/inc/fields/ace_editor/field_ace_editor.js',
                     'ReduxCore/inc/fields/background/field_background.js',
@@ -137,9 +139,9 @@ module.exports = function( grunt ) {
                     'ReduxCore/inc/fields/spinner/field_spinner.js',
                     'ReduxCore/inc/fields/switch/field_switch.js',
                     'ReduxCore/inc/fields/typography/field_typography.js',
-                    // 'ReduxCore/inc/fields/**/*.js',
-                    'ReduxCore/extensions/**/*.js',
-                    'ReduxCore/extensions/**/**/*.js',
+                    //'ReduxCore/inc/extensions/customizer/extension_customizer.js',
+                    'ReduxCore/inc/extensions/import_export/import_export/field_import_export.js',
+                    'ReduxCore/inc/extensions/options_object/options_object/field_options_object.js',
                     'ReduxCore/assets/js/redux.js'
                 ]
             },
@@ -284,7 +286,7 @@ module.exports = function( grunt ) {
                     options: {
                         sourcemap: 'none',
                         style: 'compressed',
-                        noCache: true,
+                        noCache: true
                     },
 
                     files: [{

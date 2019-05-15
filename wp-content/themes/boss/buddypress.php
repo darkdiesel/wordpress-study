@@ -46,7 +46,7 @@ if(bp_is_group() && !bp_is_current_action( 'create' )) {
     //get_template_part( 'buddypress', 'group-single' );
 } else {
     if(is_post_type_archive('bp_doc') || (is_single() && get_post_type() == 'bp_doc')){
-        $id = boss_get_docs_group_id(); 
+        $id = boss_get_docs_group_id();
         if ( boss_get_option('boss_cover_group') ) {
             echo buddyboss_cover_photo( "group",  $id );
         }

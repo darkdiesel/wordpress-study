@@ -5,7 +5,7 @@ if ( boss_get_option( 'boss_slider_switch' ) && is_array( $slides ) && !empty( $
 	?>
 
 	<div class="bb-slider-container">
-		<div class="bb-slider-wrapper">
+		<div class="bb-slider-wrapper" data-rtl="<?php echo is_rtl(); ?>">
 
 			<?php
 			foreach ( $slides as $slide ) {
@@ -59,9 +59,10 @@ if ( boss_get_option( 'boss_slider_switch' ) && is_array( $slides ) && !empty( $
 	</div><!-- /slider_container -->
 
 	<script type="text/javascript">
-	    jQuery( document ).ready( function () {
+	    jQuery( document ).ready( function ($) {
 
 	        var $slider = $( '.bb-slider-wrapper' );
+            var rtl = ($slider.data('rtl')===1?true:false);
 
 	        $slider.slick( {
 	            dots: false,
@@ -73,7 +74,8 @@ if ( boss_get_option( 'boss_slider_switch' ) && is_array( $slides ) && !empty( $
 	            adaptiveHeight: true,
 	            autoplay: true,
 	            autoplaySpeed: 4500,
-	            cssEase: 'linear'
+	            cssEase: 'linear',
+                rtl:rtl
 	        } );
 
 	        $( '#left-menu-toggle' ).on( 'click', function () {

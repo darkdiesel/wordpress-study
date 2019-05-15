@@ -16,26 +16,27 @@
  * @subpackage Boss
  * @since Boss 1.0.0
  */
+get_header();
+?>
 
-get_header(); ?>
-   
-<?php if ( is_active_sidebar('sidebar') ) : ?>
-	<div class="page-right-sidebar">
-<?php else : ?>
-	<div class="page-full-width">
-<?php endif; ?>
-    
-	<section id="primary" class="site-content">
-		<div id="content" role="main">
-       
-        <header class="archive-header page-header">
-            <h1 class="archive-title main-title">
-                <?php
-					the_archive_title( '<h1 class="archive-title main-title">', '</h1>' );
-					the_archive_description( '<div class="taxonomy-description">', '</div>' );
-				?>
-            </h1>
-        </header><!-- .archive-header -->
+<?php
+if ( is_active_sidebar( 'sidebar' ) ) :
+	echo '<div class="page-right-sidebar">';
+else :
+	echo '<div class="page-full-width">';
+endif;
+?>
+
+<section id="primary" class="site-content">
+	<div id="content" role="main">
+
+		<header class="archive-header page-header">
+			<?php
+			the_archive_title( '<h1 class="archive-title main-title">', '</h1>' );
+			the_archive_description( '<div class="archive-description">', '</div>' );
+			?>
+		</header>
+
 		<?php if ( have_posts() ) : ?>
 
 			<?php
@@ -57,12 +58,15 @@ get_header(); ?>
 			<?php get_template_part( 'content', 'none' ); ?>
 		<?php endif; ?>
 
-		</div><!-- #content -->
-	</section><!-- #primary -->
-	
-    <?php if ( is_active_sidebar('sidebar') ) : 
-        get_sidebar('sidebar'); 
-    endif; ?>
-    </div>
-<?php get_footer(); ?>
+	</div><!-- #content -->
+</section><!-- #primary -->
 
+<?php
+if ( is_active_sidebar( 'sidebar' ) ) :
+	get_sidebar( 'sidebar' );
+endif;
+
+// page-left-sidebar
+echo '</div>';
+
+get_footer();
