@@ -1,14 +1,8 @@
 # phpStorm Files
 .idea/
 
-# Vagrant Files
-.vagrant
-
 Thumbs.db
 .DS_Store
-
-data/db-backups/*
-!data/db-backups/.gitkeep
 
 # WordPress Files
 wp-config.php
