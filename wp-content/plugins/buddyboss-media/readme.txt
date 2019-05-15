@@ -1,963 +1,348 @@
-/*--------------------------------------------------------------
-INSTALLATION
---------------------------------------------------------------*/
-
-= From your WordPress dashboard =
-
--BuddyPress-
-
-1. Visit 'Plugins > Add New'
-2. Search for 'BuddyPress'
-3. Activate BuddyPress from your Plugins page
-
--BuddyBoss Media-
-
-1. Go to 'Plugins > Add New'
-2. Click 'Add New'
-3. Upload this plugin (as a ZIP file)
-4. Activate this plugin
-5. Go to 'Settings > BuddyBoss Media'
-6. Have fun!
-
-Instructions: http://www.buddyboss.com/tutorials/
-Support: http://www.buddyboss.com/support-forums/
-Release Notes: http://www.buddyboss.com/release-notes/
-
-
-/*--------------------------------------------------------------
-CHANGELOG
-----------------------------------------------------------------
-Version 3
-----------------------------------------------------------------
-3.0.7 - August 24, 2015
-3.0.6 - August 19, 2015
-3.0.5 - August 2, 2015
-3.0.4 - May 18, 2015
-3.0.3 - April 21, 2015
-3.0.2 - March 31, 2015
-3.0.1 - March 28, 2015
-3.0.0 - March 25, 2015
-----------------------------------------------------------------
-Version 2
-----------------------------------------------------------------
-2.0.8 - February 6, 2015
-2.0.7 - January 26, 2015
-2.0.6 - January 23, 2015
-2.0.5 - January 15, 2015
-2.0.4 - January 13, 2015
-2.0.3 - January 8, 2015
-2.0.2 - January 5, 2015
-2.0.1 - January 4, 2015
-2.0.0 - December 31, 2014
-----------------------------------------------------------------
-Version 1
-----------------------------------------------------------------
-1.1.1 - December 19, 2014
-1.1.0 - December 17, 2014
-1.0.9 - November 20, 2014
-1.0.8 - November 13, 2014
-1.0.7 - November 9, 2014
-1.0.6 - October 14, 2014
-1.0.5 - October 4, 2014
-1.0.4 - September 24, 2014
-1.0.3 - September 12, 2014
-1.0.2 - September 5, 2014
-1.0.1 - August 27, 2014
-1.0.0 - August 14, 2014
---------------------------------------------------------------*/
-
-
-
-/*--------------------------------------------------------------
-Version 3
---------------------------------------------------------------*/
-/*--------------------------------------------------------------
-3.0.7 - August 24, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed error during multisite activation on specific setups
-
-CHANGED FILES:
-
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-3.0.6 - August 19, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Disabled post update button while image is being uploaded
-	Enabled post button when uploader popup is closed
-	Fixed uploaded image cropping
-	Fixed issues with multisite options saving
-	Replaced plugin path with constant
-	Added BuddyBoss Wall posted text support
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-3.0.5 - August 2, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Updated Swedish translations, credits to Anton Andreasson
-
-BUG FIXES:
-
-	Fixed incorrect album photo counts
-	Fixed deleted photos displaying in Global Album activity post layout
-	Fixed issue with image sometimes not displaying after upload
-	Fixed database migration when using multisite
-	Fixed PHP error notices
-
-CHANGED FILES:
-
-	buddyboss-media.php
-	/includes/albums/album-template.php
-	/includes/bbm-migrate.php
-	/includes/main-class.php
-	/includes/media-template.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	/languages/buddyboss-media-sv_SE.po
-	/languages/buddyboss-media-sv_SE.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1, 4.2+
-	BuddyPress 2.1, 2.2, 2.3+
-
-/*--------------------------------------------------------------
-3.0.4 - May 18, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Added "Like" (Favorite) icon to photo overlay
-	Added French translations, credits to Jean-Pierre Michaud
-
-BUG FIXES:
-
-	Improved CSS for bulk uploading
-	Better theme comptability when tagging friends
-	Fixed compatibility issues with Jetpack plugin
-	Fixed Wall Photo privacy overriding Album privacy
-	Fixed issues when deleting single image from a bulk upload
-	Fixed image counts in albums (requires migration script)
-	Fixed album creation timestamp
-	Removed incorrect admin update notice in multisite
-	"Max. Files per Batch" option now only accepts positive values
-	Security patch for XSS vulnerability
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	/assets/vendor/photoswipe/photoswipe.css
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/albums/album-functions.php
-	/includes/albums/album-template.php
-	/includes/bbm-migrate.php (added)
-	/includes/main-class.php
-	/includes/media-functions.php
-	/includes/media-template.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Hooks.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	/languages/buddyboss-media-fr_FR.po
-	/languages/buddyboss-media-fr_FR.mo
-	readme.txt
-	/templates/members/single/buddyboss-media-album.php
-	/templates/members/single/buddyboss-media-albums.php
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-3.0.3 - April 21, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Added comment count in photo overlay
-
-BUG FIXES:
-
-	Better support for Multisite activation
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/main-class.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	/types/photo-class.php
-	/types/photo-hooks.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0, 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-3.0.2 - March 31, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Improved layout of 3 image uploads (small images) in activity streams
-	Fixed "medium" vs "large" image sizes in activity streams
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-3.0.1 - March 28, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Improved layout of 2 image uploads in activity streams
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-3.0.0 - March 25, 2015
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Bulk uploading allows for multiple photo uploads at once
-	Bulk uploading displays grouped photos in activity stream
-	Removed post form on Photos and Albums pages, replaced with DropZone
-	Added Italian translations, credits to Massimiliano Napoli
-
-BUG FIXES:
-
-	Fix for 'bp_is_active' error while upgrading BuddyPress
-	Now using jQuery in noConflict mode
-	Delete tagging notifications when corresponding photos activities are deleted
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/img/remove-photo.png (added)
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	/assets/vendor/fancybox/blank.gif (added)
-	/assets/vendor/fancybox/fancybox_loading.gif (added)
-	/assets/vendor/fancybox/fancybox_loading@2x.gif (added)
-	/assets/vendor/fancybox/fancybox_overlay.png (added)
-	/assets/vendor/fancybox/fancybox_sprite.png (added)
-	/assets/vendor/fancybox/fancybox_sprite@2x.png (added)
-	/assets/vendor/fancybox/helpers/fancybox_buttons.png (added)
-	/assets/vendor/fancybox/helpers/jquery.fancybox-buttons.css (added)
-	/assets/vendor/fancybox/helpers/jquery.fancybox-buttons.js (added)
-	/assets/vendor/fancybox/helpers/jquery.fancybox-media.js (added)
-	/assets/vendor/fancybox/helpers/jquery.fancybox-thumbs.css (added)
-	/assets/vendor/fancybox/helpers/jquery.fancybox-thumbs.js (added)
-	/assets/vendor/fancybox/jquery.fancybox.css (added)
-	/assets/vendor/fancybox/jquery.fancybox.js (added)
-	/assets/vendor/fancybox/jquery.fancybox.pack.js (added)
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/albums/album-functions.php
-	/includes/albums/album-template.php
-	/includes/main-class.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Notifications.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-it_IT.mo (added)
-	/languages/buddyboss-media-it_IT.po (added)
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-	/templates/global-media-grid.php (removed)
-	/templates/members/single/buddyboss-media-album-create.php
-	/templates/members/single/buddyboss-media-album-edit.php
-
-TESTED WITH:
-
-	WordPress 4.1+
-	BuddyPress 2.1, 2.2+
-
-/*--------------------------------------------------------------
-Version 2
---------------------------------------------------------------*/
-/*--------------------------------------------------------------
-2.0.8 - February 6, 2015
---------------------------------------------------------------*/
-
-CHANGES:
-
-	"Photos" navigation link now displays before "Settings"
-
-BUG FIXES:
-
-	Tagging no longer results in a blank notification
-	Plugin loading is now disabled if Activity Component is disabled
-	Added missing language translations
-
-CHANGED FILES:
-
-	buddyboss-media.php
-	/includes/main-class.php
-	/includes/media-bp-notifications.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Notifications.php
-	/includes/types/photo-class.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-	/templates/activity/buddyboss-media-activity-loop.php
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1, 2.2
-
-/*--------------------------------------------------------------
-2.0.7 - January 26, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Removed dependency on BuddyPress' jQuery.cookie library
-	Updated FontAwesome to version 4.3
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.6 - January 23, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Force loading our jQuery cookie, fixes several issues
-	When moving photos, dropdown displays album that photo is already in
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/albums/album-template.php
-	/includes/types/photo-class.php
-	readme.txt
-
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.5 - January 15, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed Javascript conflict with Flyzoo Chat plugin
-	When uploading media into a group, activity post now adds link to the group
-	Photo count in albums is now updated when photos are deleted
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/albums/album-functions.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Notifications.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.4 - January 13, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Added Delete button to media overlay
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.3 - January 8, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Display all photos in indexes, including those in albums
-	Fixed blank space after clicking "Load More"
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/albums/album-functions.php
-	/includes/media-template.php
-	/includes/types/photo-class.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.2 - January 5, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed layout at 2 column width in Grid view
-	Fixed layout of global albums with certain themes
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	readme.txt
-	/templates/global-media-albums.php
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.1 - January 4, 2015
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Compatibility with photos uploaded in much older versions of BuddyBoss Media
-	Fix related to displaying newly posted photos
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	buddyboss-media.php
-	/includes/albums/album-functions.php
-	/includes/albums/album-template.php
-	/includes/media-functions.php
-	/includes/media-template.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging.php
-	/includes/types/photo-class.php
-	/includes/types/photo-templates.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-	/templates/activity/buddyboss-media-activity-loop.php
-	/templates/members/single/buddyboss-media-album-create.php
-
-TESTED WITH:
-
-	WordPress 4.1
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-2.0.0 - December 31, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Photo Albums
-	Friend Tagging
-	Admin option to switch between Grid and Activity view
-
-BUG FIXES:
-
-	Using native "Load More" on photos template
-	Code cleanup
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/img/ajax-loader.gif (removed)
-	/assets/img/icon-photo.gif (removed)
-	/assets/img/icons.png (removed)
-	/assets/img/icons@2x-original.png (removed)
-	/assets/img/icons@2x.png (removed)
-	/assets/img/loader.gif (removed)
-	/assets/img/placeholder-150x150.png (added)
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	/assets/js/jquery.tooltipster.js (added)
-	/assets/js/jquery.tooltipster.min.js (added)
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/albums/album-functions.php (added)
-	/includes/albums/album-screens.php (added)
-	/includes/albums/album-template.php (added)
-	/includes/main-class.php
-	/includes/media-template.php
-	/includes/tagging/class.BuddyBoss_Media_Tagging.php (added)
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Hooks.php (added)
-	/includes/tagging/class.BuddyBoss_Media_Tagging_Notifications.php (added)
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-	/templates/activity/buddyboss-media-activity-loop.php (added)
-	/templates/activity/buddyboss-media-entry.php (added)
-	/templates/global-media-albums.php (added)
-	/templates/global-media-grid.php (added)
-	/templates/global-media.php
-	/templates/looped-tagged-friends.php (added)
-	/templates/members/single/buddyboss-media-album-create.php (added)
-	/templates/members/single/buddyboss-media-album-edit.php (added)
-	/templates/members/single/buddyboss-media-album.php (added)
-	/templates/members/single/buddyboss-media-albums.php (added)
-	/templates/members/single/buddyboss-media-photos.php
-	/templates/members/tag-friends.php (added)
-
-TESTED WITH:
-
-	WordPress 4.0+
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-Version 1
---------------------------------------------------------------*/
-/*--------------------------------------------------------------
-1.1.1 - December 19, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Admin option to switch between "Medium" and "Full Size" photos in activity
-
-CHANGED FILES:
-
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 4.0+
-	BuddyPress 2.1+
-
-/*--------------------------------------------------------------
-1.1.0 - December 17, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Better photo grid spacing
-	Adding quick link to "Settings" in plugin list
-
-BUG FIXES:
-
-	Fixed "%USER% posted a photo" text in Members directory
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0+
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.9 - November 20, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	More intuitive photo upload interface
-	More intuitive Photoswipe icons
-	Activity images now using "Medium" media size to reduce clutter
-
-BUG FIXES:
-
-	On your own activity, uploads now say "You posted..."
-	Changed activity text from "new picture" to "new photo"
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.8 - November 13, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Photoswipe heading now displays status update on Photos template
-	Photoswipe heading now displays status update on global Photos page
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/main-class.php
-	/includes/types/photo-class.php
-	/includes/types/photo-compat.php (new)
-	/includes/types/photo-screens.php
-	/includes/types/photo-template.php
-	readme.txt
-	/templates/global-media.php
-	/templates/members/single/buddyboss-media-photos.php
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.7 - November 9, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed photo uploading in Chrome for iOS and Android
-	Fixed photo upload refresh after completion on "Photos > View" template
-	PhotoSwipe heading now displays status update, and falls back to upload time/date
-	Members directory listing now say 'photo uploaded' when media was user's last update
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/includes/vendor/image-rotation-fixer.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.6 - October 14, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Admin option to enable/disable image rotation fix
-
-BUG FIXES:
-
-	Fixed photo uploads breaking due to server memory limit
-	Fixed Heartbeat and Photoswipe conflict
-	Fixed activity timestamps not having hyperlinks
-
-CHANGED FILES:
-
- 	/assets/js/buddyboss-media.js
- 	/assets/js/buddyboss-media.min.js
-	buddyboss-media.php
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/includes/vendor/image-rotation-fixer.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1+
-
-/*--------------------------------------------------------------
-1.0.5 - October 4, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed plugin update 'version details' conflict (for future updates)
-	Added translations for BuddyBoss Media admin settings page
-	Added empty index.php file to prevent bots from viewing contents
-
-CHANGED FILES:
-	
-	buddyboss-media.php (new)
-	/includes/admin.php
-	index.php (new)
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	loader.php (removed)
-	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1
-
-/*--------------------------------------------------------------
-1.0.4 - September 24, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Improved theme compatibility (using plugins.php template)
-	Theme widgets now display on user Photos page
-	CSS fix, prevents 'Add Photo' button from highlighting during photo upload
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/includes/types/photo-class.php
-	/includes/types/photo-screens.php
-	loader.php
-	readme.txt
-	/templates/members/single/buddyboss-media-photos.php
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1
-
-/*--------------------------------------------------------------
-1.0.3 - September 12, 2014
---------------------------------------------------------------*/
-
-BUG FIXES:
-
-	Fixed image upload disappearing after 10-15 seconds, when BP "heartbeat" initiates
-
-CHANGED FILES:
-
- 	/assets/js/buddyboss-media.js
- 	/assets/js/buddyboss-media.min.js
- 	/includes/main-class.php
- 	/includes/types/photo-class.php
- 	loader.php
- 	readme.txt
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1 beta
-
-/*--------------------------------------------------------------
-1.0.2 - September 5, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Updated FontAwesome to version 4.2
-	Updated Russian language files, credits to Ivan Dyakov
-
-BUG FIXES:
-
-	Fixed 'pic_satus' to 'pic_status'
-
-CHANGED FILES:
-
-	/assets/js/buddyboss-media.js
-	/assets/js/buddyboss-media.min.js
-	/includes/types/photo-class.php
-	/languages/buddyboss-media-ru_RU.mo
-	/languages/buddyboss-media-ru_RU.po
-	loader.php
-	readme.txt	
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9, 4.0
-	BuddyPress 2.0, 2.1 beta
-
-/*--------------------------------------------------------------
-1.0.1 - August 27, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	New admin option to configure custom user photos template slug.
-	New admin option to create a page for displaying all photo uploads from all users.
-
-BUG FIXES:
-
-	Fixed Font Awesome loading over HTTPS for ports other than 443
-	Updated Photo grid CSS, for better compatibility with other themes
-
-CHANGED FILES:
-
-	/assets/css/buddyboss-media.css
-	/assets/css/buddyboss-media.min.css
-	/includes/admin.php
-	/includes/main-class.php
-	/includes/media-functions.php
-	/includes/media-pagination.php
-	/includes/media-template.php (added)
-	/includes/types/photo-class.php
-	/includes/types/photo-hooks.php
-	/includes/types/photo-screens.php
-	/languages/buddyboss-media-en_US.po
-	/languages/buddyboss-media-en_US.mo
-	loader.php
-	readme.txt
-	/templates/members/single/buddyboss-media-photos.php
-	/templates/global-media.php (added)
-	/vendor/image-rotation-fixer.php (removed)
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0, 2.1 beta
-
-/*--------------------------------------------------------------
-1.0.0 - August 14, 2014
---------------------------------------------------------------*/
-
-FEATURES:
-
-	Initial Release
-	Post photos to activity streams
-	View photos in a mobile-friendly slider
-
-TESTED WITH:
-
-	WordPress 3.8, 3.9+
-	BuddyPress 2.0+
+=== BuddyBoss Media ===
+Contributors: buddyboss
+Requires at least: 3.8
+Tested up to: 5.2
+Stable tag: 3.2.7
+License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
+
+Your BuddyPress members can upload photos, organize them into albums, and tag their friends! On a mobile device you can easily swipe through photos with your fingers.
+
+== Description ==
+
+Let your users upload photos into their profiles, from their phones, tablets or laptops. Allow users to upload photos to their friend’s profiles using our tightly integrated BuddyBoss Wall plugin.
+
+== Installation ==
+
+1. Make sure BuddyPress is activated.
+2. Visit 'Plugins > Add New'
+3. Click 'Upload Plugin'
+4. Upload the file 'buddyboss-media.zip'
+5. Activate BuddyBoss Media from your Plugins page.
+
+= Configuration =
+
+1. Enable 'Activity Streams' at 'Settings > BuddyPress > Components'
+2. Visit 'BuddyBoss > Media' and select your desired options.
+
+== Changelog ==
+
+= 3.2.7 =
+* Fix - Images were not appearing on activity page after BuddyPress 4.3.0 update
+* Fix - Media upload button not working for nouveau template 
+* Fix - Create album button fix for nouveau template 
+* Fix - Some php notices and warnings fixes
+
+
+= 3.2.6 =
+* Tweak - Fontawesome 5.0 upgrade
+* Tweak - Album visibility dropdown should not be visible when wall not active on site
+* Fix - Allow admin users to delete members albums
+* Fix - "NaN" appear next to the thumb in photoswipe after image upload and you like activity
+* Fix - Backslashes displaying in before single or double quote in the Photo description
+* Fix - Akismet mark activity spam when we upload photo in activity
+* Fix - Photo upload button in activity comment reply not working
+* Fix - Inaccurate Photo count
+* Fix - Album name and album description convert into ???? character from arabic character
+* Dev - Added new filter to override media upload dir
+* Fix - Added label for the privacy dropdown in upload popup box
+* Fix - Delete group media from filesystem upon group deletion
+* Fix - Strip photo filename from latest activity update content
+* Fix - When more then 4 images are uploaded in a BBPress topic, then show +2 or +3 text
+* Fix - Disable media embed attachment in wp-admin area for bbPress
+* Fix - Display admin notice if Mobile Rotation Fix is enabled but EXIF php extension not loaded
+* Fix - Permanently delete photos from media library when photo get removed from uploader
+* Fix - Fatal error on group album create page if buddyboss wall is disable
+* Fix - Allow photo to be moved out of album
+* Fix - No way to move an image into Group Albums from News Feeds or Activity > Groups tab
+* Fix - Block bbPress Media setting option section when bbPress not active in site
+* Fix - Mention not working in upload modal
+* Fix - When editing activity, Photo counts is getting increased
+* Fix - Generate new album photos count after moving photos in album
+* Fix - Display admin notice if buddypress not active
+* Fix - Delete user's albums on user deletion from the site
+
+= 3.2.5 =
+* New - Added support for BuddyPress Nouveau Template Pack
+* New - Added support for GDPR
+
+= 3.2.4 =
+* Fix - Added sanitization on album description input field
+
+= 3.2.3 =
+* Fix – BuddyPress Edit Activity plugin compatibility fix
+* Fix - RTL language support
+* Fix - Delete photos from filesystem on a group deletion
+
+= 3.2.2 =
+* Enhancement – License Module
+
+= 3.2.1 =
+* Fix - bbPress conditional check
+
+= 3.2.0 =
+* Tweak - Improved uploader on Global photos page
+* Tweak - Global photo page body class added
+* Tweak - Added filter for images sizes in activity stream photo wrap
+* Tweak - Removed option for enabling Media from plugin setting
+* Tweak - Filter the canonical redirect URL for Global Photos Page
+* Tweak - Group component is active check added
+* Fix - Filters fixes to remove dependency on activity filter selection
+* Fix - Lightbox fixes for forums
+* Fix - Media upload button fixes for bbPress forum/topic
+* Fix - Incorrect photo counts fix
+* Fix - Group album fix
+* Fix - Wall privacy options in media dialog
+* Fix - Photo upload button appearing on topic merge
+* Fix - Like and comment button in photo overlay are not working inside bbpress forum, topic and reply
+* Fix - Not able to post comment on activity page after adding tags on media
+* Fix - Photoswipe comment link in forums gives 404
+* Fix - Image upload in IOS
+* Fix - Swipe gallery doesn't open after clicking on image just after "read more"
+
+= 3.1.9 =
+* Fix - BP Edit Activity compatibility
+* Fix - File uploader is opening twice
+* Fix - Photo tag notifications don't clear
+* Fix - Version check added for Data Migration
+
+= 3.1.8 =
+* Tweak - Better method for loading FontAwesome
+* Fix - Error on photo post deletion
+* Fix - Not able to delete album
+* Fix - Update message showing twice
+* Fix - PHP error notices
+
+= 3.1.7 =
+* New - Added Group photo uploading
+* New - Added Group photo albums
+* Tweak - Tagging with more than 20 friends now displays search box
+* Fix - Uploading photos opening upload popup two times
+* Fix - Script conflict with BuddyPress cover image
+* Fix - Load more button in grid view touching photos
+* Fix - Added missing translation strings
+
+= 3.1.6 =
+* New - added option to disable Popup Upload Box
+* New - bbPress Popup Upload Box added
+* Fix - Global photo page grid breaking after changing thumbnail size
+* Fix - Lazy image load overlap
+* Fix - Database Migrate single image one-by-one
+
+= 3.1.5 =
+* New - added Title attributes
+
+= 3.1.4 =
+* Fix - mobile rotation fix
+* Fix - media uplaod nonce fix
+* Fix - clicking read more in activity post makes the uploaded image disappear
+* Fix - PHP warnings
+* Tweak - Added FontAwesome handle
+
+= 3.1.3 =
+* Fix - Original photo gets replaced by comment photo when BP Activity Stream Bump to Top is enabled
+* Fix - Old photos not displaying in albums
+* Fix - Migration script call for new database table not working
+
+= 3.1.2 =
+* Fix - Notifications for tagging
+* Tweak - Load 2048px wide photo in desktop version
+* Tweak - Hide uploads in background when upload popup is visible
+
+= 3.1.1 =
+* New - Option to permanently delete media on photo upload deletion
+* Fix - Masonry JS error on album page
+* Fix - Global photo page media load
+* Fix - PHP undefined index warning
+* Fix - Last image shown would be overlayed with +5
+* Fix - Do not load image after exceed 4 count
+* Fix - Load large image instead full on mobile device
+* Fix - Liking a photo in photo overlay, better Ajax update integration
+* Fix - PHP warning when grid has more than 4 pics
+* Fix - Adding photos to the activity stream photo count is not updated until refresh
+* Fix - Comment media is not appearing on global photos
+* Fix - Empty photo block is showing for deleted media
+
+= 3.1.0 =
+* Fix - bbPress inactive error
+* Fix - BuddyPress network activate
+* Fix - Photo container img width
+* Fix - Preview image height
+* Fix - Activity comment upload button not appearing until refresh
+
+= 3.0.9 =
+* New - support for bbPress media attachments
+* New - support for Activity Reply attachments
+* New - masonry photo grid layout
+* New - Allow editing media on reply edit
+* Fix - php error notices
+* Fix - photo overlay wiped after Ajax
+* Fix - WP Job Manager upload logo conflict
+* Fix - Comment media Ajax not working
+* Fix - Add photo button not appearing after loading more activity
+* Fix - Update comment count in photoswipe
+* Fix - Update reply count on delete
+* Fix - Photoswipe on global photos page
+* Fix - Image persisting after removal
+* Fix - Duplicate images on global photo
+* Fix - Mobile device photoswipe count display
+* Various CSS fixes
+* New updater method
+* Standard readme format
+
+= 3.0.8 =
+* Fixed bug with Readmore not loading images
+
+= 3.0.7 =
+* Fixed error during multisite activation on specific setups
+
+= 3.0.6 =
+* Disabled post update button while image is being uploaded
+* Enabled post button when uploader popup is closed
+* Fixed uploaded image cropping
+* Fixed issues with multisite options saving
+* Replaced plugin path with constant
+* Added BuddyBoss Wall posted text support
+
+= 3.0.5 =
+* Updated Swedish translations, credits to Anton Andreasson
+* Fixed incorrect album photo counts
+* Fixed deleted photos displaying in Global Album activity post layout
+* Fixed issue with image sometimes not displaying after upload
+* Fixed database migration when using multisite
+* Fixed PHP error notices
+
+= 3.0.4 =
+* Added "Like" (Favorite) icon to photo overlay
+* Added French translations, credits to Jean-Pierre Michaud
+* Improved CSS for bulk uploading
+* Better theme comptability when tagging friends
+* Fixed compatibility issues with Jetpack plugin
+* Fixed Wall Photo privacy overriding Album privacy
+* Fixed issues when deleting single image from a bulk upload
+* Fixed image counts in albums (requires migration script)
+* Fixed album creation timestamp
+* Removed incorrect admin update notice in multisite
+* "Max. Files per Batch" option now only accepts positive values
+* Security patch for XSS vulnerability
+
+= 3.0.3 =
+* Added comment count in photo overlay
+* Better support for Multisite activation
+
+= 3.0.2 =
+* Improved layout of 3 image uploads (small images) in activity streams
+* Fixed "medium" vs "large" image sizes in activity streams
+
+= 3.0.1 =
+* Improved layout of 2 image uploads in activity streams
+
+= 3.0.0 =
+* Bulk uploading allows for multiple photo uploads at once
+* Bulk uploading displays grouped photos in activity stream
+* Removed post form on Photos and Albums pages, replaced with DropZone
+* Added Italian translations, credits to Massimiliano Napoli
+* Fix for 'bp_is_active' error while upgrading BuddyPress
+* Now using jQuery in noConflict mode
+* Delete tagging notifications when corresponding photos activities are deleted
+
+= 2.0.8 =
+* "Photos" navigation link now displays before "Settings"
+* Tagging no longer results in a blank notification
+* Plugin loading is now disabled if Activity Component is disabled
+* Added missing language translations
+
+= 2.0.7 =
+* Removed dependency on BuddyPress' jQuery.cookie library
+* Updated FontAwesome to version 4.3
+
+= 2.0.6 =
+* Force loading our jQuery cookie, fixes several issues
+* When moving photos, dropdown displays album that photo is already in
+
+= 2.0.5 =
+* Fixed Javascript conflict with Flyzoo Chat plugin
+* When uploading media into a group, activity post now adds link to the group
+* Photo count in albums is now updated when photos are deleted
+
+= 2.0.4 =
+* Added Delete button to media overlay
+
+= 2.0.3 =
+* Display all photos in indexes, including those in albums
+* Fixed blank space after clicking "Load More"
+
+= 2.0.2 =
+* Fixed layout at 2 column width in Grid view
+* Fixed layout of global albums with certain themes
+
+= 2.0.1 =
+* Compatibility with photos uploaded in much older versions of BuddyBoss Media
+* Fix related to displaying newly posted photos
+
+= 2.0.0 =
+* Photo Albums
+* Friend Tagging
+* Admin option to switch between Grid and Activity view
+* Using native "Load More" on photos template
+* Code cleanup
+
+= 1.1.1 =
+* Admin option to switch between "Medium" and "Full Size" photos in activity
+
+= 1.1.0 =
+* Better photo grid spacing
+* Adding quick link to "Settings" in plugin list
+* Fixed "%USER% posted a photo" text in Members directory
+
+= 1.0.9 =
+* More intuitive photo upload interface
+* More intuitive Photoswipe icons
+* Activity images now using "Medium" media size to reduce clutter
+* On your own activity, uploads now say "You posted..."
+* Changed activity text from "new picture" to "new photo"
+
+= 1.0.8 =
+* Photoswipe heading now displays status update on Photos template
+* Photoswipe heading now displays status update on global Photos page
+
+= 1.0.7 =
+* Fixed photo uploading in Chrome for iOS and Android
+* Fixed photo upload refresh after completion on "Photos > View" template
+* PhotoSwipe heading now displays status update, and falls back to upload time/date
+* Members directory listing now say 'photo uploaded' when media was user's last update
+
+= 1.0.6 =
+* Admin option to enable/disable image rotation fix
+* Fixed photo uploads breaking due to server memory limit
+* Fixed Heartbeat and Photoswipe conflict
+* Fixed activity timestamps not having hyperlinks
+
+= 1.0.5 =
+* Fixed plugin update 'version details' conflict (for future updates)
+* Added translations for BuddyBoss Media admin settings page
+* Added empty index.php file to prevent bots from viewing contents
+
+= 1.0.4 =
+* Improved theme compatibility (using plugins.php template)
+* Theme widgets now display on user Photos page
+* CSS fix, prevents 'Add Photo' button from highlighting during photo upload
+
+= 1.0.3 =
+* Fixed image upload disappearing after 10-15 seconds, when BP "heartbeat" initiates
+
+= 1.0.2 =
+* Updated FontAwesome to version 4.2
+* Updated Russian language files, credits to Ivan Dyakov
+* Fixed 'pic_satus' to 'pic_status'
+
+= 1.0.1 =
+* New admin option to configure custom user photos template slug.
+* New admin option to create a page for displaying all photo uploads from all users.
+* Fixed Font Awesome loading over HTTPS for ports other than 443
+* Updated Photo grid CSS, for better compatibility with other themes
+
+= 1.0.0 =
+* Initial Release
+* Post photos to activity streams
+* View photos in a mobile-friendly slider

@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: BuddyBoss Media
- * Plugin URI:  http://buddyboss.com/product/buddyboss-media/
+ * Plugin URI:  https://buddyboss.com/product/buddyboss-media/
  * Description: BuddyBoss Media Photo Uploading
  * Author:      BuddyBoss
- * Author URI:  http://buddyboss.com
- * Version:     3.0.7
+ * Author URI:  https://buddyboss.com
+ * Version:     3.2.7
  */
 
 // Exit if accessed directly
@@ -19,12 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Codebase version
 if ( ! defined( 'BUDDYBOSS_MEDIA_PLUGIN_VERSION' ) ) {
-  define( 'BUDDYBOSS_MEDIA_PLUGIN_VERSION', '3.0.7' );
+  define( 'BUDDYBOSS_MEDIA_PLUGIN_VERSION', '3.2.7' );
 }
 
 // Database version
 if ( ! defined( 'BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION' ) ) {
-  define( 'BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION', '3' );
+  define( 'BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION', '3.1.7' );
 }
 
 // Directory
@@ -48,6 +48,11 @@ if ( ! defined( 'BUDDYBOSS_MEDIA_PLUGIN_FILE' ) ) {
   define( 'BUDDYBOSS_MEDIA_PLUGIN_FILE', __FILE__ );
 }
 
+// Generic API files include
+if ( ! function_exists( 'is_plugin_active' ) ) {
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+}
+
 /**
  * ========================================================================
  * MAIN FUNCTIONS
@@ -63,7 +68,14 @@ function buddyboss_media_init()
 {
   global $bp, $buddyboss_media;
 
-  $main_include  = BUDDYBOSS_MEDIA_PLUGIN_DIR  . 'includes/main-class.php';
+
+	//Check BuddyPress is install and active
+	if ( ! function_exists( 'bp_is_active' ) ) {
+		add_action( 'admin_notices', 'buddyboss_media_install_buddypress_notice' );
+		return;
+	}
+
+	$main_include  = BUDDYBOSS_MEDIA_PLUGIN_DIR  . 'includes/main-class.php';
 
   try
   {
@@ -103,7 +115,7 @@ register_activation_hook( __FILE__, 'buddyboss_media_setup_db_tables' );
 /**
 * Setup database table for albums.
 * Runs on plugin activation.
-* 
+*
 * @since BuddyBoss Media (2.0.0)
 */
 function buddyboss_media_setup_db_tables( $network_wide=false ){
@@ -126,26 +138,29 @@ function buddyboss_media_setup_db_tables( $network_wide=false ){
 
 /**
 * Create database table for albums.
-* 
+*
 * @since BuddyBoss Media (2.0.0)
 */
 function buddyboss_media_create_db_tables(){
    global $wpdb;
-   $table_name1 = $wpdb->prefix . 'buddyboss_media_albums';
-   $table_name2 = $wpdb->prefix . 'buddyboss_media';
 
-   $sql1 = "CREATE TABLE " . $table_name1 . " (
+	$charset_collate = $wpdb->get_charset_collate();
+	$table_name1 = $wpdb->prefix . 'buddyboss_media_albums';
+	$table_name2 = $wpdb->prefix . 'buddyboss_media';
+
+   $sql1 = "CREATE TABLE $table_name1 (
 	   id bigint(20) NOT NULL AUTO_INCREMENT,
 	   user_id bigint(20) NOT NULL,
+	   group_id bigint(20) NULL,
 	   date_created datetime NULL DEFAULT '0000-00-00',
 	   title text NOT NULL,
 	   description text NULL,
 	   total_items mediumint(9) NULL DEFAULT '0',
 	   privacy varchar(50) NULL DEFAULT 'public',
 	   PRIMARY KEY  (id)
-   );";
-   
-   $sql2 = "CREATE TABLE ".$table_name2." (
+   ) $charset_collate;";
+
+   $sql2 = "CREATE TABLE $table_name2 (
 		id bigint(20) NOT NULL AUTO_INCREMENT ,
 		blog_id bigint(20) NULL DEFAULT NULL,
 		media_id bigint(20) NOT NULL ,
@@ -153,7 +168,7 @@ function buddyboss_media_create_db_tables(){
 		media_title text,
 		album_id bigint(20),
 		activity_id bigint(20) NULL DEFAULT NULL ,
-		privacy int(3) NULL DEFAULT NULL ,
+		privacy varchar(50) NULL DEFAULT 'public',
 		favorites bigint(20) NULL DEFAULT 0 ,
 		upload_date datetime DEFAULT '0000-00-00 00:00:00',
 		PRIMARY KEY  (id),
@@ -162,19 +177,27 @@ function buddyboss_media_create_db_tables(){
 		KEY album_id (album_id),
 		KEY media_author_id (album_id,media_author),
 		KEY activity_id (activity_id)
-	);";
+	) $charset_collate;";
 
 	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
    dbDelta( $sql1 );
    dbDelta( $sql2 );
-   
+
    update_option( 'buddyboss_media_db_version', BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION );
+}
+
+/**
+ * Show the admin notice to install/activate BuddyPress first
+ */
+function buddyboss_media_install_buddypress_notice() {
+	echo '<div id="message" class="error fade"><p style="line-height: 150%">';
+	_e('<strong>BuddyPress Media</strong></a> requires the BuddyPress plugin to work. Please <a href="http://buddypress.org">install BuddyPress</a> first.', 'buddypress-edit-activity');
+	echo '</p></div>';
 }
 
 /**
  * Allow automatic updates via the WordPress dashboard
  */
-require_once('includes/vendor/wp-updates-plugin.php');
-new WPUpdatesPluginUpdater_521( 'http://wp-updates.com/api/2/plugin', plugin_basename(__FILE__));
+require_once('includes/buddyboss-plugin-updater.php');
 
-?>
+require_once('includes/buddyboss-media-wp-user-export-gdpr.php');

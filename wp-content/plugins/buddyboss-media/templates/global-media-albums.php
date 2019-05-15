@@ -44,7 +44,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			<ul id="albums-list" class="item-list" role="main">
 
 			<?php while ( buddyboss_media_albums() ) : buddyboss_media_the_album(); ?>
-
 				<li id='album-<?php echo buddyboss_media_album_id();?>'>
 					<div class="item-avatar">
 						<a href='<?php buddyboss_media_album_permalink();?>'>
@@ -63,7 +62,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 					<div class="clear"></div>
 				</li>
-
 			<?php endwhile; ?>
 
 			</ul>

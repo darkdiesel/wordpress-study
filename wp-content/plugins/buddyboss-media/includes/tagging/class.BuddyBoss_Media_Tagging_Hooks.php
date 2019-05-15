@@ -153,11 +153,13 @@ class BuddyBoss_Media_Tagging_Hooks {
 	}
 	
 	function activity_tagging_tooltip_text( $activity_id=false, $echo=true ){
-		if( !$activity_id )
-			$activity_id = bp_get_activity_id();
-		
-		if( $this->tooltip_texts && isset( $this->tooltip_texts[$activity_id] ) ){
-			$html = "<div class='buddyboss-media-tt-content' style='display: none'>" . $this->tooltip_texts[bp_get_activity_id()] . "</div>";
+		global $activities_template;
+
+		if ( ! $activity_id && isset( $activities_template ) )
+			$activity_id = $activities_template->activity->id;
+
+		if ( $this->tooltip_texts && isset( $this->tooltip_texts[$activity_id] ) ) {
+			$html = "<div class='buddyboss-media-tt-content' style='display: none'>" . $this->tooltip_texts[$activity_id] . "</div>";
 			if( $echo ){
 				echo $html;
 			} else {

@@ -7,10 +7,10 @@
  */
 ?>
 
-<?php do_action( 'template_notices' ); ?>
+<?php //do_action( 'template_notices' ); ?>
 
-<h2 class="entry-title"><?php _e( 'Albums', 'buddyboss-media' );?> 
-	<?php 
+<h2 class="entry-title"><?php _e( 'Albums', 'buddyboss-media' );?>
+	<?php
 	if( bp_is_my_profile() ){
 		global $bp;
 		$create_album_url = $bp->displayed_user->domain . buddyboss_media_component_slug() . '/albums/';
@@ -19,13 +19,16 @@
 		<a href="<?php echo esc_url( $create_album_url );?>" class="button album-create bp-title-button">
 			<?php _e( 'Create an Album', 'buddyboss-media' );?>
 		</a>
-		<?php 
+		<?php
 	}
+
+	//Has an albums to show
+	$has_album = false;
 	?>
 </h2>
 
 	<form action="" method="post" id="albums-directory-form" class="dir-form">
-		
+
 		<div id="albums-dir-list" class="albums dir-list">
 
 			<?php if ( buddyboss_media_has_albums( ) ) : ?>
@@ -43,7 +46,11 @@
 				<ul id="members-list" class="albums-list item-list" role="main">
 
 				<?php while ( buddyboss_media_albums() ) : buddyboss_media_the_album(); ?>
+					<?php if ( buddyboss_media_user_can_access_album() ): ?>
 
+					<?php if( false === $has_album ) {
+							$has_album = true;
+						} ?>
 					<li id='album-<?php echo buddyboss_media_album_id();?>'>
 						<div class="item-avatar">
 							<a href='<?php buddyboss_media_album_permalink();?>'>
@@ -62,7 +69,7 @@
 
 						<div class="clear"></div>
 					</li>
-
+					<?php endif; ?>
 				<?php endwhile; ?>
 
 				</ul>
@@ -77,16 +84,14 @@
 
 				</div>
 
-			<?php else: ?>
+			<?php endif; ?>
 
+			<?php if ( false === $has_album ): ?>
 				<div id="message" class="info">
 					<p><?php _e( 'There were no albums found.', 'buddyboss-media' ); ?></p>
 				</div>
-
 			<?php endif; ?>
-
 
 		</div><!-- #albums-dir-list -->
 
 	</form><!-- #albums-directory-form -->
-	

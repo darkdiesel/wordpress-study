@@ -38,12 +38,12 @@ function buddyboss_media_screen_photo_grid_content()
   $buddyboss_media->types->photo->grid_num_pics = $wpdb->get_var($pages_sql);
 
   $current_page = isset( $_GET['page'] ) ? (int) $_GET['page'] : 1;
-	//if we are not on a user profile, 
+	//if we are not on a user profile,
   //if we are on 'all photos'/'all media' page, $_GET['page'] will not work becuase of wordpress' default url rewrite
   if( !bp_is_user() ){
 	  $current_page = get_query_var( 'paged', 1 );
   }
-  
+
   $buddyboss_media->types->photo->grid_current_page = $current_page;
 
   // Prepare a SQL query to retrieve the activity posts
@@ -60,7 +60,7 @@ function buddyboss_media_screen_photo_grid_content()
           AND (a.component != 'groups' || a.item_id != grp.id)
           ORDER BY a.date_recorded DESC";
   $sql = apply_filters( 'buddyboss_media_screen_content_sql', $sql );
-  
+
   buddyboss_media_log("SQL: $sql");
 
   $pics = $wpdb->get_results($sql,ARRAY_A);
@@ -131,11 +131,11 @@ function buddyboss_media_screen_photo_grid_content()
         // We need to remove the media plugin's photo filters so it doesn't add an image/link
         // to the activity body
         remove_filter( 'bp_get_activity_content_body', array( $buddyboss_media->types->photo->hooks, 'bp_get_activity_content_body' ) );
-  
+
 
         // Let's get the caption
         $caption = $caption_inner = '';
-        
+
         if ( bp_has_activities( 'include='.$pic['id'] ) )
         {
           while ( bp_activities() )
@@ -204,7 +204,12 @@ function buddyboss_media_screen_photo_grid() {
 }
 
 function buddyboss_media_template_photos() {
-  buddyboss_media_load_template( 'members/single/buddyboss-media-photos' );
+	$theme_compat_id = bp_get_theme_compat_id();
+	if ( 'legacy' === $theme_compat_id ) {
+		buddyboss_media_load_template( 'members/single/buddyboss-media-photos' );
+	} elseif ( 'nouveau' === $theme_compat_id ) {
+		buddyboss_media_load_template( 'bp-nouveau/members/single/buddyboss-media-photos' );
+	}
 }
 
 ?>

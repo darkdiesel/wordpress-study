@@ -31,6 +31,8 @@ class BuddyBoss_Media_Tagging_Notifications {
 	
 	protected function load(){
 		add_action( 'bp_activity_deleted_activities', array( $this, 'deleted_activities_remove_notifications' ) );
+		add_action( 'bp_activity_screen_single_activity_permalink', array( $this, 'remove_screen_notifications_single_activity_permalink' ) );
+
 	}
 	
 	public function register_notification( $component_names = array() ){
@@ -116,6 +118,20 @@ class BuddyBoss_Media_Tagging_Notifications {
 		
 		global $wpdb;
 		$wpdb->query( $wpdb->prepare( $sql, buddyboss_media_default_component_slug(), $this->component_action ) );
+	}
+
+	function remove_screen_notifications_single_activity_permalink( $activity ){
+
+		if ( ! bp_is_active( 'notifications' ) ) {
+			return;
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		// Mark as read any notifications for the current user related to this activity item.
+		bp_notifications_mark_notifications_by_item_id( bp_loggedin_user_id(), $activity->id, buddyboss_media_default_component_slug(), $this->component_action );
 	}
 	
 }// end BuddyBoss_Media_Tagging_Notifications

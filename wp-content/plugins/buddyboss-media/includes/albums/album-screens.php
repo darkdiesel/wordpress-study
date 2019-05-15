@@ -21,24 +21,42 @@ function buddyboss_media_screen_albums() {
 }
 
 function buddyboss_media_template_albums() {
+
+	$theme_compat_id = bp_get_theme_compat_id();
+
+	// list templates base on current theme compat
+	if ( 'legacy' === $theme_compat_id ) {
+		// legacy templates list
+		$template_album = 'members/single/buddyboss-media-album';
+		$template_album_create = 'members/single/buddyboss-media-album-create';
+		$template_album_edit = 'members/single/buddyboss-media-album-edit';
+		$template_albums = 'members/single/buddyboss-media-albums';
+	} elseif ( 'nouveau' === $theme_compat_id ) {
+		// nouveau templates list
+		$template_album = 'bp-nouveau/members/single/buddyboss-media-album';
+		$template_album_create = 'bp-nouveau/members/single/buddyboss-media-album-create';
+		$template_album_edit = 'bp-nouveau/members/single/buddyboss-media-album-edit';
+		$template_albums = 'bp-nouveau/members/single/buddyboss-media-albums';
+	}
+
 	if( isset( $_GET['album'] ) && !empty( $_GET['album'] ) ){
 		$album = $_GET['album'];
-		
+
 		if( 'new'==$album ){
-			buddyboss_media_load_template( 'members/single/buddyboss-media-album-create' );
+			buddyboss_media_load_template( $template_album_create );
 		} else {
 			add_filter( 'buddyboss_media_albums_loop_args', 'buddyboss_media_query_single_album' );
-			buddyboss_media_load_template( 'members/single/buddyboss-media-album-edit' );
+			buddyboss_media_load_template( $template_album_edit );
 			remove_filter( 'buddyboss_media_albums_loop_args', 'buddyboss_media_query_single_album' );
 		}
 	} else {
 		if( bp_action_variable() ){
 			//load single album template
 			add_filter( 'buddyboss_media_albums_loop_args', 'buddyboss_media_query_single_album' );
-			buddyboss_media_load_template( 'members/single/buddyboss-media-album' );
+			buddyboss_media_load_template( $template_album );
 			remove_filter( 'buddyboss_media_albums_loop_args', 'buddyboss_media_query_single_album' );
 		} else {
-			buddyboss_media_load_template( 'members/single/buddyboss-media-albums' );
+			buddyboss_media_load_template( $template_albums );
 		}
 	}
 }
@@ -46,11 +64,12 @@ function buddyboss_media_template_albums() {
 /**
  * Processes new album/edit album/delete album post request and displays success/error messages.
  * Redirects to new album if new album was created successfuly!
- * 
+ *
  * @since BuddyBoss Media 1.1.0
  */
 function buddyboss_media_albums_process_update(){
-	if( bp_current_component() == buddyboss_media_component_slug() ){
+	if( ( bp_current_component() == buddyboss_media_component_slug() )
+	    || ( bbm_is_group_media_screen( 'albums' ) ) ) {
 		if( isset( $_GET['album'] ) && !empty( $_GET['album'] ) ){
 			$album = $_GET['album'];
 			if( isset( $_POST['btn_submit'] ) ){
@@ -58,20 +77,35 @@ function buddyboss_media_albums_process_update(){
 					die('Error!');
 
 				//validation
-			
-				if( !isset( $_POST['album_title'] ) ){
+
+				if( empty( $_POST['album_title'] ) ){
 					bp_core_add_message( __( 'Album title cannot be empty.', 'buddyboss-media' ), 'error');
 				} else {
+
 					$data = array(
-						'title'	=> wp_strip_all_tags( $_POST['album_title'] ),
-						'description'	=> $_POST['album_description'],
-						'privacy'		=> $_POST['album_privacy'],
+						'title'       => wp_strip_all_tags( $_POST['album_title'] ),
+						'description' => wp_strip_all_tags( $_POST['album_description'] ),
+						'privacy'     => filter_input( INPUT_POST, 'album_privacy' ),
 					);
+
+					//Group albums - set album group id
+					if ( bbm_is_group_media_screen( 'albums' ) ) {
+						$data['group_id'] = bp_get_current_group_id();
+					}
+
 					if( 'new'==$album ){
 						$new_album_id = buddyboss_media_update_album( $data );
 						if( $new_album_id ){
 							global $bp;
-							$new_album_url = $bp->displayed_user->domain . buddyboss_media_component_slug() . '/albums/' . $new_album_id . '/';
+
+							//Redirect to new album
+							if ( bbm_is_group_media_screen( 'albums' ) ) {
+								$group_link = bp_get_group_permalink( buddypress()->groups->current_group );
+								$new_album_url = trailingslashit( $group_link . buddyboss_media_component_slug() . '/albums/' . $new_album_id  );
+							} else {
+								$new_album_url = $bp->displayed_user->domain . buddyboss_media_component_slug() . '/albums/' . $new_album_id . '/';
+							}
+
 							bp_core_add_message( __( 'Album created successfully.', 'buddyboss-media' ), 'success');
 							//redirect to new album
 							wp_redirect( $new_album_url );
@@ -85,7 +119,7 @@ function buddyboss_media_albums_process_update(){
 				}
 			}
 		}
-		
+
 		//delete album
 		if( isset( $_GET['delete'] ) && !empty( $_GET['delete'] ) && isset( $_GET['nonce'] ) && !empty( $_GET['nonce'] ) ){
 			$album_to_delete = (int)$_GET['delete'];

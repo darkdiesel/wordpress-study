@@ -30,11 +30,11 @@ class BuddyBoss_Media_Plugin
 	private $main_includes = array(
 
 		// Core
-		'media-functions',
 		'media-compat',
 		'media-pagination',
 		'media-template',
 		'media-bp-notifications',
+		'media-privacy',
 		'bbm-migrate',
 
 		// Types
@@ -43,19 +43,31 @@ class BuddyBoss_Media_Plugin
 		'types/photo-screens',
 		'types/photo-template',
 		'types/photo-compat',
+		'types/photo-functions',
 
-		// 3rd-Party/Vendor
-		'vendor/image-rotation-fixer',
-		
 		// Albums
 		'albums/album-screens',
 		'albums/album-template',
 		'albums/album-functions',
-		
+
 		// Friends Tagging
 		'tagging/class.BuddyBoss_Media_Tagging',
 		'tagging/class.BuddyBoss_Media_Tagging_Hooks',
 		'tagging/class.BuddyBoss_Media_Tagging_Notifications',
+
+		//bbPress
+		'bbpress/bbm-bbpress-functions',
+		'bbpress/class-bbm-bbpress-media',
+
+		//activity comment
+		'comment/class-bbm-comment-media',
+
+		//group media
+		'groups/bbm-group-media-functions',
+		'groups/class-bbm-group-media',
+
+        //BuddyPress Edit Activity compatibility
+        'media-edit-activity'
 	);
 
 	/**
@@ -65,6 +77,19 @@ class BuddyBoss_Media_Plugin
 	private $admin_includes = array(
 		'admin',
 		'media-functions',
+	);
+
+
+	/**
+	 * Usually 3rd party lib and wp core hooks registration
+	 * @var array
+	 */
+	private $core_includes = array(
+		// 3rd-Party/Vendor
+		'vendor/image-rotation-fixer',
+
+		// Plugin files
+		'media-functions'
 	);
 
 	/* Plugin Options
@@ -80,7 +105,6 @@ class BuddyBoss_Media_Plugin
 	 * @var array
 	 */
 	private $default_options = array(
-		'enabled'             => true,
 
 		'rotation_fix'        => false,
 
@@ -96,8 +120,11 @@ class BuddyBoss_Media_Plugin
 
 		'TYPES'               => array( 'photo', 'video' ),
 		'ACTIVE_TYPES'        => array( 'photo' ),
-		
+
 		'files-per-batch'		=> 4,
+
+		'group_media_support' => true,
+		'group_albums'        => true,
 	);
 
 	/**
@@ -107,11 +134,11 @@ class BuddyBoss_Media_Plugin
 	 * @var array
 	 */
 	public $options = array();
-	
+
 	/**
 	 * Whether the plugin is activated network wide.
-	 * 
-	 * @var boolean 
+	 *
+	 * @var boolean
 	 */
 	public $network_activated = false;
 
@@ -175,7 +202,7 @@ class BuddyBoss_Media_Plugin
 	 * @var array
 	 */
 	private $data;
-	
+
 	private $is_bbwall_activated = false,
 			$is_bbwall_network_activated = false;
 
@@ -215,6 +242,7 @@ class BuddyBoss_Media_Plugin
 			$instance->setup_globals();
 			$instance->setup_actions();
 			$instance->setup_textdomain();
+			$instance->do_includes( $instance->core_includes );
 		}
 
 		// Always return the instance
@@ -320,10 +348,10 @@ class BuddyBoss_Media_Plugin
 	private function setup_globals()
 	{
 		$this->network_activated = $this->is_network_activated();
-		
+
 		// DEFAULT CONFIGURATION OPTIONS
 		$default_options = $this->default_options;
-		
+
 		$saved_options = $this->network_activated ?  get_site_option( 'buddyboss_media_plugin_options' ) : get_option( 'buddyboss_media_plugin_options' );
 		$saved_options = maybe_unserialize( $saved_options );
 
@@ -385,17 +413,15 @@ class BuddyBoss_Media_Plugin
 
 	/**
 		 * Check if the plugin is activated network wide(in multisite)
-		 * 
+		 *
 		 * @since 1.1.0
 		 * @access private
-		 * 
+		 *
 		 * @return boolean
 		 */
 		private function is_network_activated(){
 			$network_activated = false;
 			if ( is_multisite() ) {
-				if ( ! function_exists( 'is_plugin_active_for_network' ) )
-					require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 				if( is_plugin_active_for_network( 'buddyboss-media/buddyboss-media.php' ) ){
 					$network_activated = true;
@@ -403,7 +429,7 @@ class BuddyBoss_Media_Plugin
 			}
 			return $network_activated;
 		}
-	
+
 	/**
 	 * Set up the default hooks and actions.
 	 *
@@ -427,15 +453,12 @@ class BuddyBoss_Media_Plugin
 		// Admin
         add_action( 'init', array( $this, 'setup_admin_settings' ) );
 
-		if ( ! $this->is_enabled() )
-			return;
-		
 		// Hook into BuddyPress init
 		add_action( 'bp_init',	array( $this, 'setup_actions' ) );
-		add_action( 'bp_loaded',	array( $this, 'bp_loaded' ) );
-		
+		add_action( 'bp_init',	array( $this, 'bp_loaded' ), 5 );
+
 		add_action( 'bp_before_activity_entry', array( $this, 'bbm_activity_privacy_override' ) );
-		
+
 		add_action( 'init',	array( $this, 'add_rewrite_rules' ) );
 		add_action( 'wp_head', array( $this, 'bbm_fav_icon_style' ) );
 	}
@@ -504,45 +527,46 @@ class BuddyBoss_Media_Plugin
 		if( !bp_is_active( 'activity' ) ){
 			//show notice to admin
 			add_action( 'admin_notices', array( $this, 'admin_notice_activity_dependency' ) );
-			
+
 			return;
 		}
-		
+
 		//check if database upgrade is required
 		$prev_db_version = get_option( 'buddyboss_media_db_version' );
-		if( $prev_db_version != BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION ){
-			//databse update is required 
+		if( ! empty( $prev_db_version ) && $prev_db_version != BUDDYBOSS_MEDIA_PLUGIN_DB_VERSION ){
+			//databse update is required
 			$network_wide = false;
-			if ( $this->is_network_activated() ) { 
+			if ( $this->is_network_activated() ) {
 				$network_wide = true;
 			}
-			
+
 			buddyboss_media_setup_db_tables( $network_wide );
+			update_option( 'buddyboss_media_migration', true );
 		}
-		
+
 		$this->load_main();
 	}
-	
+
 	/**
 	 * Add rewrites rules. Required only for global media page for now.
-	 * 
+	 *
 	 * @since BuddyBoss Media 1.1.0
 	 */
 	function add_rewrite_rules(){
 		global $wp;
-		
+
 		$page_id = $this->option('all-media-page');
 		if( !$page_id )
 			return;
-		
+
 		$page_slug = basename( get_permalink( $page_id ) );
 		if( !$page_slug )
 			return;
-		
+
 		$wp->add_query_var('mediatype');
 		add_rewrite_rule( $page_slug . '/([^/]*)/page/([0-9]+)','index.php?pagename=' . $page_slug . '&mediatype=$matches[1]&paged=$matches[2]','top');
 		add_rewrite_rule( $page_slug . '/([^/]*)','index.php?pagename=' . $page_slug . '&mediatype=$matches[1]','top');
-		
+
 	}
 
 	/* Load
@@ -588,6 +612,8 @@ class BuddyBoss_Media_Plugin
 
 		// Types
 		$this->types->photo = new BuddyBoss_Media_Type_Photo();
+		$this->types->photo->notification_callback = 'buddyboss_media_format_notifications';
+
 		/* slug is configurable, but we'll keep the component name same,
 		 * otherwise, all notifications(by this plugin) will be rendered inactive as soon as slug is changed.
 		 */
@@ -689,7 +715,7 @@ class BuddyBoss_Media_Plugin
 	}
 
 	/**
-	 * Check if the plugin is active and enabled in the plugin's admin options.
+	 * Check if the plugin is active and enabled  group media support in the plugin's admin options.
 	 *
 	 * @since BuddyBoss Media (1.0.0)
 	 *
@@ -697,9 +723,23 @@ class BuddyBoss_Media_Plugin
 	 *
 	 * @return boolean True when the plugin is active
 	 */
-	public function is_enabled()
-	{
-		$is_enabled = $this->option( 'enabled' );
+	public function is_group_media_enabled() {
+		$is_enabled = $this->option( 'group_media_support' );
+
+		return (bool)$is_enabled;
+	}
+
+	/**
+	 * Check if the plugin is active and enabled  group albums support in the plugin's admin options.
+	 *
+	 * @since BuddyBoss Media (1.0.0)
+	 *
+	 * @uses BuddyBoss_Media_Plugin::option() Get plugin option
+	 *
+	 * @return boolean True when the plugin is active
+	 */
+	public function is_group_albums_enabled() {
+		$is_enabled = $this->option( 'group_albums' );
 
 		return (bool)$is_enabled;
 	}
@@ -784,7 +824,7 @@ class BuddyBoss_Media_Plugin
 	{
     ?>
     <div class="updated">
-	    <p><?php _e( 'To use the <strong>BuddyBoss Media</strong> plugin, please manually update your BuddyBoss theme to version 4.0 or above first. <a href="http://www.buddyboss.com/upgrading-to-buddyboss-4-0/">Read how &rarr;</a>', 'buddyboss-media' ); ?></p>
+	    <p><?php _e( 'To use the <strong>BuddyBoss Media</strong> plugin, please manually update your BuddyBoss theme to version 4.0 or above first. <a href="https://www.buddyboss.com/upgrading-to-buddyboss-4-0/">Read how &rarr;</a>', 'buddyboss-media' ); ?></p>
 			<p class="submit"><a href="<?php echo esc_url(add_query_arg('disable_media_legacy_notice', 'true', admin_url('options-general.php?page=buddyboss-media/includes/admin.php') )); ?>" class="button-primary"><?php _e( 'Disable Notice', 'buddyboss-media' ); ?></a></p>
     </div>
     <?php
@@ -792,20 +832,18 @@ class BuddyBoss_Media_Plugin
 
 	/**
 	 * Show admin notice if activity component is disabled.
-	 * 
+	 *
 	 * @since BuddyBoss Media 2.0.8
 	 */
 	public function admin_notice_activity_dependency(){
 		if ( current_user_can( 'manage_options' ) ){
 			$network_wide = false;
 			if ( is_multisite() ) {
-				if ( ! function_exists( 'is_plugin_active_for_network' ) )
-					require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-				
+
 				if( is_plugin_active_for_network( 'buddyboss-media/buddyboss-media.php' ) )
 					$network_wide = true;
 			}
-			
+
 			if( $network_wide  ){
 				$bp_settings_link = "<a href='" .	network_admin_url( 'admin.php?page=bp-components' ) . "'>" . __( 'BuddyPress Settings', 'buddyboss-media' ) . "</a>";
 			} else {
@@ -816,11 +854,9 @@ class BuddyBoss_Media_Plugin
 			echo "<div class='error'><p>{$notice}</p></div>";
 		}
 	}
-	
+
 	//Change Styling of fav icon in photo overlay if BB Wall Plugin is active
 	public function bbm_fav_icon_style() {
-		if ( ! function_exists( 'is_plugin_active' ) )
-			require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 		$this->is_bbwall_activated = is_plugin_active( 'buddyboss-wall/buddyboss-wall.php' );
 
@@ -836,15 +872,20 @@ class BuddyBoss_Media_Plugin
 		}
 
 		//Load the css
-		?><style> div.ps-toolbar-favorite div.ps-toolbar-content:before { content: "\f087"; } div.ps-toolbar .ps-toolbar-favorite.bbm-unfav div.ps-toolbar-content:before { content: "\f164"; } </style><?php
+		?>
+		<style>
+			div.ps-toolbar-favorite div.ps-toolbar-content:before {
+				content: "\f164";
+			}
+			div.ps-toolbar .ps-toolbar-favorite.bbm-unfav div.ps-toolbar-content:before {
+				content: "\f164";
+			}
+		</style><?php
 
 	}
-	
+
 	//Override activity privacy of activity with album privacy
 	public function bbm_activity_privacy_override() {
-		
-			if ( ! function_exists( 'is_plugin_active' ) )
-				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 
 			$this->is_bbwall_activated = is_plugin_active( 'buddyboss-wall/buddyboss-wall.php' );
 
@@ -867,7 +908,7 @@ class BuddyBoss_Media_Plugin
 			}
 			//Hidding privacy button for album activities
 			?><style>#activity-<?php echo $activity_id; ?> a.buddyboss_privacy_filter { display: none !important; }</style><?php
-			
+
 			$privacy = $wpdb->get_var( $wpdb->prepare( "SELECT privacy FROM {$wpdb->prefix}buddyboss_media_albums WHERE id=%d", $album_id ) );
 
 			if ( 'private' == $privacy ) {

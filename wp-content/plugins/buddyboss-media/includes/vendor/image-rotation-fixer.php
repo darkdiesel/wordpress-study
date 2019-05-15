@@ -130,6 +130,8 @@ function buddyboss_media_merty_fix_rotation( $source )
 		$sourceImage = imagecreatefromjpeg( $source );
 
 		$destinationImage = imagecreatetruecolor( $width, $height );
+		//Specifies the color of the uncovered zone after the rotation
+		$bgd_color = imagecolorallocatealpha( $destinationImage, 0, 0, 0 , 127 );
 
 		imagecopyresampled( $destinationImage, $sourceImage, 0, 0, 0, 0, $width, $height, $width, $height );
 
@@ -139,24 +141,24 @@ function buddyboss_media_merty_fix_rotation( $source )
 				buddyboss_media_merty_flip_image( $dimg );
 				break;
 			case 3:
-				$destinationImage = imagerotate( $destinationImage, 180, -1 );
+				$destinationImage = imagerotate( $destinationImage, 180, $bgd_color );
 				break;
 			case 4:
 				buddyboss_media_merty_flip_image( $dimg );
 				break;
 			case 5:
 				buddyboss_media_merty_flip_image( $destinationImage );
-				$destinationImage = imagerotate( $destinationImage, -90, -1 );
+				$destinationImage = imagerotate( $destinationImage, -90, $bgd_color );
 				break;
 			case 6:
-				$destinationImage = imagerotate( $destinationImage, -90, -1 );
+				$destinationImage = imagerotate( $destinationImage, -90, $bgd_color );
 				break;
 			case 7:
 				buddyboss_media_merty_flip_image( $destinationImage );
-				$destinationImage = imagerotate( $destinationImage, -90, -1 );
+				$destinationImage = imagerotate( $destinationImage, -90, $bgd_color );
 				break;
 			case 8:
-				$destinationImage = imagerotate( $destinationImage, 90, -1 );
+				$destinationImage = imagerotate( $destinationImage, 90, $bgd_color );
 				break;
 		}
 

@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <div id="buddypress">
 	<div class="item-list-tabs no-ajax" id="subnav" role="navigation">
 		<ul>
-			<?php $global_media_permalink = trailingslashit( get_permalink( buddyboss_media()->option('all-media-page') ) ); ?>
+			<?php $global_media_permalink = trailingslashit( _get_page_link( buddyboss_media()->option('all-media-page') ) ); ?>
 			<li class="selected" id="photos-all"><a href="<?php echo esc_url( $global_media_permalink );?>"><?php _e( 'All Photos', 'buddyboss-media' );?></a></li>
 			<li id="albums-personal"><a href="<?php echo esc_url( $global_media_permalink );?>albums/"><?php _e( 'All Albums', 'buddyboss-media' );?></a></li>
 		</ul>
