@@ -1,0 +1,122 @@
+/*#erc_body_container ul li {*/
+    /*background: none;*/
+    /*padding: 0;*/
+    /*margin: 0;*/
+    /*list-style-type: none;*/
+/*}*/
+
+.erc_continer {
+    margin: 0;
+    padding: 0;
+}
+
+.erc_continer {
+    /*position: relative;*/
+    display: inline-table;
+}
+
+
+ul.erc_input_container_horizontal, ul.erc_input_container_vertical {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    width: 100%;
+    display: table;
+    }
+
+ul.erc_input_container_horizontal ul.erc_input_group,
+ul.erc_input_container_vertical ul.erc_input_group {
+    width: 100%;
+    text-align: center;
+    padding: 0px;
+    margin: 0;
+    display: table;
+    list-style-type: none;
+}
+
+ul.erc_input_container_horizontal li.erc_input_field,
+ul.erc_input_container_horizontal li.erc_input_field_right,
+ul.erc_input_container_vertical   li.erc_input_field,
+ul.erc_input_container_vertical   li.erc_input_field_right
+{
+    display: table-cell;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    text-align: left;
+    width: 50%;
+}
+
+ul.erc_input_container_horizontal li.erc_input_field_right,
+ul.erc_input_container_vertical li.erc_input_field_right {
+    padding-left: 5px;
+}
+
+ul.erc_input_container_horizontal li.erc_input_field > input,
+ul.erc_input_container_horizontal li.erc_input_field > select,
+ul.erc_input_container_vertical   li.erc_input_field > input,
+ul.erc_input_container_vertical   li.erc_input_field > select
+
+{
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: none !important;
+    background-color: #ffffff !important;
+}
+
+/******************************/
+ul.erc_input_container_vertical {
+    display: block;
+}
+
+ul.erc_input_container_vertical   li.erc_input_field,
+ul.erc_input_container_vertical   li.erc_input_field_right
+{
+    display: block;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    text-align: left;
+    width: 100%;
+}
+
+ul.erc_result_horizontal, .erc_result_horizontal > li {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style-type: none;
+}
+
+ul.erc_result_horizontal {
+    display: table;
+    width: 100%;
+}
+.erc_result_horizontal > li {
+    display: table-cell;
+    width: 100%;
+}
+
+ul.result_item {
+    display: table;
+    width: 100%;
+}
+
+ul.result_item, .result_item > li {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.result_item > li {
+    display: table-cell;
+    width: 100%;
+}
+
+.erc_input_field input, .erc_input_field select {
+    -moz-box-sizing: border-box;
+    -web-box-sizing: border-box;
+    box-sizing: border-box;
+}
