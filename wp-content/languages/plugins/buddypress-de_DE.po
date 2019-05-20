@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - BuddyPress - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-02-22 10:24:30+0000\n"
+"PO-Revision-Date: 2019-05-16 13:27:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -140,6 +140,11 @@ msgstr "Persönlichen Datenexport anfordern"
 #: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:53
 msgid "If you want to make a request, please click on the button below:"
 msgstr "Um eine Anfrage zu stellen, bitte unten auf den Button klicken:  "
+
+#: bp-templates/bp-nouveau/buddypress/members/single/settings/data.php:49
+#: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:49
+msgid "You can request an export of your personal data, containing the following items if applicable:"
+msgstr "Du kannst einen Export deiner personenbezogenen Daten anfordern, der folgende Elemente enthält (sofern vorhanden):"
 
 #: bp-templates/bp-nouveau/buddypress/members/single/settings/data.php:42
 #: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:42
