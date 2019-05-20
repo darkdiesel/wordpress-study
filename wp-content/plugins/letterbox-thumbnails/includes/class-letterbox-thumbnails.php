@@ -1,4 +1,9 @@
 <?php
+/**
+ * LetterBox Thumbnails Main Class
+ *
+ * @class    LetterboxThumbnails
+ */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,11 +13,13 @@ defined( 'ABSPATH' ) || exit;
 class LetterboxThumbnails {
 
 	/**
-	 * Letterbox THumbnails version.
+	 * The current version of the plugin.
 	 *
-	 * @var string
+	 * @since    2.0.1
+	 * @access   protected
+	 * @var      string    $version    The current version of the plugin.
 	 */
-	public $version = '2.0.0';
+	protected $version;
 
 	/**
 	 * @var LetterboxThumbnails The single instance of the class
@@ -33,9 +40,16 @@ class LetterboxThumbnails {
 	 * LetterboxThumbnails constructor.
 	 */
 	function __construct() {
+		if ( defined( 'LETTERBOX_THUMBNAILS_VERSION' ) ) {
+			$this->version = LETTERBOX_THUMBNAILS_VERSION;
+		} else {
+			$this->version = '2.0.1';
+		}
+
 		$this->define_constants();
 		$this->includes();
 		$this->init_hooks();
+		$this->set_locale();
 	}
 
 	/**
@@ -80,15 +94,22 @@ class LetterboxThumbnails {
 	 * Include required core files used in admin and on the frontend.
 	 */
 	public function includes() {
-
 		include_once LETTERBOX_THUMBNAILS_PATH . 'includes/class-letterbox-thumbnails-plugin.php';
 		include_once LETTERBOX_THUMBNAILS_PATH . '/includes/class-letterbox-thumbnails-functions.php';
+		include_once LETTERBOX_THUMBNAILS_PATH . 'includes/class-letterbox-thumbnails-image-editor.php';
 
+		/**
+		 * The class responsible for defining internationalization functionality
+		 * of the plugin.
+		 */
+		include_once LETTERBOX_THUMBNAILS_PATH . 'includes/class-letterbox-thumbnails-i18n.php';
 
 		if ( $this->is_request( 'admin' ) ) {
+			/**
+			 * The class responsible for defining all actions that occur in the admin area.
+			 */
 			include_once LETTERBOX_THUMBNAILS_PATH . 'includes/admin/class-letterbox-thumbnails-admin.php';
 		}
-
 
 		$this->plugin    = new LetterboxThumbnails_Plugin();
 		$this->functions = new LetterboxThumbnails_Functions();
@@ -112,6 +133,19 @@ class LetterboxThumbnails {
 	}
 
 	/**
+	 * Define the locale for this plugin for internationalization.
+	 *
+	 * Uses the LetterboxThumbnails_i18n class in order to set the domain and to register the hook
+	 * with WordPress.
+	 *
+	 * @since    2.0.1
+	 * @access   private
+	 */
+	private function set_locale() {
+		add_action( 'plugins_loaded', array('LetterboxThumbnails_i18n', 'load_plugin_textdomain') );
+	}
+
+	/**
 	 * What type of request is this?
 	 *
 	 * @param string $type admin, ajax, cron or frontend.
@@ -132,7 +166,7 @@ class LetterboxThumbnails {
 	}
 
 	static function plugin_action_links( $links ) {
-		array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=ipa-photosession-post-type-settings' ), __( 'Settings', LetterboxThumbnails()->plugin->get_txt_domain() ) ) );
+		array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=letterbox-thumbnails-settings' ), __( 'Settings', LetterboxThumbnails()->plugin->get_txt_domain() ) ) );
 
 		return $links;
 	}
@@ -143,6 +177,16 @@ class LetterboxThumbnails {
 		}
 
 		return $links;
+	}
+
+	/**
+	 * Retrieve the version number of the plugin.
+	 *
+	 * @since     2.0.1
+	 * @return    string    The version number of the plugin.
+	 */
+	public function get_version() {
+		return $this->version;
 	}
 
 }

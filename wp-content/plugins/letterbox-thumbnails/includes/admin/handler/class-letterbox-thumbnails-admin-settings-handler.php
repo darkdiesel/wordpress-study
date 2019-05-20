@@ -1,8 +1,15 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
+/**
+ * LetterBox Thumbnails Admin Settings Handler
+ *
+ * @class    LetterboxThumbnails_Admin_Settings_Handler
+ */
 
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Class LetterboxThumbnails_Admin_Settings_Handler
+ */
 class LetterboxThumbnails_Admin_Settings_Handler {
 	static $nonce_action_settings = 'letterbox_thumbnails_settings';
 

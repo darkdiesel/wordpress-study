@@ -2,27 +2,41 @@
     var ajaxQueue = $({});
 
     $.ajaxQueue = function(ajaxOpts) {
-        // hold the original complete function
         var oldComplete = ajaxOpts.complete;
 
-        // queue our ajax request
         ajaxQueue.queue(function(next) {
-
-            // create a complete callback to fire the next event in the queue
             ajaxOpts.complete = function() {
-                // fire the original complete if it was there
                 if (oldComplete) oldComplete.apply(this, arguments);
-
-                next(); // run the next query in the queue
+                next();
             };
 
-            // run the query
             $.ajax(ajaxOpts);
         });
     };
 
+    function hexToRgb(hex) {
+        var arrBuff = new ArrayBuffer(4);
+        var vw = new DataView(arrBuff);
+        vw.setUint32(0,parseInt(hex, 16),false);
+        var arrByte = new Uint8Array(arrBuff);
+
+        return arrByte[1] + "," + arrByte[2] + "," + arrByte[3];
+    }
+
     $(document).ready(function () {
-        $('.wp-color-picker-field').wpColorPicker();
+        $('#color').wpColorPicker({
+            change: function(event, ui){
+                var curColor = ui.color.toRgb();
+                $('#rgb-r').val(curColor.r);
+                $('#rgb-g').val(curColor.g);
+                $('#rgb-b').val(curColor.b);
+            },
+            clear: function(){
+                $('#rgb-r').val('');
+                $('#rgb-g').val('');
+                $('#rgb-b').val('');
+            },
+        });
 
         $('form#letterbox-thumbnails-settings-form').on('submit', function (e) {
             e.preventDefault();

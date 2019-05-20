@@ -33,7 +33,7 @@ class LetterboxThumbnails_Admin_Menus {
 			__('LetterBox Thumbnails Settings', LetterboxThumbnails()->plugin->get_txt_domain()),
 			__('Letterbox Thumbnails', LetterboxThumbnails()->plugin->get_txt_domain()),
 			'manage_options',
-			'letterbox_thumbnails_settings',
+			'letterbox-thumbnails-settings',
 			array($this, 'letterbox_thumbnails_settings_page')
 		);
 

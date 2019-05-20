@@ -1,4 +1,9 @@
 <?php
+/**
+ * LetterBox Thumbnails Plugin
+ *
+ * @class    LetterboxThumbnails_Plugin
+ */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -8,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 class LetterboxThumbnails_Plugin {
 	public $plugin_settings_option = 'letterbox-thumbnails-settings';
 
-	public $default_txt_domain = 'letterbox-thumbnails';
+	public $default_txt_domain = 'letterbox-thumnails';
 
 	public $plugin_data;
 	public $plugin_settings;

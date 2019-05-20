@@ -1,4 +1,9 @@
 <?php
+/**
+ * LetterBox Thumbnails Functions
+ *
+ * @class    LetterboxThumbnails_Functions
+ */
 
 defined( 'ABSPATH' ) || exit;
 

@@ -1,10 +1,13 @@
 <?php
 /**
  * Admin Template: Page - Settings
+ *
+ * @var $image_sizes array
+ * @var $_wp_additional_image_sizes array
  */
 
-defined( 'ABSPATH' ) || exit;
 
+defined( 'ABSPATH' ) || exit;
 $action = 'save';
 ?>
 
@@ -20,13 +23,52 @@ $action = 'save';
             <tbody>
             <tr>
                 <th scope="row">
-                    <label for=""><?php _e('LetterBox Background Color:', LetterboxThumbnails()->plugin->get_txt_domain()); ?></label>
+                    <label for="color"><?php _e('Background Color:', LetterboxThumbnails()->plugin->get_txt_domain()); ?></label>
                 </th>
                 <td>
-	                <?php
-	                $option = isset( $settings['color'] ) ? $settings['color'] : '';
-	                ?>
-                    <input type="text" value="<?php echo $option; ?>" name="color" class="wp-color-picker-field" />
+	                <?php $option = isset( $settings['color'] ) ? $settings['color'] : ''; ?>
+                    <input type="text" id="color" value="<?php echo $option; ?>" name="color" class="wp-color-picker-field" />
+	                <?php $option = isset( $settings['rgb-r'] ) ? $settings['rgb-r'] : ''; ?>
+                    <input type="hidden" id="rgb-r" value="<?php echo $option; ?>" name="rgb-r" class="wp-color-picker-field"  />
+	                <?php $option = isset( $settings['rgb-g'] ) ? $settings['rgb-g'] : ''; ?>
+                    <input type="hidden" id="rgb-g" value="<?php echo $option; ?>" name="rgb-g" />
+	                <?php $option = isset( $settings['rgb-b'] ) ? $settings['rgb-b'] : ''; ?>
+                    <input type="hidden" id="rgb-b" value="<?php echo $option; ?>" name="rgb-b" />
+                    <p class="description"><?php _e('Select color that will be used as background.', LetterboxThumbnails()->plugin->get_txt_domain()); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    <label><?php _e('Image sizes:', LetterboxThumbnails()->plugin->get_txt_domain()); ?></label>
+                </th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text">
+                            <span><?php _e('Image sizes', LetterboxThumbnails()->plugin->get_txt_domain()); ?></span>
+                        </legend>
+	                    <?php $option = isset( $settings['image_sizes'] ) ? $settings['image_sizes'] : ''; ?>
+	                    <?php foreach ($image_sizes as $size ): ?>
+                            <label for="<?php echo sprintf('image-size-%s', $size); ?>">
+                                <input type="checkbox" id="<?php echo sprintf('image-size-%s', $size); ?>" value="<?php echo $size; ?>" name="image_sizes[]" <?php echo in_array($size, $option) ? 'checked': '';?> >
+                                <?php
+                                if ( in_array( $size, array( 'thumbnail', 'medium', 'medium_large', 'large' ) ) ) {
+	                                $size_w = get_option( "{$size}_size_w" );
+	                                $size_h = get_option( "{$size}_size_h" );
+	                                $size_crop = (bool) get_option( "{$size}_crop" );
+                                } elseif ( isset( $_wp_additional_image_sizes[ $size ] ) ) {
+	                                $size_w    = $_wp_additional_image_sizes[ $size ]['width'];
+	                                $size_h    = $_wp_additional_image_sizes[ $size ]['height'];
+	                                $size_crop = $_wp_additional_image_sizes[ $size ]['crop'];
+                                }
+                                ?>
+
+	                            <?php print sprintf('<i>%s</i>  <b>%s</b>: <i>%sx%s</i>, <b>%s</b> : %s', $size, _('Size'),$size_w, $size_h, _('Cropping'),($size_crop) ? '<span class="dashicons dashicons-yes color-yes"></span>': '<span class="dashicons dashicons-no color-no"></span>'); ?>
+                            </label>
+                            <br/>
+	                    <?php endforeach; ?>
+                        <p class="description"><?php _e('Select image sizes for that apply letterbox style.', LetterboxThumbnails()->plugin->get_txt_domain()); ?></p>
+                        <p class="description"><?php _e('<b class="color-note">NOTE!</b> For selected image sizes cropping option will be ignoring!', LetterboxThumbnails()->plugin->get_txt_domain()); ?></p>
+                    </fieldset>
                 </td>
             </tr>
             </tbody>

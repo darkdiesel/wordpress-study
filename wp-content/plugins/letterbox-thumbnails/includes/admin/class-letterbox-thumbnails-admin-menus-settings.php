@@ -12,12 +12,18 @@ defined( 'ABSPATH' ) || exit;
  */
 class LetterboxThumbnails_Admin_Menus_Settings {
 	public static function output() {
+		global $_wp_additional_image_sizes;
+
 		$settings = LetterboxThumbnails()->plugin->get_settings();
+
+		$image_sizes = get_intermediate_image_sizes();
 
 		LetterboxThumbnails()->functions->get_template(
 			'admin/settings.php',
 			array(
-				'settings' => $settings
+				'settings' => $settings,
+				'image_sizes' => $image_sizes,
+				'_wp_additional_image_sizes' => $_wp_additional_image_sizes
 			)
 		);
 	}
