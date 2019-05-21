@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class LetterboxThumbnails
+ * Class LetterboxThumbnails_i18n
  * Define the internationalization functionality.
  *
  * Loads and defines the internationalization files for this plugin

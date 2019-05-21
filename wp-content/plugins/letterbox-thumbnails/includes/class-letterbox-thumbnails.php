@@ -32,7 +32,7 @@ class LetterboxThumbnails {
 	public $plugin = null;
 
 	/**
-	 * @var ER_Calculator_Core_Functions class instance
+	 * @var LetterboxThumbnails_Functions class instance
 	 */
 	public $functions = null;
 
@@ -83,10 +83,6 @@ class LetterboxThumbnails {
 
 		if ( ! defined( 'LETTERBOX_THUMBNAILS_URL' ) ) {
 			define( 'LETTERBOX_THUMBNAILS_URL', plugin_dir_url( LETTERBOX_THUMBNAILS_PLUGIN_FILE ) . '/' );
-		}
-
-		if ( ! defined( 'LETTERBOX_THUMBNAILS_VERSION' ) ) {
-			define( 'LETTERBOX_THUMBNAILS_VERSION', $this->version );
 		}
 	}
 

@@ -27,21 +27,32 @@ class LetterboxThumbnails_Plugin {
 	}
 
 	/**
-	 *
 	 * Function return plugin data
 	 *
-	 * @return array
+	 * @param null $var
+	 *
+	 * @return array|bool|mixed|null
 	 */
-	public function get_data() {
+	public function get_data($var = null) {
 		if ( ! $this->plugin_data ) {
 			if ( function_exists( 'get_plugin_data' ) ) {
 				$this->plugin_data = get_plugin_data( LETTERBOX_THUMBNAILS_PATH . '/letterbox-thumbnails.php' );
-			} else {
-				$this->plugin_data = false;
 			}
 		}
 
-		return $this->plugin_data;
+		if (is_null($var)){
+			return $this->plugin_data;
+		}
+
+		if (!is_null($this->plugin_data)){
+			if (is_array( $this->plugin_data ) && isset( $this->plugin_data[$var] )){
+				return $this->plugin_data[$var];
+			} else {
+				return FALSE;
+			}
+		} else {
+			return FALSE;
+		}
 	}
 
 	/**
@@ -51,10 +62,10 @@ class LetterboxThumbnails_Plugin {
 	 */
 	public function get_txt_domain() {
 
-		$data = $this->get_data();
+		$data = $this->get_data('TextDomain');
 
-		if ( is_array( $data ) && isset( $data['TextDomain'] ) ) {
-			return $data['TextDomain'];
+		if ( $data  ) {
+			return $data;
 		} else {
 			return $this->default_txt_domain;
 		}

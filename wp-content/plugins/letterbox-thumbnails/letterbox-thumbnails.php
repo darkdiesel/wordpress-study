@@ -36,8 +36,8 @@ if ( ! class_exists( 'LetterboxThumbnails' ) ) {
 /**
  * Returns the main instance of LetterboxThumbnails to prevent the need to use globals.
  *
- * @since  2.0.0
  * @return LetterboxThumbnails
+ * @since  2.0.0
  */
 function LetterboxThumbnails() {
 	return LetterboxThumbnails::instance();
