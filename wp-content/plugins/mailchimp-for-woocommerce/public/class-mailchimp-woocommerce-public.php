@@ -54,34 +54,50 @@ class MailChimp_WooCommerce_Public {
 	}
 
 	/**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-		//wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/mailchimp-woocommerce-public.css', array(), $this->version, 'all' );
-	}
-
-	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_register_script($this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/mailchimp-woocommerce-public.min.js', array(), $this->version, false);
+		wp_register_script($this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/mailchimp-woocommerce-public.min.js', array(), $this->version.'.01', false);
 		wp_localize_script($this->plugin_name, 'mailchimp_public_data', array(
 			'site_url' => site_url(),
 			'ajax_url' => admin_url('admin-ajax.php'),
-            'queue_url' =>  MailChimp_WooCommerce_Rest_Api::url('queue/work'),
-            'queue_should_fire' => mailchimp_should_init_rest_queue(),
+			'disable_carts' => mailchimp_carts_disabled(),
+			'subscribers_only' => mailchimp_carts_subscribers_only(),
+			'language' => substr( get_locale(), 0, 2 ),
+            'allowed_to_set_cookies' => mailchimp_allowed_to_use_cookie('mailchimp_user_email'),
 		));
 
         // Enqueued script with localized data.
         wp_enqueue_script($this->plugin_name, '', array(), $this->version, true);
 
-		//if we have the connected_site script url saved, we need to inject it
-        if (($site = mailchimp_get_connected_site_script_url()) && !empty($site)) {
-           wp_enqueue_script($this->plugin_name.'_connected_site', $site, array(), $this->version, true);
+        // if we have the "fragment" we can just inject this vs. loading the file
+        // otherwise, if we have the connected_site script url saved, we need to inject it and load from the CDN.
+        //if (($site = mailchimp_get_connected_site_script_url()) && !empty($site)) {
+        //   wp_enqueue_script($this->plugin_name.'_connected_site', $site, array(), $this->version, true);
+        //}
+	}
+
+    /**
+     * Add the inline footer script if the filter allows it.
+     */
+    public function add_inline_footer_script()
+    {
+        if (apply_filters( 'mailchimp_add_inline_footer_script', true)) {
+            if (($fragment = mailchimp_get_connected_site_script_fragment()) && !empty($fragment)) {
+                echo $fragment;
+            }
         }
 	}
+
+	/**
+	 * Add GDPR script to the checkout page
+	 */
+	public function add_JS_checkout()
+	{
+		wp_enqueue_script($this->plugin_name. '_gdpr', plugin_dir_url( __FILE__ ) .'js/mailchimp-woocommerce-checkout-gdpr.min.js', array(), $this->version, true);
+	}
+	
+	
 }

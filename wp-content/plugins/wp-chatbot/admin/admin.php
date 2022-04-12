@@ -16,28 +16,35 @@ require_once(HTCC_PLUGIN_DIR . 'inc/MobileMonkeyApi.php');
 
 require_once('class-htcc-lang.php');
 
+require_once('class-htcc-countries.php');
+
 require_once('class-htcc-admin.php');
 
 
 require_once('class-htcc-enqueue.php');
 
 
-
-$api = new MobileMonkeyApi();
 $admin = new HTCC_Admin();
+$api = new MobileMonkeyApi();
 add_action('admin_menu',  array( $admin, 'htcc_options_page') );
 add_action( 'admin_init', array( $admin, 'htcc_custom_settings' ) );
 add_action( 'admin_init', array( $admin, 'htcc_incomplete_setup' ) );
 add_action('admin_init', 'htcc_admin_notice');
 add_action('admin_notices', array( $admin, 'example_admin_notice'));
+add_action('admin_notices', array( $admin, 'new_leads'));
+add_action('admin_notices', array( $admin, 'mobile_promo'));
 add_action('wp_ajax_send_done', array($admin,'set_tab_done'));
 add_action('wp_ajax_email_section', array($admin,'email_section'));
-add_action('wp_ajax_set_pre_val', array($admin,'pre_val'));
 add_action('wp_ajax_get_done', array($admin,'get_tab_done'));
+add_action('wp_ajax_main_notice', array($admin,'banner_off'));
+add_action('wp_ajax_cg_notice', array($admin,'cg_off'));
 add_action('wp_ajax_set_current_tab', array($admin,'set_current_tab'));
 add_action('wp_ajax_create_subscribe', array($api,'create_subscribe'));
 add_action('wp_ajax_cancel_subscribe', array($api,'cancel_subscribe'));
 add_action('wp_ajax_csv', array($api,'csv'));
+add_action('wp_ajax_notice_lead', array($admin,'notice_lead_off'));
+add_action('wp_ajax_notice_promo', array($admin,'notice_promo_off'));
+add_action('wp_ajax_ht_cc_admin_sidebar__hide_mobile_app_banner', array($admin,'ht_cc_admin_sidebar__hide_mobile_app_banner'));
 
 
 

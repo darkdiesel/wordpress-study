@@ -65,7 +65,7 @@ class BP_Email {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @var BP_Email_Recipient Sender details.
+	 * @var BP_Email_Sender Sender details.
 	 */
 	protected $from = null;
 
@@ -101,7 +101,7 @@ class BP_Email {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @var BP_Email_Recipient "Reply to" details.
+	 * @var BP_Email_Sender "Reply to" details.
 	 */
 	protected $reply_to = null;
 
@@ -430,7 +430,7 @@ class BP_Email {
 	 *
 	 * @param string $transform Optional. How to transform the return value.
 	 *                          Accepts 'raw' (default) or 'replace-tokens'.
-	 * @return BP_Email_Recipient "From" recipient.
+	 * @return BP_Email_Sender "From" recipient.
 	 */
 	public function get_from( $transform = 'raw' ) {
 		return $this->get( 'from', $transform );
@@ -738,7 +738,10 @@ class BP_Email {
 	 * @return BP_Email
 	 */
 	public function set_from( $email_address, $name = '' ) {
-		$from = new BP_Email_Recipient( $email_address, $name );
+		$from = new BP_Email_Sender();
+
+		$from->set_address( $email_address );
+		$from->set_name( $name );
 
 		/**
 		 * Filters the new value of the email's "from" property.
@@ -787,7 +790,15 @@ class BP_Email {
 			// Load the template.
 			add_filter( 'bp_locate_template_and_load', '__return_true' );
 
+			// Set up the `$post` global.
+			global $post;
+			$reset_post = $post;
+			$post       = $this->post_object;
+
 			bp_locate_template( bp_email_get_template( $this->post_object ), true, false );
+
+			// Reset the `$post` global.
+			$post = $reset_post;
 
 			remove_filter( 'bp_locate_template_and_load', '__return_true' );
 
@@ -810,7 +821,10 @@ class BP_Email {
 	 * @return BP_Email
 	 */
 	public function set_reply_to( $email_address, $name = '' ) {
-		$reply_to = new BP_Email_Recipient( $email_address, $name );
+		$reply_to = new BP_Email_Sender();
+
+		$reply_to->set_address( $email_address );
+		$reply_to->set_name( $name );
 
 		/**
 		 * Filters the new value of the email's "reply to" property.
@@ -991,6 +1005,14 @@ class BP_Email {
 			! $this->get_template()
 		) {
 			$retval = new WP_Error( 'missing_parameter', __CLASS__, $this );
+		}
+
+		// Has the user opted out of receiving any email from this site?
+		$recipient_to       = $this->get_to();
+		$recipient_to_first = array_shift( $recipient_to );
+		$recipient_address  = $recipient_to_first->get_address();
+		if ( bp_user_has_opted_out( $recipient_address ) ) {
+			$retval = new WP_Error( 'user_has_opted_out', __( 'The email recipient has opted out from receiving communication from this site.', 'buddypress' ), $recipient_address );
 		}
 
 		/**

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package Polylang
+ */
 
 /**
  * A class to manage admin notices
@@ -6,8 +9,21 @@
  * and only on dashboard, plugins and Polylang admin pages
  *
  * @since 2.3.9
+ * @since 2.7 Dismissed notices are stored in an option instead of a user meta
  */
 class PLL_Admin_Notices {
+	/**
+	 * Stores the plugin options.
+	 *
+	 * @var array
+	 */
+	protected $options;
+
+	/**
+	 * Stores custom notices.
+	 *
+	 * @var string[]
+	 */
 	private static $notices = array();
 
 	/**
@@ -32,17 +48,18 @@ class PLL_Admin_Notices {
 	 *
 	 * @param string $name Notice name
 	 * @param string $html Content of the notice
+	 * @return void
 	 */
 	public static function add_notice( $name, $html ) {
 		self::$notices[ $name ] = $html;
 	}
 
 	/**
-	 * Get custom notices
+	 * Get custom notices.
 	 *
 	 * @since 2.3.9
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public static function get_notices() {
 		return self::$notices;
@@ -57,8 +74,22 @@ class PLL_Admin_Notices {
 	 * @return bool
 	 */
 	public static function is_dismissed( $notice ) {
-		$dismissed = get_user_meta( get_current_user_id(), 'pll_dismissed_notices', true );
-		return is_array( $dismissed ) && in_array( $notice, $dismissed );
+		$dismissed = get_option( 'pll_dismissed_notices', array() );
+
+		// Handle legacy user meta
+		$dismissed_meta = get_user_meta( get_current_user_id(), 'pll_dismissed_notices', true );
+		if ( is_array( $dismissed_meta ) ) {
+			if ( array_diff( $dismissed_meta, $dismissed ) ) {
+				$dismissed = array_merge( $dismissed, $dismissed_meta );
+				update_option( 'pll_dismissed_notices', $dismissed );
+			}
+			if ( ! is_multisite() ) {
+				// Don't delete on multisite to avoid the notices to appear in other sites.
+				delete_user_meta( get_current_user_id(), 'pll_dismissed_notices' );
+			}
+		}
+
+		return in_array( $notice, $dismissed );
 	}
 
 	/**
@@ -66,21 +97,39 @@ class PLL_Admin_Notices {
 	 *
 	 * @since 2.3.9
 	 *
+	 * @param  string $notice The notice name.
 	 * @return bool
 	 */
-	protected function can_display_notice() {
+	protected function can_display_notice( $notice ) {
 		$screen = get_current_screen();
+
+		if ( empty( $screen ) ) {
+			return false;
+		}
+
 		$screen_id = sanitize_title( __( 'Languages', 'polylang' ) );
 
-		return in_array(
-			$screen->id,
-			array(
-				'dashboard',
-				'plugins',
-				'toplevel_page_mlang',
-				$screen_id . '_page_mlang_strings',
-				$screen_id . '_page_mlang_settings',
-			)
+		/**
+		 * Filter admin notices which can be displayed
+		 *
+		 * @since 2.7.0
+		 *
+		 * @param bool   $display Whether the notice should be displayed or not.
+		 * @param string $notice  The notice name.
+		 */
+		return apply_filters(
+			'pll_can_display_notice',
+			in_array(
+				$screen->id,
+				array(
+					'dashboard',
+					'plugins',
+					'toplevel_page_mlang',
+					$screen_id . '_page_mlang_strings',
+					$screen_id . '_page_mlang_settings',
+				)
+			),
+			$notice
 		);
 	}
 
@@ -90,15 +139,14 @@ class PLL_Admin_Notices {
 	 * @since 2.3.9
 	 *
 	 * @param string $notice
+	 * @return void
 	 */
 	public static function dismiss( $notice ) {
-		if ( ! $dismissed = get_user_meta( get_current_user_id(), 'pll_dismissed_notices', true ) ) {
-			$dismissed = array();
-		}
+		$dismissed = get_option( 'pll_dismissed_notices', array() );
 
 		if ( ! in_array( $notice, $dismissed ) ) {
 			$dismissed[] = $notice;
-			update_user_meta( get_current_user_id(), 'pll_dismissed_notices', array_unique( $dismissed ) );
+			update_option( 'pll_dismissed_notices', array_unique( $dismissed ) );
 		}
 	}
 
@@ -106,6 +154,8 @@ class PLL_Admin_Notices {
 	 * Handle a click on the dismiss button
 	 *
 	 * @since 2.3.9
+	 *
+	 * @return void
 	 */
 	public function hide_notice() {
 		if ( isset( $_GET['pll-hide-notice'], $_GET['_pll_notice_nonce'] ) ) {
@@ -121,16 +171,23 @@ class PLL_Admin_Notices {
 	 * Displays notices
 	 *
 	 * @since 2.3.9
+	 *
+	 * @return void
 	 */
 	public function display_notices() {
-		if ( current_user_can( 'manage_options' ) && $this->can_display_notice() ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			// Core notices
-			$this->pllwc_notice();
-			$this->review_notice();
+			if ( defined( 'WOOCOMMERCE_VERSION' ) && ! defined( 'PLLWC_VERSION' ) && $this->can_display_notice( 'pllwc' ) && ! $this->is_dismissed( 'pllwc' ) ) {
+				$this->pllwc_notice();
+			}
+
+			if ( ! defined( 'POLYLANG_PRO' ) && $this->can_display_notice( 'review' ) && ! $this->is_dismissed( 'review' ) && ! empty( $this->options['first_activation'] ) && time() > $this->options['first_activation'] + 15 * DAY_IN_SECONDS ) {
+				$this->review_notice();
+			}
 
 			// Custom notices
 			foreach ( $this->get_notices() as $notice => $html ) {
-				if ( ! $this->is_dismissed( $notice ) ) {
+				if ( $this->can_display_notice( $notice ) && ! $this->is_dismissed( $notice ) ) {
 					?>
 					<div class="pll-notice notice notice-info">
 						<?php
@@ -150,6 +207,7 @@ class PLL_Admin_Notices {
 	 * @since 2.3.9
 	 *
 	 * @param string $name Notice name
+	 * @return void
 	 */
 	public function dismiss_button( $name ) {
 		printf(
@@ -164,49 +222,49 @@ class PLL_Admin_Notices {
 	 * Displays a notice if WooCommerce is activated without Polylang for WooCommerce
 	 *
 	 * @since 2.3.9
+	 *
+	 * @return void
 	 */
 	private function pllwc_notice() {
-		if ( defined( 'WOOCOMMERCE_VERSION' ) && ! defined( 'PLLWC_VERSION' ) && ! $this->is_dismissed( 'pllwc' ) ) {
-			?>
-			<div class="pll-notice notice notice-warning">
-			<?php $this->dismiss_button( 'pllwc' ); ?>
-				<p>
-					<?php
-					printf(
-						/* translators: %1$s is link start tag, %2$s is link end tag. */
-						esc_html__( 'We have noticed that you are using Polylang with WooCommerce. To ensure compatibility, we recommend you use %1$sPolylang for WooCommerce%2$s.', 'polylang' ),
-						'<a href="https://polylang.pro/downloads/polylang-for-woocommerce/">',
-						'</a>'
-					);
-					?>
-				</p>
-			</div>
-			<?php
-		}
+		?>
+		<div class="pll-notice notice notice-warning">
+		<?php $this->dismiss_button( 'pllwc' ); ?>
+			<p>
+				<?php
+				printf(
+					/* translators: %1$s is link start tag, %2$s is link end tag. */
+					esc_html__( 'We have noticed that you are using Polylang with WooCommerce. To ensure compatibility, we recommend you use %1$sPolylang for WooCommerce%2$s.', 'polylang' ),
+					'<a href="https://polylang.pro/downloads/polylang-for-woocommerce/">',
+					'</a>'
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 
 	/**
 	 * Displays a notice asking for a review
 	 *
 	 * @since 2.3.9
+	 *
+	 * @return void
 	 */
 	private function review_notice() {
-		if ( ! defined( 'POLYLANG_PRO' ) && ! $this->is_dismissed( 'review' ) && ! empty( $this->options['first_activation'] ) && time() > $this->options['first_activation'] + 15 * DAY_IN_SECONDS ) {
-			?>
-			<div class="pll-notice notice notice-info">
-			<?php $this->dismiss_button( 'review' ); ?>
-				<p>
-					<?php
-					printf(
-						/* translators: %1$s is link start tag, %2$s is link end tag. */
-						esc_html__( 'We have noticed that you have been using Polylang for some time. We hope you love it, and we would really appreciate it if you would %1$sgive us a 5 stars rating%2$s.', 'polylang' ),
-						'<a href="https://wordpress.org/support/plugin/polylang/reviews/?rate=5#new-post">',
-						'</a>'
-					);
-					?>
-				</p>
-			</div>
-			<?php
-		}
+		?>
+		<div class="pll-notice notice notice-info">
+		<?php $this->dismiss_button( 'review' ); ?>
+			<p>
+				<?php
+				printf(
+					/* translators: %1$s is link start tag, %2$s is link end tag. */
+					esc_html__( 'We have noticed that you have been using Polylang for some time. We hope you love it, and we would really appreciate it if you would %1$sgive us a 5 stars rating%2$s.', 'polylang' ),
+					'<a href="https://wordpress.org/support/plugin/polylang/reviews/?rate=5#new-post">',
+					'</a>'
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 }

@@ -59,6 +59,9 @@ add_filter( 'bp_email_set_content_html', 'stripslashes', 8 );
 add_filter( 'bp_email_set_content_plaintext', 'wp_strip_all_tags', 6 );
 add_filter( 'bp_email_set_subject', 'sanitize_text_field', 6 );
 
+// Avatars.
+add_filter( 'bp_core_fetch_avatar', 'bp_core_add_loading_lazy_attribute' );
+
 /**
  * Template Compatibility.
  *
@@ -434,7 +437,7 @@ function bp_core_filter_blog_welcome_email( $welcome_email, $blog_id, $user_id, 
 	if ( ! bp_has_custom_signup_page() )
 		return $welcome_email;
 
-	// [User Set] Replaces $password in welcome email; Represents value set by user
+	// [User Set] Replaces $password in welcome email; Represents value set by user.
 	return str_replace( $password, __( '[User Set]', 'buddypress' ), $welcome_email );
 }
 add_filter( 'update_welcome_email', 'bp_core_filter_blog_welcome_email', 10, 4 );
@@ -458,6 +461,12 @@ add_filter( 'update_welcome_email', 'bp_core_filter_blog_welcome_email', 10, 4 )
  * @return bool              Returns false to stop original WPMU function from continuing.
  */
 function bp_core_activation_signup_blog_notification( $domain, $path, $title, $user, $user_email, $key ) {
+	$is_signup_resend = false;
+	if ( is_admin() && buddypress()->members->admin->signups_page == get_current_screen()->id ) {
+		// The admin is just approving/sending/resending the verification email.
+		$is_signup_resend = true;
+	}
+
 	$args = array(
 		'tokens' => array(
 			'activate-site.url' => esc_url( bp_get_activation_page() . '?key=' . urlencode( $key ) ),
@@ -469,7 +478,31 @@ function bp_core_activation_signup_blog_notification( $domain, $path, $title, $u
 			'user.email'        => $user_email,
 		),
 	);
-	bp_send_email( 'core-user-registration-with-blog', array( array( $user_email => $user ) ), $args );
+
+	$signup     = bp_members_get_signup_by( 'activation_key', $key );
+	$salutation = $user;
+	if ( $signup && bp_is_active( 'xprofile' ) ) {
+		if ( isset( $signup->meta[ 'field_' . bp_xprofile_fullname_field_id() ] ) ) {
+			$salutation = $signup->meta[ 'field_' . bp_xprofile_fullname_field_id() ];
+		}
+	}
+
+	/**
+	 * Filters if BuddyPress should send an activation key for a new multisite signup.
+	 *
+	 * @since 10.0.0
+	 *
+	 * @param string $user             The user's login name.
+	 * @param string $user_email       The user's email address.
+	 * @param string $key              The activation key created in wpmu_signup_blog().
+	 * @param bool   $is_signup_resend Is the site admin sending this email?
+	 * @param string $domain           The new blog domain.
+	 * @param string $path             The new blog path.
+	 * @param string $title            The site title.
+	 */
+	if ( apply_filters( 'bp_core_signup_send_activation_key_multisite_blog', true, $user, $user_email, $key, $is_signup_resend, $domain, $path, $title ) ) {
+		bp_send_email( 'core-user-registration-with-blog', array( array( $user_email => $salutation ) ), $args );
+	}
 
 	// Return false to stop the original WPMU function from continuing.
 	return false;
@@ -490,6 +523,7 @@ add_filter( 'wpmu_signup_blog_notification', 'bp_core_activation_signup_blog_not
  * @return false|string Returns false to stop original WPMU function from continuing.
  */
 function bp_core_activation_signup_user_notification( $user, $user_email, $key, $meta ) {
+	$is_signup_resend = false;
 	if ( is_admin() ) {
 
 		// If the user is created from the WordPress Add User screen, don't send BuddyPress signup notifications.
@@ -503,17 +537,21 @@ function bp_core_activation_signup_user_notification( $user, $user_email, $key, 
 				return $user;
 			}
 
-		/*
-		 * There can be a case where the user was created without the skip confirmation
-		 * And the super admin goes in pending accounts to resend it. In this case, as the
-		 * meta['password'] is not set, the activation url must be WordPress one.
-		 */
+		// The site admin is approving/resending from the "manage signups" screen.
 		} elseif ( buddypress()->members->admin->signups_page == get_current_screen()->id ) {
+			/*
+			 * There can be a case where the user was created without the skip confirmation
+			 * And the super admin goes in pending accounts to resend it. In this case, as the
+			 * meta['password'] is not set, the activation url must be WordPress one.
+			 */
 			$is_hashpass_in_meta = maybe_unserialize( $meta );
 
 			if ( empty( $is_hashpass_in_meta['password'] ) ) {
 				return $user;
 			}
+
+			// Or the admin is just approving/sending/resending the verification email.
+			$is_signup_resend = true;
 		}
 	}
 
@@ -521,6 +559,13 @@ function bp_core_activation_signup_user_notification( $user, $user_email, $key, 
 	$user_object = get_user_by( 'login', $user );
 	if ( $user_object ) {
 		$user_id = $user_object->ID;
+	}
+
+	$salutation = $user;
+	if ( bp_is_active( 'xprofile' ) && isset( $meta[ 'field_' . bp_xprofile_fullname_field_id() ] ) ) {
+		$salutation = $meta[ 'field_' . bp_xprofile_fullname_field_id() ];
+	} elseif ( $user_id ) {
+		$salutation = bp_core_get_user_displayname( $user_id );
 	}
 
 	$args = array(
@@ -531,12 +576,50 @@ function bp_core_activation_signup_user_notification( $user, $user_email, $key, 
 			'user.id'      => $user_id,
 		),
 	);
-	bp_send_email( 'core-user-registration', array( array( $user_email => $user ) ), $args );
+
+	/**
+	 * Filters if BuddyPress should send an activation key for a new multisite signup.
+	 *
+	 * @since 10.0.0
+	 *
+	 * @param string $user             The user's login name.
+	 * @param string $user_email       The user's email address.
+	 * @param string $key              The activation key created in wpmu_signup_blog().
+	 * @param bool   $is_signup_resend Is the site admin sending this email?
+	 */
+	if ( apply_filters( 'bp_core_signup_send_activation_key_multisite', true, $user, $user_email, $key, $is_signup_resend ) ) {
+		bp_send_email( 'core-user-registration', array( array( $user_email => $salutation ) ), $args );
+	}
 
 	// Return false to stop the original WPMU function from continuing.
 	return false;
 }
 add_filter( 'wpmu_signup_user_notification', 'bp_core_activation_signup_user_notification', 1, 4 );
+
+/**
+ * Ensure that some meta values are set for new multisite signups.
+ *
+ * @since 10.0.0
+ *
+ * @see wpmu_signup_user() for a full description of params.
+ *
+ * @param array $meta Signup meta data. Default empty array.
+ * @return array Signup meta data.
+ */
+function bp_core_add_meta_to_multisite_signups( $meta ) {
+
+	// Ensure that sent_date and count_sent are set in meta.
+	if ( ! isset( $meta['sent_date'] ) ) {
+		$meta['sent_date'] = '0000-00-00 00:00:00';
+	}
+	if ( ! isset( $meta['count_sent'] ) ) {
+		$meta['count_sent'] = 0;
+	}
+
+	return $meta;
+}
+add_filter( 'signup_user_meta', 'bp_core_add_meta_to_multisite_signups' );
+add_filter( 'signup_site_meta', 'bp_core_add_meta_to_multisite_signups' );
 
 /**
  * Filter the page title for BuddyPress pages.
@@ -578,6 +661,7 @@ function bp_modify_page_title( $title = '', $sep = '&raquo;', $seplocation = 'ri
 		$bp_title_parts['site'] = $blogname;
 
 		if ( ( $paged >= 2 || $page >= 2 ) && ! is_404() && ! bp_is_single_activity() ) {
+			/* translators: %s: the page number. */
 			$bp_title_parts['page'] = sprintf( __( 'Page %s', 'buddypress' ), max( $paged, $page ) );
 		}
 	}
@@ -668,6 +752,16 @@ add_filter( 'document_title_parts', 'bp_modify_document_title_parts', 20, 1 );
  */
 function bp_setup_nav_menu_item( $menu_item ) {
 	if ( is_admin() ) {
+		if ( 'bp_nav_menu_item' === $menu_item->object ) {
+			$menu_item->type = 'custom';
+			$menu_item->url  = $menu_item->guid;
+
+			if ( ! in_array( array( 'bp-menu', 'bp-'. $menu_item->post_excerpt .'-nav' ), $menu_item->classes ) ) {
+				$menu_item->classes[] = 'bp-menu';
+				$menu_item->classes[] = 'bp-'. $menu_item->post_excerpt .'-nav';
+			}
+		}
+
 		return $menu_item;
 	}
 
@@ -789,7 +883,7 @@ add_filter( 'customize_nav_menu_available_items', 'bp_customizer_nav_menus_get_i
  *
  * @since 2.3.3
  *
- * @param array $item_types An associative array structured for the customizer.
+ * @param  array $item_types An associative array structured for the customizer.
  * @return array $item_types An associative array structured for the customizer.
  */
 function bp_customizer_nav_menus_set_item_types( $item_types = array() ) {
@@ -864,6 +958,31 @@ function bp_core_filter_edit_post_link( $edit_link = '', $post_id = 0 ) {
 	}
 
 	return $edit_link;
+}
+
+/**
+ * Add 'loading="lazy"' attribute into images and iframes.
+ *
+ * @since 7.0.0
+ *
+ * @string $content Content to inject attribute into.
+ * @return string
+ */
+function bp_core_add_loading_lazy_attribute( $content = '' ) {
+	if ( false === strpos( $content, '<img ' ) && false === strpos( $content, '<iframe ' ) ) {
+		return $content;
+	}
+
+	$content = str_replace( '<img ',    '<img loading="lazy" ',    $content );
+	$content = str_replace( '<iframe ', '<iframe loading="lazy" ', $content );
+
+	// WordPress posts need their position absolute removed for lazyloading.
+	$find_pos_absolute = ' style="position: absolute; clip: rect(1px, 1px, 1px, 1px);" ';
+	if ( false !== strpos( $content, 'data-secret=' ) && false !== strpos( $content, $find_pos_absolute ) ) {
+		$content = str_replace( $find_pos_absolute, '', $content );
+	}
+
+	return $content;
 }
 
 /**
@@ -1006,12 +1125,21 @@ function bp_email_set_default_headers( $headers, $property, $transform, $email )
 
 	// Add 'List-Unsubscribe' header if applicable.
 	if ( ! empty( $tokens['unsubscribe'] ) && $tokens['unsubscribe'] !== wp_login_url() ) {
-		$user = get_user_by( 'email', $tokens['recipient.email'] );
+		$user    = get_user_by( 'email', $tokens['recipient.email'] );
+		$user_id = isset( $user->ID ) ? $user->ID : 0;
 
-		$link = bp_email_get_unsubscribe_link( array(
-			'user_id'           => $user->ID,
+		$args = array(
+			'user_id'           => $user_id,
 			'notification_type' => $email->get( 'type' ),
-		) );
+		);
+
+		// If this email is not to a current member, include the nonmember's email address and the Inviter ID.
+		if ( ! $user_id ) {
+			$args['email_address'] = $tokens['recipient.email'];
+			$args['member_id']     = bp_loggedin_user_id();
+		}
+
+		$link = bp_email_get_unsubscribe_link( $args );
 
 		if ( ! empty( $link ) ) {
 			$headers['List-Unsubscribe'] = sprintf( '<%s>', esc_url_raw( $link ) );
@@ -1146,3 +1274,18 @@ function bp_core_render_email_template( $template ) {
 	return '';
 }
 add_action( 'bp_template_include', 'bp_core_render_email_template', 12 );
+
+/**
+ * Adds BuddyPress components' slugs to the WordPress Multisite subdirectory reserved names.
+ *
+ * @since 6.0.0
+ *
+ * @param array $names The WordPress Multisite subdirectory reserved names.
+ * @return array       The WordPress & BuddyPress Multisite subdirectory reserved names.
+ */
+function bp_core_components_subdirectory_reserved_names( $names = array() ) {
+	$bp_pages = (array) buddypress()->pages;
+
+	return array_merge( $names, wp_list_pluck( $bp_pages, 'slug' ) );
+}
+add_filter( 'subdirectory_reserved_names', 'bp_core_components_subdirectory_reserved_names' );

@@ -307,3 +307,124 @@ if ( !function_exists( 'mb_strrpos' ) ) {
 		}
 	}
 }
+
+/**
+ * Catch the new site data for a later use.
+ *
+ * @since 6.0.0
+ */
+function bp_catch_site_data( $errors = null, $data = array() ) {
+	buddypress()->new_site_data = $data;
+}
+add_action( 'wp_validate_site_data', 'bp_catch_site_data', 10, 2 );
+
+/**
+ * Fires a BuddyPress hook when a new WordPress site is inserted into the database.
+ *
+ * This hook makes sure BuddyPress is back compatible with WordPress versions < 5.1.0.
+ *
+ * @since 6.0.0
+ *
+ * @param int|WP_Site $site            The Site ID or the WP Site object.
+ * @param int|array   $args_or_user_id An array of Site arguments or the User ID.
+ * @param string      $domain          Site domain.
+ * @param string      $path            Site path.
+ * @param int         $network_id      Network ID. Only relevant on multi-network installations.
+ * @param array       $meta            Meta data. Used to set initial site options.
+ */
+function bp_insert_site( $site, $args_or_user_id = null, $domain = '', $path = '', $network_id = 0, $meta = array() ) {
+	if ( $site instanceof WP_Site ) {
+		$bp         = buddypress();
+		$site_id    = $site->id;
+		$domain     = $site->domain;
+		$path       = $site->path;
+		$network_id = $site->network_id;
+		$args       = (array) $args_or_user_id;
+
+		$user_id = 0;
+		if ( isset( $args['user_id'] ) && $args['user_id'] ) {
+			$user_id = (int) $args['user_id'];
+		}
+
+		$meta = array();
+		if ( isset( $args['options'] ) && $args['options'] ) {
+			$meta = (array) $args['options'];
+
+			if ( ! array_key_exists( 'WPLANG', $meta ) ) {
+				$meta['WPLANG'] = get_network_option( $site->network_id, 'WPLANG' );
+			}
+
+			if ( isset( $bp->new_site_data ) ) {
+				$meta = array_merge( $bp->new_site_data, $meta );
+			}
+		}
+	} else {
+		$site_id = $site;
+		$user_id = (int) $args_or_user_id;
+	}
+
+	/**
+	 * Fires when a new WordPress site has been inserted into the database.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param int    $site_id    Site ID.
+	 * @param int    $user_id    User ID.
+	 * @param string $domain     Site domain.
+	 * @param string $path       Site path.
+	 * @param int    $network_id Network ID. Only relevant on multi-network installations.
+	 * @param array  $meta       Meta data. Used to set initial site options.
+	 */
+	do_action( 'bp_insert_site', $site_id, $user_id, $domain, $path, $network_id, $meta );
+}
+add_action( 'wp_initialize_site', 'bp_insert_site' );
+
+/**
+ * Makes sure the `bp_delete_site` hook is fired if site's deletion
+ * was performed without dropping tables.
+ *
+ * @since 6.0.0
+ *
+ * @param WP_Site $site The site object.
+ */
+function bp_delete_site_no_tables_drop( $site ) {
+	if ( isset( $site->deleted ) && 1 === (int) $site->deleted ) {
+		return bp_delete_site( $site->id, false );
+	}
+}
+add_action( 'wp_update_site', 'bp_delete_site_no_tables_drop', 10, 1 );
+
+/**
+ * Fires a BuddyPress hook when a new WordPress site is deleted.
+ *
+ * This hook makes sure BuddyPress is back compatible with WordPress versions < 5.1.0.
+ *
+ * @since 6.0.0
+ *
+ * @param int|WP_Error $site_id_or_error A WP Error object or the site ID.
+ * @param bool|WP_Site $drop_or_site     A WP Site object or a boolean to inform whether site's table should be dropped.
+ */
+function bp_delete_site( $site_id_or_error, $drop_or_site = false ) {
+	if ( $drop_or_site instanceof WP_Site ) {
+		if ( ! empty( $site_id_or_error->errors ) ) {
+			return;
+		}
+
+		$site_id = (int) $drop_or_site->id;
+		$drop    = true;
+	} else {
+		$site_id = (int) $site_id_or_error;
+		$drop    = (bool) $drop_or_site;
+	}
+
+	/**
+	 * Fires when a WordPress site is deleted.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param int  $site_id The site ID.
+	 * @param bool $drop    True if site's table should be dropped. Default is false.
+	 */
+	do_action( 'bp_delete_site', $site_id, $drop );
+}
+add_action( 'wp_validate_site_deletion', 'bp_delete_site', 10, 2 );

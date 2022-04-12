@@ -37,8 +37,11 @@ class BP_Attachment_Avatar extends BP_Attachment {
 
 			// Specific errors for avatars.
 			'upload_error_strings'  => array(
-				9  => sprintf( __( 'That photo is too big. Please upload one smaller than %s', 'buddypress' ), size_format( bp_core_avatar_original_max_filesize() ) ),
-				10 => sprintf( _n( 'Please upload only this file type: %s.', 'Please upload only these file types: %s.', count( $allowed_types ), 'buddypress' ), self::get_avatar_types( $allowed_types ) ),
+				/* translators: %s: Max file size for the profile photo */
+				9  => sprintf( _x( 'That photo is too big. Please upload one smaller than %s', 'profile photo upload error', 'buddypress' ), size_format( bp_core_avatar_original_max_filesize() ) ),
+
+				/* translators: %s: comma separated list of file types allowed for the profile photo */
+				10 => sprintf( _nx( 'Please upload only this file type: %s.', 'Please upload only these file types: %s.', count( $allowed_types ), 'profile photo upload error', 'buddypress' ), self::get_avatar_types( $allowed_types ) ),
 			),
 		) );
 	}
@@ -130,7 +133,7 @@ class BP_Attachment_Avatar extends BP_Attachment {
 			 */
 			$original_max_width = $ui_available_width;
 
-			// $original_max_width has to be larger than the avatar's full width
+			// $original_max_width has to be larger than the avatar's full width.
 			if ( $original_max_width < bp_core_avatar_full_width() ) {
 				$original_max_width = bp_core_avatar_full_width();
 			}
@@ -196,7 +199,7 @@ class BP_Attachment_Avatar extends BP_Attachment {
 	 * @see  BP_Attachment::crop for the list of parameters
 	 *
 	 * @param array $args Array of arguments for the cropping.
-	 * @return array The cropped avatars (full and thumb).
+	 * @return array The cropped avatars (full, thumb and the timestamp).
 	 */
 	public function crop( $args = array() ) {
 		// Bail if the original file is missing.
@@ -243,19 +246,58 @@ class BP_Attachment_Avatar extends BP_Attachment {
 			return false;
 		}
 
-		// Delete the existing avatar files for the object.
-		$existing_avatar = bp_core_fetch_avatar( array(
-			'object'  => $args['object'],
-			'item_id' => $args['item_id'],
-			'html' => false,
-		) );
+		// Get the existing avatar files for the object.
+		$existing_avatar = bp_core_fetch_avatar(
+			array(
+				'object'  => $args['object'],
+				'item_id' => $args['item_id'],
+				'html'    => false,
+			)
+		);
 
 		/**
 		 * Check that the new avatar doesn't have the same name as the
-		 * old one before deleting
+		 * old one before moving the previous one into history.
 		 */
 		if ( ! empty( $existing_avatar ) && $existing_avatar !== $this->url . $relative_path ) {
-			bp_core_delete_existing_avatar( array( 'object' => $args['object'], 'item_id' => $args['item_id'], 'avatar_path' => $avatar_folder_dir ) );
+			// Avatar history is disabled, simply delete the existing avatar files.
+			if ( bp_avatar_history_is_disabled() ) {
+				bp_core_delete_existing_avatar(
+					array(
+						'object'      => $args['object'],
+						'item_id'     => $args['item_id'],
+						'avatar_path' => $avatar_folder_dir,
+					)
+				);
+			} else {
+				// Add a new revision for the existing avatar.
+				$avatars = bp_attachments_list_directory_files( $avatar_folder_dir );
+
+				if ( $avatars ) {
+					foreach ( $avatars as $avatar_file ) {
+						if ( ! isset( $avatar_file->name, $avatar_file->id, $avatar_file->path ) ) {
+							continue;
+						}
+
+						$is_full  = preg_match( "/-bpfull/", $avatar_file->name );
+						$is_thumb = preg_match( "/-bpthumb/", $avatar_file->name );
+
+						if ( $is_full || $is_thumb ) {
+							$revision = $this->add_revision(
+								'avatar',
+								array(
+									'file_abspath' => $avatar_file->path,
+									'file_id'      => $avatar_file->id,
+								)
+							);
+
+							if ( is_wp_error( $revision ) ) {
+								error_log( $revision->get_error_message() );
+							}
+						}
+					}
+				}
+			}
 		}
 
 		// Make sure we at least have minimal data for cropping.
@@ -269,11 +311,16 @@ class BP_Attachment_Avatar extends BP_Attachment {
 
 		// Get the file extension.
 		$data = @getimagesize( $absolute_path );
-		$ext  = $data['mime'] == 'image/png' ? 'png' : 'jpg';
+		$ext  = $data['mime'] === 'image/png' ? 'png' : 'jpg';
 
 		$args['original_file'] = $absolute_path;
 		$args['src_abs']       = false;
-		$avatar_types = array( 'full' => '', 'thumb' => '' );
+
+		$avatar_types = array(
+			'full'  => '',
+			'thumb' => '',
+		);
+		$timestamp   = bp_core_current_time( true, 'timestamp' );
 
 		foreach ( $avatar_types as $key_type => $type ) {
 			if ( 'thumb' === $key_type ) {
@@ -284,7 +331,7 @@ class BP_Attachment_Avatar extends BP_Attachment {
 				$args['dst_h'] = bp_core_avatar_full_height();
 			}
 
-			$filename         = wp_unique_filename( $avatar_folder_dir, uniqid() . "-bp{$key_type}.{$ext}" );
+			$filename         = wp_unique_filename( $avatar_folder_dir, $timestamp . "-bp{$key_type}.{$ext}" );
 			$args['dst_file'] = $avatar_folder_dir . '/' . $filename;
 
 			$avatar_types[ $key_type ] = parent::crop( $args );
@@ -293,8 +340,13 @@ class BP_Attachment_Avatar extends BP_Attachment {
 		// Remove the original.
 		@unlink( $absolute_path );
 
-		// Return the full and thumb cropped avatars.
-		return $avatar_types;
+		// Return the full, thumb cropped avatars and the timestamp.
+		return array_merge(
+			$avatar_types,
+			array(
+				'timestamp' => $timestamp,
+			)
+		);
 	}
 
 	/**
@@ -337,7 +389,7 @@ class BP_Attachment_Avatar extends BP_Attachment {
 	}
 
 	/**
-	 * Build script datas for the Uploader UI.
+	 * Build script data for the Uploader UI.
 	 *
 	 * @since 2.3.0
 	 *
@@ -379,6 +431,8 @@ class BP_Attachment_Avatar extends BP_Attachment {
 				2 => __( 'Your new profile photo was uploaded successfully.', 'buddypress' ),
 				3 => __( 'There was a problem deleting your profile photo. Please try again.', 'buddypress' ),
 				4 => __( 'Your profile photo was deleted successfully!', 'buddypress' ),
+				5 => __( 'Your profile photo was recycled successfully!', 'buddypress' ),
+				6 => __( 'The profile photo was permanently deleted successfully!', 'buddypress' ),
 			);
 		} elseif ( ! empty( $group_id ) ) {
 			$script_data['bp_params'] = array(
@@ -397,6 +451,8 @@ class BP_Attachment_Avatar extends BP_Attachment {
 				2 => __( 'The group profile photo was uploaded successfully.', 'buddypress' ),
 				3 => __( 'There was a problem deleting the group profile photo. Please try again.', 'buddypress' ),
 				4 => __( 'The group profile photo was deleted successfully!', 'buddypress' ),
+				5 => __( 'The group profile photo was recycled successfully!', 'buddypress' ),
+				6 => __( 'The group profile photo was permanently deleted successfully!', 'buddypress' ),
 			);
 		} else {
 

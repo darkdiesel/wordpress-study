@@ -9,6 +9,7 @@
  */
 ?>
 <link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <style>
     .main {
         width: 1200px;
@@ -46,7 +47,7 @@
         text-align: center;
     }
     .notification__info {
-        padding: 1rem;
+        padding: 1rem 0;
     }
     .info-heading {
         font-size: 26px;
@@ -86,7 +87,7 @@
         height: 110%;
     }
     .notification__images{
-        height: 100%;
+        height: 155px;
         width: 300px;
         position: relative;
     }
@@ -101,6 +102,20 @@
     .button__wrapper_text{
         align-self: center;
         display: flex;
+    }
+    .dis_main_banner{
+        position: absolute;
+        top: 5%;
+        right: 3%;
+        display: flex;
+        align-self: flex-end;
+        cursor: pointer;
+        color: #fff;
+        font-size: 18px;
+        line-height: 10px;
+    }
+    .banner_main__wrap{
+        position: relative;
     }
     @media (max-width: 720px) {
         .notification__wrapper{
@@ -169,23 +184,45 @@
         }
     }
 </style>
-<a class="mobile-button" href="<?php echo admin_url( 'admin.php?page=wp-chatbot' )?>">
-	<div class="notification__wrapper">
-		<div class="notification__images">
-			<img src="<?php echo plugins_url('admin/assets/img/monkey.png',HTCC_PLUGIN_FILE)?>" class="images__item image-monkey">
-		</div>
-		<div class="notification__info">
-			<h3 class="info__heading">Uh oh. Your WP-Chatbot setup is incomplete!</h3>
-			<p class="info__text">Click to resolve as soon as possible</p>
-			<div class="info__text--bottom">
-				<img src="<?php echo plugins_url('admin/assets/img/logo.png',HTCC_PLUGIN_FILE)?>" alt="test" class="info__image">
-			</div>
-		</div>
-		<div class="notification__button">
-			<div class="button__wrapper">
-				<span class="button__wrapper_text">Complete setup</span>
-                <span class="dashicons button__wrapper_arrow dashicons-arrow-right-alt"></span>
-			</div>
-		</div>
-	</div>
-</a>
+<script>
+    jQuery(document).ready(function($){
+        $('.main_banner_button').on('click',function (e) {
+            $.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data: {
+                    action: 'main_notice'
+                },
+                dataType: 'json',
+                success: function (data,response) {
+                    $('.main_banner_button').parents('.banner_main__wrap').fadeOut(300, function(){ $(this).remove();});;
+                }
+            });
+        });
+    });
+</script>
+<div class="banner_main__wrap">
+    <div class="dis_main_banner">
+        <span class="main_banner_button"><i class="fa fa-times" aria-hidden="true"></i></span>
+    </div>
+    <a class="mobile-button" href="<?php echo admin_url( 'admin.php?page=wp-chatbot' )?>">
+        <div class="notification__wrapper">
+            <div class="notification__images">
+                <img src="<?php echo plugins_url('admin/assets/img/monkey.png',HTCC_PLUGIN_FILE)?>" class="images__item image-monkey">
+            </div>
+            <div class="notification__info">
+                <h3 class="info__heading">Uh oh. Your WP-Chatbot setup is incomplete!</h3>
+                <p class="info__text">Click to resolve as soon as possible</p>
+                <div class="info__text--bottom">
+                    <img src="<?php echo plugins_url('admin/assets/img/logo.png',HTCC_PLUGIN_FILE)?>" alt="test" class="info__image">
+                </div>
+            </div>
+            <div class="notification__button">
+                <div class="button__wrapper">
+                    <span class="button__wrapper_text">Complete setup</span>
+                    <span class="dashicons button__wrapper_arrow dashicons-arrow-right-alt"></span>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>

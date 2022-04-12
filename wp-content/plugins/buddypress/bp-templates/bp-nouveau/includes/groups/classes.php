@@ -3,7 +3,7 @@
  * Groups classes
  *
  * @since 3.0.0
- * @version 3.0.0
+ * @version 7.0.0
  */
 
 // Exit if accessed directly.
@@ -50,10 +50,13 @@ class BP_Nouveau_Group_Invite_Query extends BP_User_Query {
 
 		$group_member_ids = $this->get_group_member_ids();
 
-		// We want to get users that are already members of the group
+		/**
+		 * We want to exclude users who are already members or who have been
+		 * invited by **any** of the group members to join it.
+		 */
 		$type = 'exclude';
 
-		// We want to get invited users who did not confirmed yet
+		// We want to get the invited users who did not confirmed yet.
 		if ( false === $this->query_vars['is_confirmed'] ) {
 			$type = 'include';
 		}
@@ -77,6 +80,22 @@ class BP_Nouveau_Group_Invite_Query extends BP_User_Query {
 			return $this->group_member_ids;
 		}
 
+		// Fetch **all** invited users.
+		$pending_invites = groups_get_invites( array(
+			'item_id'     => $this->query_vars['group_id'],
+			'invite_sent' => 'sent',
+			'fields'      => 'user_ids'
+		) );
+
+		// This is a clue that we only want the invitations.
+		if ( false === $this->query_vars['is_confirmed'] ) {
+			return $pending_invites;
+		}
+
+		/**
+		 * Otherwise, we want group members _and_ users with outstanding invitations,
+		 * because we're doing an "exclude" query.
+		 */
 		$bp  = buddypress();
 		$sql = array(
 			'select'  => "SELECT user_id FROM {$bp->groups->table_name_members}",
@@ -91,11 +110,6 @@ class BP_Nouveau_Group_Invite_Query extends BP_User_Query {
 		// Group id
 		$sql['where'][] = $wpdb->prepare( 'group_id = %d', $this->query_vars['group_id'] );
 
-		if ( false === $this->query_vars['is_confirmed'] ) {
-			$sql['where'][] = $wpdb->prepare( 'is_confirmed = %d', (int) $this->query_vars['is_confirmed'] );
-			$sql['where'][] = 'inviter_id != 0';
-		}
-
 		// Join the query part
 		$sql['where'] = ! empty( $sql['where'] ) ? 'WHERE ' . implode( ' AND ', $sql['where'] ) : '';
 
@@ -106,7 +120,7 @@ class BP_Nouveau_Group_Invite_Query extends BP_User_Query {
 		/** LIMIT clause ******************************************************/
 		$this->group_member_ids = $wpdb->get_col( "{$sql['select']} {$sql['where']} {$sql['orderby']} {$sql['order']} {$sql['limit']}" );
 
-		return $this->group_member_ids;
+		return array_merge( $this->group_member_ids, $pending_invites );
 	}
 
 	/**
@@ -137,9 +151,12 @@ class BP_Nouveau_Group_Invite_Query extends BP_User_Query {
 			return array();
 		}
 
-		$bp = buddypress();
-
-		return $wpdb->get_col( $wpdb->prepare( "SELECT inviter_id FROM {$bp->groups->table_name_members} WHERE user_id = %d AND group_id = %d", $user_id, $group_id ) );
+		return groups_get_invites( array(
+			'user_id'     => $user_id,
+			'item_id'     => $group_id,
+			'invite_sent' => 'sent',
+			'fields'      => 'inviter_ids'
+		) );
 	}
 }
 
@@ -242,12 +259,6 @@ class BP_Nouveau_Customizer_Group_Nav extends BP_Core_Nav {
 				'parent_slug' => $this->group->slug,
 				'position'    => 10,
 			),
-			'invites' => array(
-				'name'        => _x( 'Invite', 'My Group screen nav', 'buddypress' ),
-				'slug'        => 'send-invites',
-				'parent_slug' => $this->group->slug,
-				'position'    => 70,
-			),
 			'manage'  => array(
 				'name'        => _x( 'Manage', 'My Group screen nav', 'buddypress' ),
 				'slug'        => 'admin',
@@ -256,6 +267,15 @@ class BP_Nouveau_Customizer_Group_Nav extends BP_Core_Nav {
 			),
 		);
 
+		if ( bp_is_active( 'groups', 'invitations' ) ) {
+			$nav_items['invites'] = array(
+				'name'        => _x( 'Invite', 'My Group screen nav', 'buddypress' ),
+				'slug'        => 'send-invites',
+				'parent_slug' => $this->group->slug,
+				'position'    => 70,
+			);
+		}
+
 		// Make sure only global front.php will be checked.
 		add_filter( '_bp_nouveau_group_reset_front_template', array( $this, 'all_groups_fronts' ), 10, 1 );
 
@@ -263,9 +283,19 @@ class BP_Nouveau_Customizer_Group_Nav extends BP_Core_Nav {
 
 		remove_filter( '_bp_nouveau_group_reset_front_template', array( $this, 'all_groups_fronts' ), 10, 1 );
 
+		$members_nav = array(
+			'name'        => _x( 'Members', 'My Group screen nav', 'buddypress' ),
+			'slug'        => 'members',
+			'parent_slug' => $this->group->slug,
+			'position'    => 60,
+		);
+
 		if ( ! $front_template ) {
 			if ( bp_is_active( 'activity' ) ) {
 				$nav_items['home']['name'] = _x( 'Home (Activity)', 'Group screen navigation title', 'buddypress' );
+
+				// Add the members nav.
+				$nav_items['members'] = $members_nav;
 			} else {
 				$nav_items['home']['name'] = _x( 'Home (Members)', 'Group screen navigation title', 'buddypress' );
 			}
@@ -279,13 +309,8 @@ class BP_Nouveau_Customizer_Group_Nav extends BP_Core_Nav {
 				);
 			}
 
-			// Add the members one
-			$nav_items['members'] = array(
-				'name'        => _x( 'Members', 'My Group screen nav', 'buddypress' ),
-				'slug'        => 'members',
-				'parent_slug' => $this->group->slug,
-				'position'    => 60,
-			);
+			// Add the members nav.
+			$nav_items['members'] = $members_nav;
 		}
 
 		// Required params
@@ -357,5 +382,48 @@ class BP_Nouveau_Customizer_Group_Nav extends BP_Core_Nav {
 		bp_nouveau_set_nav_item_order( $this, bp_nouveau_get_appearance_settings( 'group_nav_order' ), $this->group->slug );
 
 		return $this->get_secondary( array( 'parent_slug' => $this->group->slug ) );
+	}
+}
+
+/**
+ * Group template meta backwards compatibility class.
+ *
+ * @since 7.0.0
+ */
+class BP_Nouveau_Group_Meta {
+	/**
+	 * Used to get the template meta used in Groups loop.
+	 *
+	 * @since 7.0.0
+	 * @var string $meta The template meta used in Groups loop.
+	 */
+	public $meta = '';
+
+	/**
+	 * Magic getter.
+	 *
+	 * This exists specifically for supporting deprecated object vars.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	public function __get( $key = '' ) {
+		/* translators: %s is the name of the function to use instead of the deprecated one */
+		_doing_it_wrong( 'bp_nouveau_group_meta', sprintf( __( 'Please use %s instead', 'buddypress' ), 'bp_nouveau_the_group_meta( array( \'keys\' => \'' . $key . '\' ) )' ) , '7.0.0' );
+
+		// Backwards compatibility.
+		return bp_nouveau_the_group_meta( array( 'keys' => $key, 'echo' => false ) );
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @since 7.0.0
+	 */
+	public function __construct() {
+		// Backwards compatibility.
+		$this->meta = bp_nouveau_the_group_meta( array( 'echo' => false ) );
 	}
 }

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package Polylang
+ */
 
 /**
  * A class to manage URL modifications settings
@@ -6,6 +9,19 @@
  * @since 1.8
  */
 class PLL_Settings_Url extends PLL_Settings_Module {
+	/**
+	 * Stores the display order priority.
+	 *
+	 * @var int
+	 */
+	public $priority = 10;
+
+	/**
+	 * The page id of the static front page.
+	 *
+	 * @var int
+	 */
+	protected $page_on_front;
 
 	/**
 	 * Constructor
@@ -25,7 +41,6 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 			)
 		);
 
-		$this->links_model = &$polylang->links_model;
 		$this->page_on_front = &$polylang->static_pages->page_on_front;
 	}
 
@@ -33,9 +48,12 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * Displays the fieldset to choose how the language is set
 	 *
 	 * @since 1.8
+	 *
+	 * @return void
 	 */
 	protected function force_lang() {
 		?>
+		<p class="description"><?php esc_html_e( 'Some themes or plugins may not be fully compatible with the language defined by the content or by domains.', 'polylang' ); ?></p>
 		<label>
 			<?php
 			printf(
@@ -98,6 +116,8 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * Displays the fieldset to choose to hide the default language information in url
 	 *
 	 * @since 1.8
+	 *
+	 * @return void
 	 */
 	protected function hide_default() {
 		?>
@@ -117,6 +137,8 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * Displays the fieldset to choose to hide /language/ in url
 	 *
 	 * @since 1.8
+	 *
+	 * @return void
 	 */
 	protected function rewrite() {
 		?>
@@ -149,6 +171,8 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * Displays the fieldset to choose to redirect the home page to language page
 	 *
 	 * @since 1.8
+	 *
+	 * @return void
 	 */
 	protected function redirect_lang() {
 		?>
@@ -157,7 +181,7 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 			printf(
 				'<input name="redirect_lang" type="checkbox" value="1" %s/> %s',
 				checked( $this->options['redirect_lang'], 1, false ),
-				esc_html__( 'The front page url contains the language code instead of the page name or page id', 'polylang' )
+				esc_html__( 'The front page URL contains the language code instead of the page name or page id', 'polylang' )
 			);
 			?>
 		</label>
@@ -181,6 +205,8 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * Displays the settings
 	 *
 	 * @since 1.8
+	 *
+	 * @return void
 	 */
 	public function form() {
 		?>
@@ -221,8 +247,11 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * @since 1.8
 	 *
 	 * @param array $options
+	 * @return array
 	 */
 	protected function update( $options ) {
+		$newoptions = array();
+
 		foreach ( array( 'force_lang', 'rewrite' ) as $key ) {
 			$newoptions[ $key ] = isset( $options[ $key ] ) ? (int) $options[ $key ] : 0;
 		}
@@ -274,6 +303,7 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	 * @since 1.8
 	 *
 	 * @param array $options new set of options to test
+	 * @return void
 	 */
 	protected function check_domains( $options ) {
 		$options = array_merge( $this->options, $options );

@@ -6,7 +6,7 @@
  *
  * @package BuddyPress
  * @subpackage BP_Theme_Compat
- * @version 3.1.0
+ * @version 10.0.0
  */
 
 // Exit if accessed directly.
@@ -124,7 +124,7 @@ class BP_Legacy extends BP_Theme_Compat {
 
 		// Only hook the 'sitewide_notices' overlay if the Sitewide
 		// Notices widget is not in use (to avoid duplicate content).
-		if ( bp_is_active( 'messages' ) && ! is_active_widget( false, false, 'bp_messages_sitewide_notices_widget', true ) ) {
+		if ( bp_is_active( 'messages' ) && ! bp_is_widget_block_active( 'bp/sitewide-notices', 'bp_messages_sitewide_notices_widget', true ) ) {
 			add_action( 'wp_footer', array( $this, 'sitewide_notices' ), 9999 );
 		}
 
@@ -310,6 +310,8 @@ class BP_Legacy extends BP_Theme_Compat {
 			'remove_fav'	      => __( 'Remove Favorite', 'buddypress' ),
 			'show_all'            => __( 'Show all', 'buddypress' ),
 			'show_all_comments'   => __( 'Show all comments for this thread', 'buddypress' ),
+
+			/* translators: %s: number of activity comments */
 			'show_x_comments'     => __( 'Show all comments (%d)', 'buddypress' ),
 			'unsaved_changes'     => __( 'Your profile has unsaved changes. If you leave the page, the changes will be lost.', 'buddypress' ),
 			'view'                => __( 'View', 'buddypress' ),
@@ -335,7 +337,15 @@ class BP_Legacy extends BP_Theme_Compat {
 			) );
 
 			// Enqueue script.
-			wp_enqueue_script( $asset['handle'] . '-password-verify', $asset['location'], $dependencies, $this->version);
+			wp_enqueue_script( $asset['handle'] . '-password-verify', $asset['location'], $dependencies, $this->version );
+			wp_localize_script(
+				$asset['handle'] . '-password-verify',
+				'bpPasswordVerify',
+				array(
+					'tooWeakPasswordWarning' => __( 'Your password is too weak, please use a stronger password.', 'buddypress' ),
+					'requiredPassStrength'   => bp_members_user_pass_required_strength(),
+				)
+			);
 		}
 
 		// Star private messages.
@@ -488,8 +498,9 @@ class BP_Legacy extends BP_Theme_Compat {
 	 */
 	public function sitewide_notices() {
 		// Do not show notices if user is not logged in.
-		if ( ! is_user_logged_in() )
+		if ( ! is_user_logged_in() || is_admin() ) {
 			return;
+		}
 
 		// Add a class to determine if the admin bar is on or not.
 		$class = did_action( 'admin_bar_menu' ) ? 'admin-bar-on' : 'admin-bar-off';
@@ -697,7 +708,9 @@ function bp_legacy_theme_ajax_querystring( $query_string, $object ) {
 
 	// Set up the cookies passed on this AJAX request. Store a local var to avoid conflicts.
 	if ( ! empty( $_POST['cookie'] ) ) {
-		$_BP_COOKIE = wp_parse_args( str_replace( '; ', '&', urldecode( $_POST['cookie'] ) ) );
+		$_BP_COOKIE = bp_parse_args(
+			str_replace( '; ', '&', urldecode( $_POST['cookie'] ) )
+		);
 	} else {
 		$_BP_COOKIE = &$_COOKIE;
 	}
@@ -988,7 +1001,7 @@ function bp_legacy_theme_post_update() {
 
 	} else {
 
-		/** This filter is documented in bp-activity/bp-activity-actions.php */
+		/** This filter is documented in bp-activity/actions/post.php */
 		$activity_id = apply_filters( 'bp_activity_custom_update', false, $object, $item_id, $_POST['content'] );
 	}
 
@@ -1392,6 +1405,7 @@ function bp_legacy_theme_ajax_invite_user() {
 			  </div>';
 
 		if ( 'is_pending' == $user_status ) {
+			/* translators: %s: user link */
 			echo '<p class="description">' . sprintf( __( '%s has previously requested to join this group. Sending an invitation will automatically add the member to the group.', 'buddypress' ), $user->user_link ) . '</p>';
 		}
 
@@ -1530,16 +1544,25 @@ function bp_legacy_theme_ajax_joinleave_group() {
 	// Cast gid as integer.
 	$group_id = (int) $_POST['gid'];
 
-	if ( groups_is_user_banned( bp_loggedin_user_id(), $group_id ) )
+	if ( groups_is_user_banned( bp_loggedin_user_id(), $group_id ) ) {
 		return;
+	}
 
-	if ( ! $group = groups_get_group( $group_id ) )
+	$group = groups_get_group( $group_id );
+
+	if ( ! $group ) {
 		return;
+	}
+
+	$action = '';
+	if ( isset( $_POST['action'] ) ) {
+		$action = sanitize_key( wp_unslash( $_POST['action'] ) );
+	}
 
 	// Client doesn't distinguish between different request types, so we infer from user status.
 	if ( groups_is_user_member( bp_loggedin_user_id(), $group->id ) ) {
 		$request_type = 'leave_group';
-	} elseif ( groups_check_user_has_invite( bp_loggedin_user_id(), $group->id ) ) {
+	} elseif ( groups_check_user_has_invite( bp_loggedin_user_id(), $group->id ) && 'joinleave_group' !== $action ) {
 		$request_type = 'accept_invite';
 	} elseif ( 'private' === $group->status ) {
 		$request_type = 'request_membership';
@@ -1579,7 +1602,7 @@ function bp_legacy_theme_ajax_joinleave_group() {
 		case 'request_membership' :
 			check_ajax_referer( 'groups_request_membership' );
 
-			if ( ! groups_send_membership_request( bp_loggedin_user_id(), $group->id ) ) {
+			if ( ! groups_send_membership_request( [ 'user_id' => bp_loggedin_user_id(), 'group_id' => $group->id ] ) ) {
 				_e( 'Error requesting membership', 'buddypress' );
 			} else {
 				echo '<a id="group-' . esc_attr( $group->id ) . '" class="group-button disabled pending membership-requested" rel="membership-requested" href="' . bp_get_group_permalink( $group ) . '">' . __( 'Request Sent', 'buddypress' ) . '</a>';
@@ -1620,15 +1643,7 @@ function bp_legacy_theme_ajax_close_notice() {
 		echo "-1<div id='message' class='error'><p>" . __( 'There was a problem closing the notice.', 'buddypress' ) . '</p></div>';
 
 	} else {
-		$user_id    = get_current_user_id();
-		$notice_ids = bp_get_user_meta( $user_id, 'closed_notices', true );
-		if ( ! is_array( $notice_ids ) ) {
-			$notice_ids = array();
-		}
-
-		$notice_ids[] = (int) $_POST['notice_id'];
-
-		bp_update_user_meta( $user_id, 'closed_notices', $notice_ids );
+		bp_messages_dismiss_sitewide_notice( bp_loggedin_user_id(), (int) $_POST['notice_id'] );
 	}
 
 	exit;
@@ -2011,3 +2026,36 @@ function bp_legacy_theme_group_manage_members_add_search() {
 		<?php
 	endif;
 }
+
+/**
+ * Modify welcome message in Legacy template pack when
+ * community invitations are enabled.
+ *
+ * @since 8.0.0
+ */
+function bp_members_invitations_add_legacy_welcome_message() {
+	$message = bp_members_invitations_get_registration_welcome_message();
+
+	if ( $message ) {
+		// Surround the message with `<p>` tags.
+		echo wpautop( $message );
+	}
+}
+add_action( 'bp_before_register_page', 'bp_members_invitations_add_legacy_welcome_message' );
+
+
+/**
+ * Modify "registration disabled" message in Legacy template pack when
+ * community invitations are enabled.
+ *
+ * @since 8.0.0
+ */
+function bp_members_invitations_add_legacy_registration_disabled_message() {
+	$message = bp_members_invitations_get_modified_registration_disabled_message();
+
+	if ( $message ) {
+		// Surround the message with `<p>` tags.
+		echo wpautop( $message );
+	}
+}
+add_action( 'bp_after_registration_disabled', 'bp_members_invitations_add_legacy_registration_disabled_message' );

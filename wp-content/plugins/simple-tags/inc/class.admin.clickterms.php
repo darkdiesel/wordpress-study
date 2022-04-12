@@ -5,27 +5,34 @@ class SimpleTags_Admin_ClickTags {
 	 * Constructor
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
 	public function __construct() {
 		// Ajax action, JS Helper and admin action
 		add_action( 'wp_ajax_simpletags', array( __CLASS__, 'ajax_check' ) );
 
-		// Box for post/page
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ), 1 );
-
-		// Javascript
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ), 11 );
+        if ( 1 === (int) SimpleTags_Plugin::get_option_value( 'active_suggest_terms' )){
+		    // Box for post/page
+		    add_action( 'admin_head', array( __CLASS__, 'admin_head' ), 1 );
+		    // Javascript
+		    add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ), 11 );
+        }
 	}
 
 	/**
 	 * Init somes JS and CSS need for this feature
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
 	public static function admin_enqueue_scripts() {
 		global $pagenow;
+
+        $click_terms = taxopress_current_post_suggest_terms('existing_terms');
+
+        if(!is_array($click_terms)){
+            return;
+        }
 
 		wp_register_script(
 			'st-helper-click-tags',
@@ -37,67 +44,150 @@ class SimpleTags_Admin_ClickTags {
 			STAGS_VERSION,
 			true
 		);
+
+        $post_type_data = get_post_type_object(get_post_type());
+        $post_type_name = is_object($post_type_data) && isset($post_type_data->labels->singular_name) ? strtolower($post_type_data->labels->singular_name) : 'post';
+        $post_taxonomies = get_object_taxonomies(get_post_type());
+
+        //add taxonomy
+        $click_tags_taxonomy = '
+        <div class="option">
+        <label>'.esc_html__( 'Taxonomy', 'simple-tags' ).'</label><br />
+        <select class="st-post-taxonomy-select click_tags_taxonomy" name="click_tags_taxonomy">';
+        foreach ( $post_taxonomies as $_taxonomy ) {
+            $_taxonomy = get_taxonomy($_taxonomy);
+            if($_taxonomy->name === 'author'){
+                continue;
+            }
+            if(!isset($_taxonomy->public) || (isset($_taxonomy->public) && (int)$_taxonomy->public === 0)){
+                continue;
+            }
+
+            if($_taxonomy->name === $click_terms['taxonomy']){
+                $click_tags_taxonomy .= '<option value="'.$_taxonomy->name.'" selected="selected">'.$_taxonomy->labels->name.'</option>';
+            }else{
+                $click_tags_taxonomy .= '<option value="'.$_taxonomy->name.'">'.$_taxonomy->labels->name.'</option>';
+            }
+        }
+        $click_tags_taxonomy .= '</select>
+        </div>';
+
+        //add method
+        $click_tags_methods = ['name' => esc_html__( 'Name', 'simple-tags' ), 'count' => esc_html__( 'Counter', 'simple-tags' ), 'random' => esc_html__( 'Random', 'simple-tags' )];
+        $click_tags_method = '
+        <div class="option">
+        <label>'.__( 'Method for choosing terms', 'simple-tags' ).'</label><br />
+        <select class="click_tags_method" name="click_tags_method">';
+        foreach($click_tags_methods as $option => $label){
+            $selected = ($option === $click_terms['orderby']) ? 'selected="selected"' : '';
+            $click_tags_method .= '<option value="'.$option.'" '.$selected.'>'.$label.'</option>';
+        }
+        $click_tags_method .= '</select>
+        </div>';
+
+        //add order
+        $click_tags_orders = ['asc' =>  esc_html__( 'Ascending', 'simple-tags' ), 'desc' => esc_html__( 'Descending', 'simple-tags' )];
+        $click_tags_order = '
+        <div class="option">
+        <label>'.__( 'Ordering for choosing terms', 'simple-tags' ).'</label><br />
+        <select class="click_tags_order" name="click_tags_order">';
+        foreach($click_tags_orders as $option => $label){
+            $selected = ($option === $click_terms['order']) ? 'selected="selected"' : '';
+            $click_tags_order .= '<option value="'.$option.'" '.$selected.'>'.$label.'</option>';
+        }
+        $click_tags_order .= '</select>
+        </div>';
+
+        //add limit
+        $click_tags_limit= '
+        <div class="option">
+        <label for="click_tags_limit">'.__( 'Maximum terms', 'simple-tags' ).'</label><br />
+        <input type="number" class="click_tags_limit" id="click_tags_limit" name="click_tags_limit" value="'.$click_terms['number'].'">
+        </div>';
+
+        //add searchbox
+        $click_tags_search= '
+        <div class="option">
+        <label for="click_tags_search">Search</label><br />
+        <input name="click_tags_search" id="click_tags_search" type="text" class="click-tag-search-box" placeholder="'.__('Start typing to search', 'simple-tags').'" size="26" autocomplete="off">
+        </div>';
+
+        //create tags search data
+        $click_tags_options= '<div class="clicktags-search-wrapper">'. $click_tags_search.' '.$click_tags_taxonomy.' '.$click_tags_method.' '.$click_tags_order.' '.$click_tags_limit.'</div>';
+
+		//metabox edit line
+		if(current_user_can('admin_simple_tags')){
+			$click_term_edit = '<span class="edit-suggest-term-metabox">
+			'. sprintf(
+				'<a href="%s">%s</a>',
+				add_query_arg(
+					[
+						'page'                   => 'st_suggestterms',
+						'add'                    => 'new_item',
+						'action'                 => 'edit',
+						'taxopress_suggestterms' => $click_terms['ID'],
+					],
+					admin_url('admin.php')
+				),
+				__('Edit this metabox', 'simple-tags')
+			)
+			.'
+			</span>';
+		}else {
+			$click_term_edit = '';
+		}
 		wp_localize_script(
 			'st-helper-click-tags',
 			'stHelperClickTagsL10n',
 			array(
-				'show_txt' => __( 'Display click tags', 'simpletags' ),
-				'hide_txt' => __( 'Hide click tags', 'simpletags' ),
-				'state'    => SimpleTags_Plugin::get_option_value( 'visibility_click_tags' ),
+				'show_txt'    => esc_html__( 'Click to display tags', 'simple-tags' ),
+				'hide_txt'    => sprintf( esc_html__( 'Click terms to add them to this %s', 'simple-tags' ), $post_type_name ),
+				'state'       => 'show',
+				'search_icon' => STAGS_URL . '/assets/images/indicator.gif',
+				'search_box'  => '<input type="text" class="click-tag-search-box" placeholder="'.__('Start typing to search', 'simple-tags').'" size="26" autocomplete="off">',
+				'click_tags_options'  => $click_tags_options,
+				'edit_metabox_link'   => $click_term_edit,
 			)
 		);
 
-		// Register location
-		$wp_post_pages = array( 'post.php', 'post-new.php' );
-		$wp_page_pages = array( 'page.php', 'page-new.php' );
-
-		// Helper for posts/pages
-		if ( in_array( $pagenow, $wp_post_pages, true ) || ( in_array( $pagenow, $wp_page_pages, true ) && is_page_have_tags() ) ) {
-			wp_enqueue_script( 'st-helper-click-tags' );
-		}
+		// Helper for post type
+        wp_enqueue_script( 'st-helper-click-tags' );
 	}
 
 	/**
 	 * Register metabox
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
-	public static function admin_menu() {
+	public static function admin_head() {
+
+        $click_terms = taxopress_current_post_suggest_terms('existing_terms');
+
+        if(!is_array($click_terms)){
+            return;
+        }
 		add_meta_box(
 			'st-clicks-tags',
-			__( 'Click tags', 'simpletags' ),
+			__( 'Show existing terms', 'simple-tags' ),
 			array(
 				__CLASS__,
 				'metabox',
 			),
-			'post',
+			get_post_type(),
 			'advanced',
 			'core'
 		);
-
-		if ( is_page_have_tags() ) {
-			add_meta_box(
-				'st-clicks-tags',
-				__( 'Click tags', 'simpletags' ),
-				array(
-					__CLASS__,
-					'metabox',
-				),
-				'page',
-				'advanced',
-				'core'
-			);
-		}
 	}
 
 	/**
 	 * Put default HTML for people without JS
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
 	public static function metabox() {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo SimpleTags_Admin::getDefaultContentBox();
 	}
 
@@ -105,9 +195,10 @@ class SimpleTags_Admin_ClickTags {
 	 * Ajax Dispatcher
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
 	public static function ajax_check() {
+
 		if ( isset( $_GET['stags_action'] ) && 'click_tags' === $_GET['stags_action'] ) {
 			self::ajax_click_tags();
 		}
@@ -117,23 +208,29 @@ class SimpleTags_Admin_ClickTags {
 	 * Display a span list for click tags
 	 *
 	 * @return void
-	 * @author Amaury Balmer
+	 * @author WebFactory Ltd
 	 */
 	public static function ajax_click_tags() {
 		status_header( 200 ); // Send good header HTTP
 		header( 'Content-Type: text/html; charset=' . get_bloginfo( 'charset' ) );
 
-		if ( 0 === (int) wp_count_terms( 'post_tag', array( 'hide_empty' => false ) ) ) { // No tags to suggest
-			echo '<p>' . esc_html__( 'No terms in your WordPress database.', 'simpletags' ) . '</p>';
+        $taxonomy =  isset($_GET['click_tags_taxonomy']) ? sanitize_text_field($_GET['click_tags_taxonomy']) : 'post_tag';
+
+		if ( 0 === (int) wp_count_terms( $taxonomy, array( 'hide_empty' => false ) ) ) { // No tags to suggest
+			echo '<p>' . esc_html__( 'No terms in your WordPress database.', 'simple-tags' ) . '</p>';
 			exit();
 		}
 
 		// Prepare search
-		$search  = ( isset( $_GET['q'] ) ) ? trim( stripslashes( $_GET['q'] ) ) : '';
+		$search  = ( isset( $_GET['q'] ) ) ? trim( stripslashes( sanitize_text_field($_GET['q']) ) ) : '';
 		$post_id = ( isset( $_GET['post_id'] ) ) ? intval( $_GET['post_id'] ) : 0;
 
-		// Order tags before selection (count-asc/count-desc/name-asc/name-desc/random)
-		$order_click_tags = strtolower( SimpleTags_Plugin::get_option_value( 'order_click_tags' ) );
+        if(isset($_GET['click_tags_method']) && !empty($_GET['click_tags_method'])){
+            $order_click_tags = ($_GET['click_tags_method'] === 'random') ? sanitize_text_field($_GET['click_tags_method']) : sanitize_text_field($_GET['click_tags_method']).'-'.sanitize_text_field($_GET['click_tags_order']);
+        }else{
+		    // Order tags before selection (count-asc/count-desc/name-asc/name-desc/random)
+		    $order_click_tags = 'random';
+        }
 		switch ( $order_click_tags ) {
 			case 'count-asc':
 				$order_by = 'tt.count';
@@ -157,22 +254,30 @@ class SimpleTags_Admin_ClickTags {
 				break;
 		}
 
-		// Get all terms, or filter with search
-		$terms = SimpleTags_Admin::getTermsForAjax( 'post_tag', $search, $order_by, $order );
+        $term_limit =  isset($_GET['click_tags_limit']) ? (int)$_GET['click_tags_limit'] : 100;
+
+        if ($term_limit > 0) {
+            $limit = 'LIMIT 0, '.$term_limit;
+        }else{
+            $limit = '';
+        }
+
+        // Get all terms, or filter with search
+		$terms = SimpleTags_Admin::getTermsForAjax( $taxonomy, $search, $order_by, $order,  $limit );
 		if ( empty( $terms ) ) {
-			echo '<p>' . esc_html__( 'No results from your WordPress database.', 'simpletags' ) . '</p>';
+			echo '<p>' . esc_html__( 'No results from your WordPress database.', 'simple-tags' ) . '</p>';
 			exit();
 		}
 
 		// Get terms for current post
 		$post_terms = array();
 		if ( $post_id > 0 ) {
-			$post_terms = wp_get_post_terms( $post_id, 'post_tag', array( 'fields' => 'ids' ) );
+			$post_terms = wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
 		}
 
 		foreach ( (array) $terms as $term ) {
-			$class_current = in_array( $term->term_id, $post_terms, true ) ? 'used_term' : '';
-			echo '<span class="local ' . esc_attr( $class_current ) . '">' . esc_html( stripslashes( $term->name ) ) . '</span>' . "\n";
+			$class_current = in_array($term->term_id, $post_terms) ? 'used_term' : '';
+			echo '<span data-term_id="'.esc_attr($term->term_id).'" data-taxonomy="'.esc_attr($taxonomy).'" class="local '.esc_attr($taxonomy).' ' . esc_attr( $class_current ) . '">' . esc_html( stripslashes( $term->name ) ) . '</span>' . "\n";
 		}
 		echo '<div class="clear"></div>';
 

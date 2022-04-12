@@ -21,6 +21,7 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 	 * Constructor method.
 	 *
 	 * @since 1.5.0
+	 * @since 9.0.0 Adds the `show_instance_in_rest` property to Widget options.
 	 */
 	public function __construct() {
 		$name        = _x( '(BuddyPress) Recently Active Members', 'widget name', 'buddypress' );
@@ -29,6 +30,7 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 			'description'                 => $description,
 			'classname'                   => 'widget_bp_core_recently_active_widget buddypress widget',
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		) );
 	}
 
@@ -63,12 +65,15 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		echo $args['before_title'] . $title . $args['after_title'];
 
+		$max_limit   = bp_get_widget_max_count_limit( __CLASS__ );
+		$max_members = $settings['max_members'] > $max_limit ? $max_limit : (int) $settings['max_members'];
+
 		// Setup args for querying members.
 		$members_args = array(
 			'user_id'         => 0,
 			'type'            => 'active',
-			'per_page'        => $settings['max_members'],
-			'max'             => $settings['max_members'],
+			'per_page'        => $max_members,
+			'max'             => $max_members,
 			'populate_extras' => true,
 			'search_terms'    => false,
 		);
@@ -116,9 +121,12 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 	 * @return array $instance The parsed options to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance                = $old_instance;
+		$instance = $old_instance;
+
+		$max_limit = bp_get_widget_max_count_limit( __CLASS__ );
+
 		$instance['title']       = strip_tags( $new_instance['title'] );
-		$instance['max_members'] = strip_tags( $new_instance['max_members'] );
+		$instance['max_members'] = $new_instance['max_members'] > $max_limit ? $max_limit : intval( $new_instance['max_members'] );
 
 		return $instance;
 	}
@@ -132,11 +140,13 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function form( $instance ) {
+		$max_limit = bp_get_widget_max_count_limit( __CLASS__ );
 
 		// Get widget settings.
 		$settings    = $this->parse_settings( $instance );
 		$title       = strip_tags( $settings['title'] );
-		$max_members = strip_tags( $settings['max_members'] ); ?>
+		$max_members = $settings['max_members'] > $max_limit ? $max_limit : intval( $settings['max_members'] );
+		?>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
@@ -148,7 +158,7 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'max_members' ); ?>">
 				<?php esc_html_e( 'Max members to show:', 'buddypress' ); ?>
-				<input class="widefat" id="<?php echo $this->get_field_id( 'max_members' ); ?>" name="<?php echo $this->get_field_name( 'max_members' ); ?>" type="text" value="<?php echo esc_attr( $max_members ); ?>" style="width: 30%" />
+				<input class="widefat" id="<?php echo $this->get_field_id( 'max_members' ); ?>" name="<?php echo $this->get_field_name( 'max_members' ); ?>" type="number" min="1" max="<?php echo esc_attr( $max_limit ); ?>" value="<?php echo esc_attr( $max_members ); ?>" style="width: 30%" />
 			</label>
 		</p>
 
@@ -160,14 +170,17 @@ class BP_Core_Recently_Active_Widget extends WP_Widget {
 	 *
 	 * @since 2.3.0
 	 *
-	 *
 	 * @param array $instance Widget instance settings.
 	 * @return array
 	 */
 	public function parse_settings( $instance = array() ) {
-		return bp_parse_args( $instance, array(
-			'title' 	     => __( 'Recently Active Members', 'buddypress' ),
-			'max_members' 	 => 15,
-		), 'recently_active_members_widget_settings' );
+		return bp_parse_args(
+			$instance,
+			array(
+				'title' 	  => __( 'Recently Active Members', 'buddypress' ),
+				'max_members' => 15,
+			),
+			'recently_active_members_widget_settings'
+		);
 	}
 }

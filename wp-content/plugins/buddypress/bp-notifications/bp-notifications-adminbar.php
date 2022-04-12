@@ -33,16 +33,16 @@ function bp_notifications_toolbar_menu() {
 	$menu_link     = trailingslashit( bp_loggedin_user_domain() . bp_get_notifications_slug() );
 
 	// Add the top-level Notifications button.
-	$wp_admin_bar->add_menu( array(
-		'parent'    => 'top-secondary',
-		'id'        => 'bp-notifications',
-		'title'     => $menu_title,
-		'href'      => $menu_link,
+	$wp_admin_bar->add_node( array(
+		'parent' => 'top-secondary',
+		'id'     => 'bp-notifications',
+		'title'  => $menu_title,
+		'href'   => $menu_link,
 	) );
 
 	if ( ! empty( $notifications ) ) {
 		foreach ( (array) $notifications as $notification ) {
-			$wp_admin_bar->add_menu( array(
+			$wp_admin_bar->add_node( array(
 				'parent' => 'bp-notifications',
 				'id'     => 'notification-' . $notification->id,
 				'title'  => $notification->content,
@@ -50,7 +50,7 @@ function bp_notifications_toolbar_menu() {
 			) );
 		}
 	} else {
-		$wp_admin_bar->add_menu( array(
+		$wp_admin_bar->add_node( array(
 			'parent' => 'bp-notifications',
 			'id'     => 'no-notifications',
 			'title'  => __( 'No new notifications', 'buddypress' ),
@@ -58,6 +58,6 @@ function bp_notifications_toolbar_menu() {
 		) );
 	}
 
-	return;
+	return true;
 }
 add_action( 'admin_bar_menu', 'bp_members_admin_bar_notifications_menu', 90 );

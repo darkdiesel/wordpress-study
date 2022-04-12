@@ -97,7 +97,7 @@ function bp_core_set_uri_globals() {
 			foreach( $chunks as $key => $chunk ) {
 				$bkey = array_search( $chunk, $bp_uri );
 
-				// ...and unset offending keys
+				// ...and unset offending keys.
 				if ( false !== $bkey ) {
 					unset( $bp_uri[$bkey] );
 				}
@@ -240,7 +240,7 @@ function bp_core_set_uri_globals() {
 	}
 
 	// Search doesn't have an associated page, so we check for it separately.
-	if ( !empty( $bp_uri[0] ) && ( bp_get_search_slug() == $bp_uri[0] ) ) {
+	if ( isset( $_POST['search-terms'] ) && !empty( $bp_uri[0] ) && ( bp_get_search_slug() == $bp_uri[0] ) ) {
 		$matches[]   = 1;
 		$match       = new stdClass;
 		$match->key  = 'search';
@@ -248,8 +248,15 @@ function bp_core_set_uri_globals() {
 	}
 
 	// This is not a BuddyPress page, so just return.
-	if ( empty( $matches ) )
+	if ( empty( $matches ) ) {
+		/**
+		 * Fires when the the current page is not a BuddyPress one.
+		 *
+		 * @since 10.0.0
+		 */
+		do_action( 'is_not_buddypress' );
 		return false;
+	}
 
 	$wp_rewrite->use_verbose_page_rules = false;
 
@@ -463,7 +470,7 @@ function bp_core_load_template( $templates ) {
 	 * Wiping out the bp-default template allows WordPress to use their special
 	 * embed template, which is what we want.
 	 */
-	if ( function_exists( 'is_embed' ) && is_embed() ) {
+	if ( is_embed() ) {
 		$located_template = '';
 	}
 
@@ -643,7 +650,10 @@ function bp_core_no_access( $args = '' ) {
 		'message'  => __( 'You must log in to access the page you requested.', 'buddypress' )
 	);
 
-	$r = wp_parse_args( $args, $defaults );
+	$r = bp_parse_args(
+		$args,
+		$defaults
+	);
 
 	/**
 	 * Filters the arguments used for user redirecting when visiting access controlled areas.
@@ -873,9 +883,14 @@ function bp_get_canonical_url( $args = array() ) {
 	$bp = buddypress();
 
 	$defaults = array(
-		'include_query_args' => false // Include URL arguments, eg ?foo=bar&foo2=bar2.
+		'include_query_args' => false, // Include URL arguments, eg ?foo=bar&foo2=bar2.
 	);
-	$r = wp_parse_args( $args, $defaults );
+
+	$r = bp_parse_args(
+		$args,
+		$defaults
+	);
+
 	extract( $r );
 
 	// Special case: when a BuddyPress directory (eg example.com/members)

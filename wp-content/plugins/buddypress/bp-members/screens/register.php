@@ -15,8 +15,9 @@
 function bp_core_screen_signup() {
 	$bp = buddypress();
 
-	if ( ! bp_is_current_component( 'register' ) || bp_current_action() )
+	if ( ! bp_is_current_component( 'register' ) || bp_current_action() ) {
 		return;
+	}
 
 	// Not a directory.
 	bp_update_is_directory( false, 'register' );
@@ -42,9 +43,29 @@ function bp_core_screen_signup() {
 
 	$bp->signup->step = 'request-details';
 
-	if ( !bp_get_signup_allowed() ) {
-		$bp->signup->step = 'registration-disabled';
+	// Could the user be accepting an invitation?
+	$active_invite = false;
+	if ( bp_get_members_invitations_allowed() ) {
+		// Check to see if there's a valid invitation.
+		$maybe_invite = bp_get_members_invitation_from_request();
+		if ( $maybe_invite->id && $maybe_invite->invitee_email ) {
+			// Check if this user is already a member.
+			$args = array(
+				'invitee_email' => $maybe_invite->invitee_email,
+				'accepted'      => 'accepted',
+				'fields'        => 'ids',
+			);
+			$accepted_invites = bp_members_invitations_get_invites( $args );
+			if ( ! $accepted_invites ) {
+				$active_invite = true;
+			}
+		}
+	}
 
+	$requests_enabled = bp_get_membership_requests_required();
+
+	if ( ! bp_get_signup_allowed() && ! $active_invite && ! $requests_enabled ) {
+		$bp->signup->step = 'registration-disabled';
 		// If the signup page is submitted, validate and save.
 	} elseif ( isset( $_POST['signup_submit'] ) && bp_verify_nonce_request( 'bp_new_signup' ) ) {
 
@@ -59,19 +80,46 @@ function bp_core_screen_signup() {
 		$account_details = bp_core_validate_user_signup( $_POST['signup_username'], $_POST['signup_email'] );
 
 		// If there are errors with account details, set them for display.
-		if ( !empty( $account_details['errors']->errors['user_name'] ) )
+		if ( ! empty( $account_details['errors']->errors['user_name'] ) ) {
 			$bp->signup->errors['signup_username'] = $account_details['errors']->errors['user_name'][0];
+		}
 
-		if ( !empty( $account_details['errors']->errors['user_email'] ) )
+		if ( ! empty( $account_details['errors']->errors['user_email'] ) ) {
 			$bp->signup->errors['signup_email'] = $account_details['errors']->errors['user_email'][0];
+		}
 
-		// Check that both password fields are filled in.
-		if ( empty( $_POST['signup_password'] ) || empty( $_POST['signup_password_confirm'] ) )
-			$bp->signup->errors['signup_password'] = __( 'Please make sure you enter your password twice', 'buddypress' );
+		// Password strength check.
+		$required_password_strength = bp_members_user_pass_required_strength();
+		$current_password_strength  = null;
+		if ( isset( $_POST['_password_strength_score'] ) ) {
+			$current_password_strength = (int) $_POST['_password_strength_score'];
+		}
 
-		// Check that the passwords match.
-		if ( ( !empty( $_POST['signup_password'] ) && !empty( $_POST['signup_password_confirm'] ) ) && $_POST['signup_password'] != $_POST['signup_password_confirm'] )
-			$bp->signup->errors['signup_password'] = __( 'The passwords you entered do not match.', 'buddypress' );
+		if ( $required_password_strength && ! is_null( $current_password_strength ) && $required_password_strength > $current_password_strength ) {
+			$account_password = new WP_Error(
+				'not_strong_enough_password',
+				__( 'Your password is not strong enough to be allowed on this site. Please use a stronger password.', 'buddypress' )
+			);
+		} else {
+			$signup_pass = '';
+			if ( isset( $_POST['signup_password'] ) ) {
+				$signup_pass = wp_unslash( $_POST['signup_password'] );
+			}
+
+			$signup_pass_confirm = '';
+			if ( isset( $_POST['signup_password_confirm'] ) ) {
+				$signup_pass_confirm = wp_unslash( $_POST['signup_password_confirm'] );
+			}
+
+			// Check the account password for problems.
+			$account_password = bp_members_validate_user_password( $signup_pass, $signup_pass_confirm );
+		}
+
+		$password_error = $account_password->get_error_message();
+
+		if ( $password_error ) {
+			$bp->signup->errors['signup_password'] = $password_error;
+		}
 
 		if ( bp_signup_requires_privacy_policy_acceptance() && ! empty( $_POST['signup-privacy-policy-check'] ) && empty( $_POST['signup-privacy-policy-accept'] ) ) {
 			$bp->signup->errors['signup_privacy_policy'] = __( 'You must indicate that you have read and agreed to the Privacy Policy.', 'buddypress' );
@@ -143,11 +191,22 @@ function bp_core_screen_signup() {
 				 * Filters the error message in the loop.
 				 *
 				 * @since 1.5.0
+				 * @since 8.0.0 Adds the `$fieldname` parameter to the anonymous function.
 				 *
-				 * @param string $value Error message wrapped in html.
+				 * @param string $value     Error message wrapped in html.
+				 * @param string $fieldname The name of the signup field.
 				 */
-				add_action( 'bp_' . $fieldname . '_errors', function() use ( $error_message ) {
-					echo apply_filters( 'bp_members_signup_error_message', "<div class=\"error\">" . $error_message . "</div>" );
+				add_action( 'bp_' . $fieldname . '_errors', function() use ( $error_message, $fieldname ) {
+					/**
+					 * Filter here to edit the error message about the invalid field value.
+					 *
+					 * @since 1.5.0
+					 * @since 8.0.0 Adds the `$fieldname` parameter.
+					 *
+					 * @param string $value     Error message wrapped in html.
+					 * @param string $fieldname The name of the signup field.
+					 */
+					echo apply_filters( 'bp_members_signup_error_message', "<div class=\"error\">" . $error_message . "</div>", $fieldname );
 				} );
 			}
 		} else {
@@ -156,7 +215,7 @@ function bp_core_screen_signup() {
 			// No errors! Let's register those deets.
 			$active_signup = bp_core_get_root_option( 'registration' );
 
-			if ( 'none' != $active_signup ) {
+			if ( 'none' != $active_signup || $requests_enabled ) {
 
 				// Make sure the extended profiles module is enabled.
 				if ( bp_is_active( 'xprofile' ) ) {

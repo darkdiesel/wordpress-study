@@ -1,10 +1,10 @@
-/* global bp, BP_Uploader, _, Backbone */
+/* global BP_Uploader, _, Backbone */
 
 window.bp = window.bp || {};
 
-( function( exports, $ ) {
+( function( bp, $ ) {
 
-	// Bail if not set
+	// Bail if not set.
 	if ( typeof BP_Uploader === 'undefined' ) {
 		return;
 	}
@@ -25,21 +25,24 @@ window.bp = window.bp || {};
 			 */
 			this.removeLegacyUI();
 
-			// Init some vars
+			// Init some vars.
 			this.views    = new Backbone.Collection();
 			this.jcropapi = {};
 			this.warning = null;
 
-			// Set up nav
+			// Set up nav.
 			this.setupNav();
 
-			// Avatars are uploaded files
+			// Avatars are uploaded files.
 			this.avatars = bp.Uploader.filesUploaded;
 
 			// The Avatar Attachment object.
 			this.Attachment = new Backbone.Model();
 
-			// Wait till the queue is reset
+			// The Avatars history.
+			this.historicAvatars = null;
+
+			// Wait till the queue is reset.
 			bp.Uploader.filesQueue.on( 'reset', this.cropView, this );
 
 			/**
@@ -50,18 +53,18 @@ window.bp = window.bp || {};
 				self.resetViews();
 			} );
 
-			$( 'body.wp-admin' ).on( 'click', '.bp-xprofile-avatar-user-edit', function() {
+			$( 'body.wp-admin' ).on( 'click', '.bp-members-avatar-user-edit', function() {
 				self.resetViews();
 			} );
 		},
 
 		removeLegacyUI: function() {
-			// User
+			// User.
 			if ( $( '#avatar-upload-form' ).length ) {
 				$( '#avatar-upload' ).remove();
 				$( '#avatar-upload-form p' ).remove();
 
-			// Group Manage
+			// Group Manage.
 			} else if ( $( '#group-settings-form' ).length ) {
 				$( '#group-settings-form p' ).each( function( i ) {
 					if ( 0 !== i ) {
@@ -73,40 +76,40 @@ window.bp = window.bp || {};
 					$( '#delete-group-avatar-button' ).remove();
 				}
 
-			// Group Create
+			// Group Create.
 			} else if ( $( '#group-create-body' ).length ) {
 				$( '.main-column p #file' ).remove();
 				$( '.main-column p #upload' ).remove();
 
-			// Admin Extended Profile
-			} else if ( $( '#bp_xprofile_user_admin_avatar a.bp-xprofile-avatar-user-admin' ).length ) {
-				$( '#bp_xprofile_user_admin_avatar a.bp-xprofile-avatar-user-admin' ).remove();
+			// Member Admin.
+			} else if ( $( '#bp_members_user_admin_avatar a.bp-members-avatar-user-admin' ).length ) {
+				$( '#bp_members_user_admin_avatar a.bp-members-avatar-user-admin' ).remove();
 			}
 		},
 
 		setView: function( view ) {
-			// Clear views
+			// Clear views.
 			if ( ! _.isUndefined( this.views.models ) ) {
 				_.each( this.views.models, function( model ) {
 					model.get( 'view' ).remove();
 				}, this );
 			}
 
-			// Reset Views
+			// Reset Views.
 			this.views.reset();
 
-			// Reset Avatars (file uploaded)
+			// Reset Avatars (file uploaded).
 			if ( ! _.isUndefined( this.avatars ) ) {
 				this.avatars.reset();
 			}
 
-			// Reset the Jcrop API
+			// Reset the Jcrop API.
 			if ( ! _.isEmpty( this.jcropapi ) ) {
 				this.jcropapi.destroy();
 				this.jcropapi = {};
 			}
 
-			// Load the required view
+			// Load the required view.
 			switch ( view ) {
 				case 'upload':
 					this.uploaderView();
@@ -115,14 +118,18 @@ window.bp = window.bp || {};
 				case 'delete':
 					this.deleteView();
 					break;
+
+				case 'recycle':
+					this.recycleView();
+					break;
 			}
 		},
 
 		resetViews: function() {
-			// Reset to the uploader view
+			// Reset to the uploader view.
 			this.nav.trigger( 'bp-avatar-view:changed', 'upload' );
 
-			// Reset to the uploader nav
+			// Reset to the uploader nav.
 			_.each( this.navItems.models, function( model ) {
 				if ( model.id === 'upload' ) {
 					model.set( { active: 1 } );
@@ -143,7 +150,7 @@ window.bp = window.bp || {};
 					return;
 				}
 
-				// Reset active View
+				// Reset active View.
 				activeView = 0;
 
 				if ( 0 === index ) {
@@ -163,29 +170,29 @@ window.bp = window.bp || {};
 			this.nav = new bp.Views.Nav( { collection: this.navItems } );
 			this.nav.inject( '.bp-avatar-nav' );
 
-			// Activate the initial view (uploader)
+			// Activate the initial view (uploader).
 			this.setView( initView );
 
-			// Listen to nav changes (it's like a do_action!)
+			// Listen to nav changes (it's like a do_action!).
 			this.nav.on( 'bp-avatar-view:changed', _.bind( this.setView, this ) );
 		},
 
 		uploaderView: function() {
-			// Listen to the Queued uploads
+			// Listen to the Queued uploads.
 			bp.Uploader.filesQueue.on( 'add', this.uploadProgress, this );
 
-			// Create the BuddyPress Uploader
+			// Create the BuddyPress Uploader.
 			var uploader = new bp.Views.Uploader();
 
-			// Add it to views
+			// Add it to views.
 			this.views.add( { id: 'upload', view: uploader } );
 
-			// Display it
+			// Display it.
 			uploader.inject( '.bp-avatar' );
 		},
 
 		uploadProgress: function() {
-			// Create the Uploader status view
+			// Create the Uploader status view.
 			var avatarStatus = new bp.Views.uploaderStatus( { collection: bp.Uploader.filesQueue } );
 
 			if ( ! _.isUndefined( this.views.get( 'status' ) ) ) {
@@ -194,26 +201,26 @@ window.bp = window.bp || {};
 				this.views.add( { id: 'status', view: avatarStatus } );
 			}
 
-			// Display it
+			// Display it.
 			avatarStatus.inject( '.bp-avatar-status' );
 		},
 
 		cropView: function() {
 			var status;
 
-			// Bail there was an error during the Upload
+			// Bail there was an error during the Upload.
 			if ( _.isEmpty( this.avatars.models ) ) {
 				return;
 			}
 
-			// Make sure to remove the uploads status
+			// Make sure to remove the uploads status.
 			if ( ! _.isUndefined( this.views.get( 'status' ) ) ) {
 				status = this.views.get( 'status' );
 				status.get( 'view' ).remove();
 				this.views.remove( { id: 'status', view: status } );
 			}
 
-			// Create the Avatars view
+			// Create the Avatars view.
 			var avatar = new bp.Views.Avatars( { collection: this.avatars } );
 			this.views.add( { id: 'crop', view: avatar } );
 
@@ -224,9 +231,9 @@ window.bp = window.bp || {};
 			var self = this,
 				crop;
 
-			// Remove the crop view
+			// Remove the crop view.
 			if ( ! _.isUndefined( this.views.get( 'crop' ) ) ) {
-				// Remove the JCrop API
+				// Remove the JCrop API.
 				if ( ! _.isEmpty( this.jcropapi ) ) {
 					this.jcropapi.destroy();
 					this.jcropapi = {};
@@ -261,12 +268,12 @@ window.bp = window.bp || {};
 
 				avatarStatus.inject( '.bp-avatar-status' );
 
-				// Update each avatars of the page
+				// Update each avatars of the page.
 				$( '.' + avatar.get( 'object' ) + '-' + response.item_id + '-avatar' ).each( function() {
 					$(this).prop( 'src', response.avatar );
 				} );
 
-				// Inject the Delete nav
+				// Inject the Delete nav.
 				bp.Avatar.navItems.get( 'delete' ).set( { hide: 0 } );
 
 				/**
@@ -303,21 +310,21 @@ window.bp = window.bp || {};
 			} );
 		},
 
-		deleteView:function() {
-			// Create the delete model
+		deleteView: function() {
+			// Create the delete model.
 			var delete_model = new Backbone.Model( _.pick( BP_Uploader.settings.defaults.multipart_params.bp_params,
 				'object',
 				'item_id',
 				'nonces'
 			) );
 
-			// Create the delete view
+			// Create the delete view.
 			var deleteView = new bp.Views.DeleteAvatar( { model: delete_model } );
 
-			// Add it to views
+			// Add it to views.
 			this.views.add( { id: 'delete', view: deleteView } );
 
-			// Display it
+			// Display it.
 			deleteView.inject( '.bp-avatar' );
 		},
 
@@ -325,14 +332,14 @@ window.bp = window.bp || {};
 			var self = this,
 				deleteView;
 
-			// Remove the delete view
+			// Remove the delete view.
 			if ( ! _.isUndefined( this.views.get( 'delete' ) ) ) {
 				deleteView = this.views.get( 'delete' );
 				deleteView.get( 'view' ).remove();
 				this.views.remove( { id: 'delete', view: deleteView } );
 			}
 
-			// Remove the avatar !
+			// Remove the avatar!
 			bp.ajax.post( 'bp_avatar_delete', {
 				json:          true,
 				item_id:       model.get( 'item_id' ),
@@ -351,16 +358,16 @@ window.bp = window.bp || {};
 
 				avatarStatus.inject( '.bp-avatar-status' );
 
-				// Update each avatars of the page
+				// Update each avatars of the page.
 				$( '.' + model.get( 'object' ) + '-' + response.item_id + '-avatar').each( function() {
 					$( this ).prop( 'src', response.avatar );
 				} );
 
-				// Remove the Delete nav
+				// Remove the Delete nav.
 				bp.Avatar.navItems.get( 'delete' ).set( { active: 0, hide: 1 } );
 
 				/**
-				 * Reset the Attachment object
+				 * Reset the Attachment object.
 				 *
 				 * You can run extra actions once the avatar is set using:
 				 * bp.Avatar.Attachment.on( 'change:url', function( data ) { your code } );
@@ -407,10 +414,130 @@ window.bp = window.bp || {};
 			} );
 
 			this.warning.inject( '.bp-avatar-status' );
+		},
+
+		recycleView: function() {
+			if ( ! this.historicAvatars ) {
+				this.historicAvatars = new Backbone.Collection( BP_Uploader.settings.history );
+			}
+
+			// Create the recycle view.
+			var recycleView = new bp.Views.RecycleAvatar( { collection: this.historicAvatars } );
+
+			// Add it to views.
+			this.views.add( { id: 'recycle', view: recycleView } );
+
+			// Display it.
+			recycleView.inject( '.bp-avatar' );
+		},
+
+		recycleHistoricAvatar: function( model ) {
+			var self = this;
+			model.set( 'selected', false );
+
+			// Recycle the avatar.
+			bp.ajax.post( 'bp_avatar_recycle_previous', {
+				json: true,
+				item_id: BP_Uploader.settings.defaults.multipart_params.bp_params.item_id,
+				avatar_id: model.get( 'id' ),
+				object: BP_Uploader.settings.defaults.multipart_params.bp_params.object,
+				nonce: BP_Uploader.settings.historyNonces.recylePrevious
+			} ).done( function( response ) {
+				if ( response.historicalAvatar ) {
+					model.collection.add( response.historicalAvatar );
+				}
+
+				model.collection.remove( model );
+
+				if ( response.feedback_code ) {
+					var avatarStatus = new bp.Views.AvatarStatus( {
+						value : BP_Uploader.strings.feedback_messages[ response.feedback_code ],
+						type : 'success'
+					} );
+
+					self.views.add( {
+						id   : 'status',
+						view : avatarStatus
+					} );
+
+					avatarStatus.inject( '.bp-avatar-status' );
+				}
+
+				// Update each avatars of the page.
+				$( '.' + BP_Uploader.settings.defaults.multipart_params.bp_params.object + '-' + response.item_id + '-avatar' ).each( function() {
+					$( this ).prop( 'src', response.avatar );
+				} );
+
+			} ).fail( function( response ) {
+				var error_message = BP_Uploader.strings.default_error;
+				if ( response && response.message ) {
+					error_message = response.message;
+				}
+
+				var avatarStatus = new bp.Views.AvatarStatus( {
+					value : error_message,
+					type : 'error'
+				} );
+
+				self.views.add( {
+					id   : 'status',
+					view : avatarStatus
+				} );
+
+				avatarStatus.inject( '.bp-avatar-status' );
+			} );
+		},
+
+		deletePreviousAvatar: function( model ) {
+			var self = this;
+			model.set( 'selected', false );
+
+			// Recycle the avatar.
+			bp.ajax.post( 'bp_avatar_delete_previous', {
+				json: true,
+				item_id: BP_Uploader.settings.defaults.multipart_params.bp_params.item_id,
+				avatar_id: model.get( 'id' ),
+				object: BP_Uploader.settings.defaults.multipart_params.bp_params.object,
+				nonce: BP_Uploader.settings.historyNonces.deletePrevious
+			} ).done( function( response ) {
+				model.collection.remove( model );
+
+				if ( response.feedback_code ) {
+					var avatarStatus = new bp.Views.AvatarStatus( {
+						value : BP_Uploader.strings.feedback_messages[ response.feedback_code ],
+						type : 'success'
+					} );
+
+					self.views.add( {
+						id   : 'status',
+						view : avatarStatus
+					} );
+
+					avatarStatus.inject( '.bp-avatar-status' );
+				}
+
+			} ).fail( function( response ) {
+				var error_message = BP_Uploader.strings.default_error;
+				if ( response && response.message ) {
+					error_message = response.message;
+				}
+
+				var avatarStatus = new bp.Views.AvatarStatus( {
+					value : error_message,
+					type : 'error'
+				} );
+
+				self.views.add( {
+					id   : 'status',
+					view : avatarStatus
+				} );
+
+				avatarStatus.inject( '.bp-avatar-status' );
+			} );
 		}
 	};
 
-	// Main Nav view
+	// Main Nav view.
 	bp.Views.Nav = bp.View.extend( {
 		tagName:    'ul',
 		className:  'avatar-nav-items',
@@ -422,7 +549,7 @@ window.bp = window.bp || {};
 		initialize: function() {
 			var hasAvatar = _.findWhere( this.collection.models, { id: 'delete' } );
 
-			// Display a message to inform about the delete tab
+			// Display a message to inform about the delete tab.
 			if ( 1 !== hasAvatar.get( 'hide' ) ) {
 				bp.Avatar.displayWarning( BP_Uploader.strings.has_avatar_warning );
 			}
@@ -434,7 +561,7 @@ window.bp = window.bp || {};
 		addNavItem: function( item ) {
 			/**
 			 * The delete nav is not added if no avatar
-			 * is set for the object
+			 * is set for the object.
 			 */
 			if ( 1 === item.get( 'hide' ) ) {
 				return;
@@ -455,13 +582,13 @@ window.bp = window.bp || {};
 					view.remove();
 				}
 
-				// Check to see if the nav is not already rendered
+				// Check to see if the nav is not already rendered.
 				if ( item.get( 'id' ) === view.model.get( 'id' ) ) {
 					isRendered = true;
 				}
 			} );
 
-			// Add the Delete nav if not rendered
+			// Add the Delete nav if not rendered.
 			if ( ! _.isBoolean( isRendered ) ) {
 				this.addNavItem( item );
 			}
@@ -470,7 +597,7 @@ window.bp = window.bp || {};
 		toggleView: function( event ) {
 			event.preventDefault();
 
-			// First make sure to remove all warnings
+			// First make sure to remove all warnings.
 			bp.Avatar.removeWarning();
 
 			var active = $( event.target ).data( 'nav' );
@@ -486,7 +613,7 @@ window.bp = window.bp || {};
 		}
 	} );
 
-	// Nav item view
+	// Nav item view.
 	bp.Views.NavItem = bp.View.extend( {
 		tagName:    'li',
 		className:  'avatar-nav-item',
@@ -510,7 +637,7 @@ window.bp = window.bp || {};
 		}
 	} );
 
-	// Avatars view
+	// Avatars view.
 	bp.Views.Avatars = bp.View.extend( {
 		className: 'items',
 
@@ -519,28 +646,28 @@ window.bp = window.bp || {};
 		},
 
 		addItemView: function( item ) {
-			// Defaults to 150
+			// Defaults to 150.
 			var full_d = { full_h: 150, full_w: 150 };
 
-			// Make sure to take in account bp_core_avatar_full_height or bp_core_avatar_full_width php filters
+			// Make sure to take in account bp_core_avatar_full_height or bp_core_avatar_full_width php filters.
 			if ( ! _.isUndefined( BP_Uploader.settings.crop.full_h ) && ! _.isUndefined( BP_Uploader.settings.crop.full_w ) ) {
 				full_d.full_h = BP_Uploader.settings.crop.full_h;
 				full_d.full_w = BP_Uploader.settings.crop.full_w;
 			}
 
-			// Set the avatar model
+			// Set the avatar model.
 			item.set( _.extend( _.pick( BP_Uploader.settings.defaults.multipart_params.bp_params,
 				'object',
 				'item_id',
 				'nonces'
 			), full_d ) );
 
-			// Add the view
+			// Add the view.
 			this.views.add( new bp.Views.Avatar( { model: item } ) );
 		}
 	} );
 
-	// Avatar view
+	// Avatar view.
 	bp.Views.Avatar = bp.View.extend( {
 		className: 'item',
 		template: bp.template( 'bp-avatar-item' ),
@@ -556,7 +683,7 @@ window.bp = window.bp || {};
 				aspectRatio : 1
 			} );
 
-			// Display a warning if the image is smaller than minimum advised
+			// Display a warning if the image is smaller than minimum advised.
 			if ( false !== this.model.get( 'feedback' ) ) {
 				bp.Avatar.displayWarning( this.model.get( 'feedback' ) );
 			}
@@ -600,14 +727,14 @@ window.bp = window.bp || {};
 				crop_bottom = nh + crop_top;
 			}
 
-			// Add the cropping interface
+			// Add the cropping interface.
 			tocrop.Jcrop( {
 				onChange: _.bind( self.showPreview, self ),
 				onSelect: _.bind( self.showPreview, self ),
 				aspectRatio: self.options.aspectRatio,
 				setSelect: [ crop_left, crop_top, crop_right, crop_bottom ]
 			}, function() {
-				// Get the Jcrop API
+				// Get the Jcrop API.
 				bp.Avatar.jcropapi = this;
 			} );
 		},
@@ -629,7 +756,7 @@ window.bp = window.bp || {};
 				var rx = fw / coords.w;
 				var ry = fh / coords.h;
 
-				// Update the model
+				// Update the model.
 				this.model.set( { x: coords.x, y: coords.y, w: coords.w, h: coords.h } );
 
 				$( '#avatar-crop-preview' ).css( {
@@ -643,7 +770,7 @@ window.bp = window.bp || {};
 		}
 	} );
 
-	// BuddyPress Avatar Feedback view
+	// BuddyPress Avatar Feedback view.
 	bp.Views.AvatarStatus = bp.View.extend( {
 		tagName: 'p',
 		className: 'updated',
@@ -677,6 +804,95 @@ window.bp = window.bp || {};
 		}
 	} );
 
+	bp.Views.HistoryAvatarsItem = bp.View.extend( {
+		tagName: 'tr',
+		className: 'historic-avatar',
+		template: bp.template( 'bp-avatar-recycle-history-item' ),
+
+		events: {
+			'change input[name="avatar_id"]': 'selectAvatar'
+		},
+
+		initialize: function() {
+			this.model.on( 'change:selected', this.toggleSelection, this );
+			this.model.on( 'remove', this.clearView, this );
+		},
+
+		toggleSelection: function( model, selected ) {
+			if ( true === selected ) {
+				this.$el.parent().find( '#' + model.get( 'id' ) ).addClass( 'selected' );
+			} else {
+				this.$el.parent().find( '#' + model.get( 'id' ) ).removeClass( 'selected' );
+				this.$el.parent().find( '#avatar_' + model.get( 'id' ) ).prop( 'checked', false );
+			}
+		},
+
+		selectAvatar: function( event ) {
+			event.preventDefault();
+
+			if ( event.currentTarget.checked ) {
+				var self = this;
+
+				_.each( this.model.collection.models, function( model ) {
+					self.$el.parent().find( '#' + model.id ).removeClass( 'selected' );
+					model.set( 'selected', false, { silent: true } );
+				} );
+
+				this.model.set( 'selected', true );
+			}
+		},
+
+		clearView: function() {
+			this.views.view.remove();
+		}
+	} );
+
+	bp.Views.RecycleAvatar = bp.View.extend( {
+		tagName: 'div',
+		id: 'bp-avatars-history-container',
+		template: bp.template( 'bp-avatar-recycle' ),
+
+		events: {
+			'click button.avatar-history-action': 'doAvatarAction'
+		},
+
+		initialize: function() {
+			_.each( this.collection.models, function( model ) {
+				this.views.add( '#bp-avatars-history-list', new bp.Views.HistoryAvatarsItem( { model: model } ) );
+			}, this );
+
+			this.collection.on( 'change:selected', this.updateButtonStatus, this );
+			this.collection.on( 'add', this.addView, this );
+		},
+
+		addView: function( model ) {
+			this.views.add( '#bp-avatars-history-list', new bp.Views.HistoryAvatarsItem( { model: model } ) );
+		},
+
+		updateButtonStatus: function( model ) {
+			if ( true === model.get( 'selected' ) ) {
+				this.$el.find( 'button.disabled' ).removeClass( 'disabled' );
+			}
+		},
+
+		doAvatarAction: function( event ) {
+			event.preventDefault();
+			var buttonClasses = event.currentTarget.classList,
+			    selected = this.collection.findWhere( { selected: true } );
+
+			if ( ! buttonClasses.contains( 'disabled' ) && selected ) {
+				// Make sure it's not possible to fire 2 actions at the same time.
+				this.$el.find( 'button.avatar-history-action' ).addClass( 'disabled' );
+
+				if ( buttonClasses.contains( 'recycle' ) ) {
+					bp.Avatar.recycleHistoricAvatar( selected );
+				} else if ( buttonClasses.contains( 'delete' ) ) {
+					bp.Avatar.deletePreviousAvatar( selected );
+				}
+			}
+		}
+	} );
+
 	bp.Avatar.start();
 
-})( bp, jQuery );
+})( window.bp, jQuery );

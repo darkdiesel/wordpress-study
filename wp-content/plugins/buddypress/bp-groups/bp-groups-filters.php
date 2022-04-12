@@ -53,9 +53,7 @@ add_filter( 'groups_group_name_before_save',        'trim' );
 add_filter( 'groups_group_description_before_save', 'trim' );
 
 // Support emoji.
-if ( function_exists( 'wp_encode_emoji' ) ) {
-	add_filter( 'groups_group_description_before_save', 'wp_encode_emoji' );
-}
+add_filter( 'groups_group_description_before_save', 'wp_encode_emoji' );
 
 // Escape output of new group creation details.
 add_filter( 'bp_get_new_group_name',        'esc_attr'     );
@@ -71,7 +69,7 @@ add_filter( 'bp_get_total_group_count_for_user', 'bp_core_number_format' );
 add_filter( 'bp_activity_at_name_do_notifications', 'bp_groups_disable_at_mention_notification_for_non_public_groups', 10, 4 );
 
 // Default group avatar.
-add_filter( 'bp_core_avatar_default',       'bp_groups_default_avatar', 10, 3 );
+add_filter( 'bp_core_default_avatar',       'bp_groups_default_avatar', 10, 3 );
 add_filter( 'bp_core_avatar_default_thumb', 'bp_groups_default_avatar', 10, 3 );
 
 // Personal data export.
@@ -310,10 +308,7 @@ function bp_groups_user_can_filter( $retval, $user_id, $capability, $site_id, $a
 			* currently be a member or be banned from the group.
 			*/
 			$group = groups_get_group( $group_id );
-			if ( in_array( bp_get_group_status( $group ), array( 'private', 'hidden' ), true )
-				&& ! groups_is_user_member( $user_id, $group->id )
-				&& ! groups_is_user_banned( $user_id, $group->id )
-			) {
+			if ( ! groups_is_user_member( $user_id, $group->id ) && ! groups_is_user_banned( $user_id, $group->id )	) {
 				$retval = true;
 			}
 			break;
@@ -370,29 +365,34 @@ add_filter( 'bp_user_can', 'bp_groups_user_can_filter', 10, 5 );
  * Registers Groups personal data exporters.
  *
  * @since 4.0.0
+ * @since 5.0.0 adds an `exporter_bp_friendly_name` param to exporters.
  *
  * @param array $exporters  An array of personal data exporters.
  * @return array An array of personal data exporters.
  */
 function bp_groups_register_personal_data_exporters( $exporters ) {
 	$exporters['buddypress-groups-memberships'] = array(
-		'exporter_friendly_name' => __( 'BuddyPress Group Memberships', 'buddypress' ),
-		'callback'               => 'bp_groups_memberships_personal_data_exporter',
+		'exporter_friendly_name'    => __( 'BuddyPress Group Memberships', 'buddypress' ),
+		'callback'                  => 'bp_groups_memberships_personal_data_exporter',
+		'exporter_bp_friendly_name' => _x( 'Group Memberships', 'BuddyPress Group Memberships data exporter friendly name', 'buddypress' ),
 	);
 
 	$exporters['buddypress-groups-pending-requests'] = array(
-		'exporter_friendly_name' => __( 'BuddyPress Pending Group Membership Requests', 'buddypress' ),
-		'callback'               => 'bp_groups_pending_requests_personal_data_exporter',
+		'exporter_friendly_name'    => __( 'BuddyPress Pending Group Membership Requests', 'buddypress' ),
+		'callback'                  => 'bp_groups_pending_requests_personal_data_exporter',
+		'exporter_bp_friendly_name' => _x( 'Pending Group Membership Requests', 'BuddyPress Pending Group Membership Requests data exporter friendly name', 'buddypress' ),
 	);
 
 	$exporters['buddypress-groups-pending-received-invitations'] = array(
-		'exporter_friendly_name' => __( 'BuddyPress Pending Group Invitations (Received)', 'buddypress' ),
-		'callback'               => 'bp_groups_pending_received_invitations_personal_data_exporter',
+		'exporter_friendly_name'    => __( 'BuddyPress Pending Group Invitations (Received)', 'buddypress' ),
+		'callback'                  => 'bp_groups_pending_received_invitations_personal_data_exporter',
+		'exporter_bp_friendly_name' => _x( 'Pending Group Invitations (Received)', 'BuddyPress Pending Group Invitations data exporter friendly name', 'buddypress' ),
 	);
 
 	$exporters['buddypress-groups-pending-sent-invitations'] = array(
-		'exporter_friendly_name' => __( 'BuddyPress Pending Group Invitations (Sent)', 'buddypress' ),
-		'callback'               => 'bp_groups_pending_sent_invitations_personal_data_exporter',
+		'exporter_friendly_name'    => __( 'BuddyPress Pending Group Invitations (Sent)', 'buddypress' ),
+		'callback'                  => 'bp_groups_pending_sent_invitations_personal_data_exporter',
+		'exporter_bp_friendly_name' => _x( 'Pending Group Invitations (Sent)', 'BuddyPress Pending Group Invitations data exporter friendly name', 'buddypress' ),
 	);
 
 	return $exporters;

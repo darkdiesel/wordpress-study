@@ -179,6 +179,8 @@ class BP_Groups_Group {
 	/**
 	 * Raw arguments passed to the constructor.
 	 *
+	 * Not currently used by BuddyPress.
+	 *
 	 * @since 2.0.0
 	 * @var array
 	 */
@@ -197,7 +199,22 @@ class BP_Groups_Group {
 	 * }
 	 */
 	public function __construct( $id = null, $args = array() ) {
-		if ( !empty( $id ) ) {
+
+		// Deprecated notice about $args.
+		if ( ! empty( $args ) ) {
+			_deprecated_argument(
+				__METHOD__,
+				'1.6.0',
+				sprintf(
+					/* translators: 1: the name of the function. 2: the name of the file. */
+					esc_html__( '%1$s no longer accepts arguments. See the inline documentation at %2$s for more details.', 'buddypress' ),
+					__METHOD__,
+					__FILE__
+				)
+			);
+		}
+
+		if ( ! empty( $id ) ) {
 			$this->id = (int) $id;
 			$this->populate();
 		}
@@ -671,27 +688,40 @@ class BP_Groups_Group {
 	 * Get whether a group exists for a given slug.
 	 *
 	 * @since 1.6.0
+	 * @since 10.0.0 Updated to add the deprecated notice.
 	 *
 	 * @param string      $slug       Slug to check.
 	 * @param string|bool $table_name Deprecated.
-	 * @return int|null Group ID if found; null if not.
+	 * @return int|null|bool False if empty slug, group ID if found; `null` if not.
 	 */
 	public static function group_exists( $slug, $table_name = false ) {
-		global $wpdb;
+
+		if ( false !== $table_name ) {
+			_deprecated_argument(
+				__METHOD__,
+				'1.6.0',
+				sprintf(
+					/* translators: 1: the name of the method. 2: the name of the file. */
+					esc_html__( '%1$s no longer accepts a table name argument. See the inline documentation at %2$s for more details.', 'buddypress' ),
+					__METHOD__,
+					__FILE__
+				)
+			);
+		}
 
 		if ( empty( $slug ) ) {
 			return false;
 		}
 
-		$args = array(
-			'slug'               => $slug,
-			'per_page'           => 1,
-			'page'               => 1,
-			'update_meta_cache'  => false,
-			'show_hidden'        => true,
+		$groups = self::get(
+			array(
+				'slug'              => $slug,
+				'per_page'          => 1,
+				'page'              => 1,
+				'update_meta_cache' => false,
+				'show_hidden'       => true,
+			)
 		);
-
-		$groups = BP_Groups_Group::get( $args );
 
 		$group_id = null;
 		if ( $groups['groups'] ) {
@@ -709,10 +739,10 @@ class BP_Groups_Group {
 	 * @since 1.6.0
 	 *
 	 * @param string $slug See {@link BP_Groups_Group::group_exists()}.
-	 * @return int|null See {@link BP_Groups_Group::group_exists()}.
+	 * @return int|null|bool See {@link BP_Groups_Group::group_exists()}.
 	 */
 	public static function get_id_from_slug( $slug ) {
-		return BP_Groups_Group::group_exists( $slug );
+		return self::group_exists( $slug );
 	}
 
 	/**
@@ -771,17 +801,20 @@ class BP_Groups_Group {
 	 *                  yet accepted.
 	 */
 	public static function get_invites( $user_id, $group_id, $sent = null ) {
-		global $wpdb;
-
-		$bp  = buddypress();
-		$sql = $wpdb->prepare( "SELECT user_id FROM {$bp->groups->table_name_members} WHERE group_id = %d and is_confirmed = 0 AND inviter_id = %d", $group_id, $user_id );
-
-		// Query for a specific invite sent status.
-		if ( ! is_null( $sent ) ) {
-			$sql .= $wpdb->prepare( ' AND invite_sent = %d', $sent );
+		if ( 0 === $sent ) {
+			$sent_arg = 'draft';
+		} else if ( 1 === $sent ) {
+			$sent_arg = 'sent';
+		} else {
+			$sent_arg = 'all';
 		}
 
-		return $wpdb->get_col( $sql );
+		return groups_get_invites( array(
+			'item_id'     => $group_id,
+			'inviter_id'  => $user_id,
+			'invite_sent' => $sent_arg,
+			'fields'      => 'user_ids',
+		) );
 	}
 
 	/**
@@ -959,18 +992,20 @@ class BP_Groups_Group {
 	 * }
 	 */
 	public static function get_membership_requests( $group_id, $limit = null, $page = null ) {
-		global $wpdb;
-
-		if ( !empty( $limit ) && !empty( $page ) ) {
-			$pag_sql = $wpdb->prepare( " LIMIT %d, %d", intval( ( $page - 1 ) * $limit), intval( $limit ) );
+		$args = array(
+			'item_id' => $group_id
+		);
+		if ( $limit ) {
+			$args['per_page'] = $limit;
+		}
+		if ( $page ) {
+			$args['page'] = $page;
 		}
 
-		$bp = buddypress();
+		$requests = groups_get_requests( $args );
+		$total    = count( groups_get_membership_requested_user_ids( $group_id ) );
 
-		$paged_requests = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$bp->groups->table_name_members} WHERE group_id = %d AND is_confirmed = 0 AND inviter_id = 0{$pag_sql}", $group_id ) );
-		$total_requests = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$bp->groups->table_name_members} WHERE group_id = %d AND is_confirmed = 0 AND inviter_id = 0", $group_id ) );
-
-		return array( 'requests' => $paged_requests, 'total' => $total_requests );
+		return array( 'requests' => $requests, 'total' => $total );
 	}
 
 	/**
@@ -984,6 +1019,7 @@ class BP_Groups_Group {
 	 * @since 2.7.0 Added `$update_admin_cache` and `$parent_id` parameters.
 	 * @since 2.8.0 Changed `$search_terms` parameter handling and added `$search_columns` parameter.
 	 * @since 2.9.0 Added `$slug` parameter.
+	 * @since 10.0.0 Added `$date_query` parameter.
 	 *
 	 * @param array $args {
 	 *     Array of parameters. All items are optional.
@@ -1018,6 +1054,9 @@ class BP_Groups_Group {
 	 *                                            excluded from results.
 	 *     @type array        $meta_query         Optional. An array of meta_query conditions.
 	 *                                            See {@link WP_Meta_Query::queries} for description.
+	 *     @type array        $date_query         Optional. Filter results by group last activity date. See first
+	 *                                            paramter of {@link WP_Date_Query::__construct()} for syntax. Only
+	 *                                            applicable if $type is either 'newest' or 'active'.
 	 *     @type array|string $value              Optional. Array or comma-separated list of group IDs. Results
 	 *                                            will be limited to groups within the list. Default: false.
 	 *     @type array|string $parent_id          Optional. Array or comma-separated list of group IDs. Results
@@ -1046,9 +1085,20 @@ class BP_Groups_Group {
 	public static function get( $args = array() ) {
 		global $wpdb;
 
+		$function_args = func_get_args();
+
 		// Backward compatibility with old method of passing arguments.
-		if ( ! is_array( $args ) || func_num_args() > 1 ) {
-			_deprecated_argument( __METHOD__, '1.7', sprintf( __( 'Arguments passed to %1$s should be in an associative array. See the inline documentation at %2$s for more details.', 'buddypress' ), __METHOD__, __FILE__ ) );
+		if ( ! is_array( $args ) || count( $function_args ) > 1 ) {
+			_deprecated_argument(
+				__METHOD__,
+				'1.7',
+				sprintf(
+					/* translators: 1: the name of the method. 2: the name of the file. */
+					esc_html__( 'Arguments passed to %1$s should be in an associative array. See the inline documentation at %2$s for more details.', 'buddypress' ),
+					__METHOD__,
+					__FILE__
+				)
+			);
 
 			$old_args_keys = array(
 				0 => 'type',
@@ -1062,7 +1112,7 @@ class BP_Groups_Group {
 				8 => 'show_hidden',
 			);
 
-			$args = bp_core_parse_args_array( $old_args_keys, func_get_args() );
+			$args = bp_core_parse_args_array( $old_args_keys, $function_args );
 		}
 
 		$defaults = array(
@@ -1079,6 +1129,7 @@ class BP_Groups_Group {
 			'group_type__in'     => '',
 			'group_type__not_in' => '',
 			'meta_query'         => false,
+			'date_query'         => false,
 			'include'            => false,
 			'parent_id'          => null,
 			'update_meta_cache'  => true,
@@ -1089,7 +1140,11 @@ class BP_Groups_Group {
 			'fields'             => 'all',
 		);
 
-		$r = bp_parse_args( $args, $defaults, 'bp_groups_group_get' );
+		$r = bp_parse_args(
+			$args,
+			$defaults,
+			'bp_groups_group_get'
+		);
 
 		$bp = buddypress();
 
@@ -1263,6 +1318,15 @@ class BP_Groups_Group {
 			$orderby = 'date_created';
 		}
 
+		// Process date query for 'date_created' and 'last_activity' sort.
+		if ( 'date_created' === $orderby || 'last_activity' === $orderby ) {
+			$date_query_sql = BP_Date_Query::get_where_sql( $r['date_query'], self::convert_orderby_to_order_by_term( $orderby ) );
+
+			if ( ! empty( $date_query_sql ) ) {
+				$where_conditions['date'] = $date_query_sql;
+			}
+		}
+
 		// Sanitize 'order'.
 		$order = bp_esc_sql_order( $order );
 
@@ -1388,7 +1452,7 @@ class BP_Groups_Group {
 	}
 
 	/**
-	 * Get the SQL for the 'meta_query' param in BP_Activity_Activity::get()
+	 * Get the SQL for the 'meta_query' param in BP_Groups_Group::get()
 	 *
 	 * We use WP_Meta_Query to do the heavy lifting of parsing the
 	 * meta_query array and creating the necessary SQL clauses.
@@ -1529,9 +1593,19 @@ class BP_Groups_Group {
 	 * }
 	 */
 	public static function get_by_letter( $letter, $limit = null, $page = null, $populate_extras = true, $exclude = false ) {
-		global $wpdb;
 
-		$pag_sql = $hidden_sql = $exclude_sql = '';
+		if ( true !== $populate_extras ) {
+			_deprecated_argument(
+				__METHOD__,
+				'1.6.0',
+				sprintf(
+					/* translators: 1: the name of the method. 2: the name of the file. */
+					esc_html__( '%1$s no longer accepts setting $populate_extras. See the inline documentation at %2$s for more details.', 'buddypress' ),
+					__METHOD__,
+					__FILE__
+				)
+			);
+		}
 
 		// Multibyte compliance.
 		if ( function_exists( 'mb_strlen' ) ) {
@@ -1544,15 +1618,15 @@ class BP_Groups_Group {
 			}
 		}
 
-		$args = array(
-			'per_page'       => $limit,
-			'page'           => $page,
-			'search_terms'   => $letter . '*',
-			'search_columns' => array( 'name' ),
-			'exclude'        => $exclude,
+		return self::get(
+			array(
+				'per_page'       => $limit,
+				'page'           => $page,
+				'search_terms'   => $letter . '*',
+				'search_columns' => array( 'name' ),
+				'exclude'        => $exclude,
+			)
 		);
-
-		return BP_Groups_Group::get( $args );
 	}
 
 	/**
@@ -1561,6 +1635,7 @@ class BP_Groups_Group {
 	 * Use BP_Groups_Group::get() with 'type' = 'random' instead.
 	 *
 	 * @since 1.6.0
+	 * @since 10.0.0 Deprecate the `$populate_extras` arg.
 	 *
 	 * @param int|null          $limit           Optional. The max number of results to return.
 	 *                                           Default: null (no limit).
@@ -1570,8 +1645,7 @@ class BP_Groups_Group {
 	 *                                           those of which the specified user is a member.
 	 * @param string|bool       $search_terms    Optional. Limit groups to those whose name
 	 *                                           or description field contain the search string.
-	 * @param bool              $populate_extras Optional. Whether to fetch extra
-	 *                                           information about the groups. Default: true.
+	 * @param bool              $populate_extras Deprecated.
 	 * @param string|array|bool $exclude         Optional. Array or comma-separated list of group
 	 *                                           IDs to exclude from results.
 	 * @return array {
@@ -1582,16 +1656,30 @@ class BP_Groups_Group {
 	 * }
 	 */
 	public static function get_random( $limit = null, $page = null, $user_id = 0, $search_terms = false, $populate_extras = true, $exclude = false ) {
-		$args = array(
-			'type'               => 'random',
-			'per_page'           => $limit,
-			'page'               => $page,
-			'user_id'            => $user_id,
-			'search_terms'       => $search_terms,
-			'exclude'            => $exclude,
-		);
 
-		return BP_Groups_Group::get( $args );
+		if ( true !== $populate_extras ) {
+			_deprecated_argument(
+				__METHOD__,
+				'10.0.0',
+				sprintf(
+					/* translators: 1: the name of the method. 2: the name of the file. */
+					esc_html__( '%1$s no longer accepts setting $populate_extras. See the inline documentation at %2$s for more details.', 'buddypress' ),
+					__METHOD__,
+					__FILE__
+				)
+			);
+		}
+
+		return self::get(
+			array(
+				'type'         => 'random',
+				'per_page'     => $limit,
+				'page'         => $page,
+				'user_id'      => $user_id,
+				'search_terms' => $search_terms,
+				'exclude'      => $exclude,
+			)
+		);
 	}
 
 	/**
@@ -1635,11 +1723,15 @@ class BP_Groups_Group {
 	 *                  failure.
 	 */
 	public static function delete_all_invites( $group_id ) {
-		global $wpdb;
+		if ( empty( $group_id ) ) {
+			return false;
+		}
 
-		$bp = buddypress();
+		$invites_class = new BP_Groups_Invitation_Manager();
 
-		return $wpdb->query( $wpdb->prepare( "DELETE FROM {$bp->groups->table_name_members} WHERE group_id = %d AND invite_sent = 1", $group_id ) );
+		return $invites_class->delete( array(
+			'item_id' => $group_id,
+		) );
 	}
 
 	/**
@@ -1649,35 +1741,80 @@ class BP_Groups_Group {
 	 * bp_current_user_can( 'bp_moderate' ).
 	 *
 	 * @since 1.6.0
+	 * @since 10.0.0 Added the `$skip_cache` parameter.
 	 *
-	 * @return int Group count.
+	 * @global BuddyPress $bp   The one true BuddyPress instance.
+	 * @global wpdb       $wpdb WordPress database object.
+	 *
+	 * @param bool $skip_cache Optional. Skip getting count from cache.
+	 *                         Defaults to false.
+	 * @return int
 	 */
-	public static function get_total_group_count() {
+	public static function get_total_group_count( $skip_cache = false ) {
 		global $wpdb;
 
-		$hidden_sql = '';
-		if ( !bp_current_user_can( 'bp_moderate' ) )
-			$hidden_sql = "WHERE status != 'hidden'";
+		$cache_key = 'bp_total_group_count';
+		$count     = wp_cache_get( $cache_key, 'bp' );
 
-		$bp = buddypress();
+		if ( false === $count || true === $skip_cache ) {
+			$hidden_sql = '';
+			if ( ! bp_current_user_can( 'bp_moderate' ) ) {
+				$hidden_sql = "WHERE status != 'hidden'";
+			}
 
-		return $wpdb->get_var( "SELECT COUNT(id) FROM {$bp->groups->table_name} {$hidden_sql}" );
+			$bp    = buddypress();
+			$count = $wpdb->get_var( "SELECT COUNT(id) FROM {$bp->groups->table_name} {$hidden_sql}" );
+
+			wp_cache_set( $cache_key, (int) $count, 'bp' );
+		}
+
+		/**
+		 * Filters the total group count.
+		 *
+		 * @since 10.0.0
+		 *
+		 * @param int $count Total group count.
+		 */
+		return (int) apply_filters( 'bp_groups_total_group_count', (int) $count );
 	}
 
 	/**
 	 * Get the member count for a group.
 	 *
 	 * @since 1.6.0
+	 * @since 10.0.0 Updated to use the `groups_get_group_members`.
 	 *
-	 * @param int $group_id Group ID.
+	 * @param int  $group_id   Group ID.
+	 * @param bool $skip_cache Optional. Skip getting count from cache. Defaults to false.
 	 * @return int Count of confirmed members for the group.
 	 */
-	public static function get_total_member_count( $group_id ) {
-		global $wpdb;
+	public static function get_total_member_count( $group_id, $skip_cache = false ) {
+		$cache_key = 'total_member_count';
+		$count     = groups_get_groupmeta( $group_id, $cache_key );
 
-		$bp = buddypress();
+		if ( false === $count || true === $skip_cache ) {
+			$members = groups_get_group_members(
+				array(
+					'group_id'   => $group_id,
+					'group_role' => array( 'member', 'admin', 'mod' ),
+					'type'       => 'active',
+				)
+			);
 
-		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$bp->groups->table_name_members} WHERE group_id = %d AND is_confirmed = 1 AND is_banned = 0", $group_id ) );
+			$count = $members['count'] ? $members['count'] : 0;
+
+			groups_update_groupmeta( $group_id, $cache_key, (int) $count );
+		}
+
+		/**
+		 * Filters the total member count for a group.
+		 *
+		 * @since 10.0.0
+		 *
+		 * @param int $count    Total member count for group.
+		 * @param int $group_id The ID of the group.
+		 */
+		return (int) apply_filters( 'bp_groups_total_member_count', (int) $count, (int) $group_id );
 	}
 
 	/**
@@ -1735,14 +1872,14 @@ class BP_Groups_Group {
 
 		$tax_query = new WP_Tax_Query( array(
 			array(
-				'taxonomy' => 'bp_group_type',
+				'taxonomy' => bp_get_group_type_tax_name(),
 				'field'    => 'name',
 				'operator' => $operator,
 				'terms'    => $types,
 			),
 		) );
 
-		$site_id  = bp_get_taxonomy_term_site_id( 'bp_group_type' );
+		$site_id  = bp_get_taxonomy_term_site_id( bp_get_group_type_tax_name() );
 		$switched = false;
 		if ( $site_id !== get_current_blog_id() ) {
 			switch_to_blog( $site_id );

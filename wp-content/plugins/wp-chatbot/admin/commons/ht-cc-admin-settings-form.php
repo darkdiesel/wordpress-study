@@ -12,12 +12,16 @@ $table = new MobileMonkey_Contacts_List_Table();
 $table->prepare_items();
 $curren = get_transient( 'current-tab' );
 $tab = get_transient( 'done-tab' );
-foreach ($tab as $key => $value) {
-	if ($value == "true") {
-		$tabs[$key] = 'done';
-	} else {
-		$tabs[$key]= '';
-	}
+if ($tab){
+    foreach ($tab as $key => $value) {
+        if ($value == "true") {
+            $tabs[$key] = 'done';
+        } else {
+            $tabs[$key]= '';
+        }
+    }
+}else {
+	$tabs[1] = "done current";
 }
 $tabs[$curren] .= ' current';
 
@@ -39,7 +43,21 @@ $tabs[$curren] .= ' current';
                 <span class="tab_contacts__count"><?php echo $table->totalItems ?></span>
             </li>
             <li class="tab-link <?php echo $tabs[4] ?>" data-tab="tab-4">
+                <span class="tab_number">4</span>
+                <span class="tab_header">Chatbot Settings</span>
+            </li>
+            <li class="tab-link <?php echo $tabs[5] ?>" style="position: relative;" data-tab="tab-5">
                 <span class="tab_header">Your Subscription</span>
+                <?php
+
+				$limit = [
+					'limit' => $wp_plan_info->outgoing_messages_limit,
+					'count' => $message_statistic->count,
+                    'is_wp'=> $page_info['is_wp_subscribe'],
+                    'subscribe'=> $subscribe_info,
+                    'app_domain' => $app_domain,
+				];
+				HT_CC::view('ht-cc-admin-limit-tooltip', $limit); ?>
             </li>
 
         </ul>
@@ -83,6 +101,12 @@ $tabs[$curren] .= ' current';
     <div id="tab-3" class="tab-content contact_tab <?php echo $tabs[3] ?>">
         <h1><?php _e('Leads') ?></h1>
 
+        <p>To chat with your website visitors, go to your MobileMonkey inbox</p>
+        <a target="_blank" href="<?php echo $app_domain ?>chatbot-editor/<?php echo $connected_page['bot_id']?>/live-chat" class="go-to-inbox-link">
+            <img src="<?php echo plugins_url('admin/assets/img/live-chat.png',HTCC_PLUGIN_FILE)?>">
+            Go to Inbox
+        </a>
+
         <div class="contact_head__wrap">
             <h4><?php
 				$text = $table->totalItems > 1 ? 'Leads' : 'Lead';
@@ -117,7 +141,7 @@ $tabs[$curren] .= ' current';
 			?>
         </div>
         <div class="customization_button__wrapper">
-            <a target="_blank" rel="noopener noreferrer" href="https://app.mobilemonkey.com/chatbot-editor/<?php echo $connected_page['bot_id']?>/bot-builder" class="customization_button__link">
+            <a target="_blank" rel="noopener noreferrer" href="<?php echo $app_domain ?>chatbot-editor/<?php echo $connected_page['bot_id']?>/dashboard" class="customization_button__link">
                 <div class="customization_button">
                     <div class="customization_button__content">More chatbot customization in <span class="customization_button__image"></span> MobileMonkey</div>
                     <div class="customization_button__action">
@@ -127,7 +151,59 @@ $tabs[$curren] .= ' current';
             </a>
         </div>
     </div>
-    <div id="tab-4" class="tab-content subscribe_section <?php echo $tabs[4] ?>">
+    <div id="tab-4" class="tab-content chatbot_settings_tab <?php echo $tabs[4] ?>">
+        <div class="tab-content__wrapper">
+            <h1><?php _e('Chatbot Settings') ?></h1>
+            <div class="chatbot_settings_tab__content">
+                <p>
+                    <input
+                        type="radio"
+                        <?php echo $chat_widget_channel == 'omnichat' ? 'checked="checked"' : '' ?>
+                        onclick="return false;"
+                    />
+                    Support both Facebook Messenger & webchat (OmniChat enabled)
+                    <a 
+                       href="https://mobilemonkey.com/help/article/lceo0wtp0l-omni-chat"
+                       target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-question-circle-o"></i>
+                    </a>
+                </p>
+                <p>
+                    <input
+                        type="radio"
+                        <?php echo $chat_widget_channel == 'facebook' ? 'checked="checked"' : '' ?>
+                        onclick="return false;"
+                    />
+                    Support only Facebook Messenger
+                </p>
+                <p>
+                    <input  
+                        type="radio"
+                        <?php echo $chat_widget_channel == 'web_chat' ? 'checked="checked"' : '' ?>
+                        onclick="return false;"
+                    />
+                    Support only webchat
+                </p>
+                <a target="_blank" href="<?php echo $app_domain ?>chatbot-editor/<?php echo $connected_page['bot_id']?>/settings/customer-chat-widget" class="go-to-chat-widget-settings-link">
+                    Edit this setting
+                </a>
+
+                <?php if ($chat_widget_channel == 'omnichat') { ?>
+                <div class="chatbot_settings_tab__info-box">
+                    <i class="fa fa-question-circle-o"></i>
+                    <div>
+                        WP-Chatbot will show a Messenger chat widget if your website visitor is logged into Facebook. Otherwise, it will show a native webchat widget. Learn more about OmniChat
+                        <a 
+                            href="https://mobilemonkey.com/help/article/lceo0wtp0l-omni-chat"
+                            target="_blank" rel="noopener noreferrer">
+                            here</a>.
+                    </div>  
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+    <div id="tab-5" class="tab-content subscribe_section <?php echo $tabs[5] ?>">
         <div class="tab-content__wrapper">
 			<?php
 			$plan = json_decode(json_encode($wp_plan_info), True);
@@ -257,9 +333,9 @@ $tabs[$curren] .= ' current';
                         </div>
                         <label for="country"><?php _e('COUNTRY')?></label>
                         <select name="country" id="country" data-recurly="country" required>
-                            <option value="US">US</option>
-                            <option value="AD">AD</option>
-                            <option value="AE">AE</option>
+                            <?php foreach (HTCC_Countries::$contries as $k=>$v){
+                                echo "<option value=".$v[0].">".$v[1]."</option>";
+                            } ?>
                         </select>
                         <label for="card_number"><?php _e('CARD INFO') ?></label>
                         <div class="card__wrap">
@@ -289,6 +365,18 @@ $tabs[$curren] .= ' current';
 
             </form>
         </div>
+    </div>
+    <div id="promo_app" class="modal">
+        <div class="modal_close"><i class="fa fa-times" aria-hidden="true"></i></div>
+            <div class="promo-app__wrapper">
+                <p>Download App</p>
+                <a target="_blank" class="android_app" href='https://play.google.com/store/apps/details?id=com.mobilemonkey&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+                <img src="https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2019-10-03&kind=iossoftware&bubble=ios_apps" alt="" class="ios_app">
+            </div>
+            <div class="ios-app__wrap">
+                <p>Scan on your mobile device to view in the App Store</p>
+                <div class="ios_code"></div>
+            </div>
     </div>
     <div class="modal-overlays" id="modal-overlay">
     </div>

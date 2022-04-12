@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2019 ServMask Inc.
+ * Copyright (C) 2014-2020 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,15 @@ class Ai1wm_Backups {
 		}
 
 		return $backups;
+	}
+
+	/**
+	 * Count all backup files
+	 *
+	 * @return integer
+	 */
+	public static function count_files() {
+		return count( Ai1wm_Backups::get_files() );
 	}
 
 	/**

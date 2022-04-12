@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2019 ServMask Inc.
+ * Copyright (C) 2014-2020 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,8 @@ class Ai1wm_Export_Download {
 				)
 			);
 		}
+
+		do_action( 'ai1wm_status_export_done', $params );
 
 		return $params;
 	}

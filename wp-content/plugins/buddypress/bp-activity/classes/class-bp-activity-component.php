@@ -55,7 +55,8 @@ class BP_Activity_Component extends BP_Component {
 			'adminbar',
 			'template',
 			'functions',
-			'cache'
+			'cache',
+			'blocks',
 		);
 
 		// Notifications support.
@@ -71,7 +72,7 @@ class BP_Activity_Component extends BP_Component {
 			$includes[] = 'akismet';
 		}
 
-		// Embeds
+		// Embeds.
 		if ( bp_is_active( $this->id, 'embeds' ) ) {
 			$includes[] = 'embeds';
 		}
@@ -124,9 +125,30 @@ class BP_Activity_Component extends BP_Component {
 				require $this->path . 'bp-activity/screens/just-me.php';
 			}
 
-			// Screens - User secondary nav.
-			if ( bp_is_user() && in_array( bp_current_action(), array( 'friends', 'groups', 'favorites', 'mentions' ), true ) ) {
-				require $this->path . 'bp-activity/screens/' . bp_current_action() . '.php';
+			/**
+			 * Screens - User secondary nav.
+			 *
+			 * For these specific actions, slugs can be customized using `BP_{COMPONENT}_SLUGS`.
+			 * As a result, we need to map filenames with slugs.
+			 */
+			$filenames = array(
+				'favorites' => 'favorites',
+				'mentions'  => 'mentions',
+			);
+
+			if ( bp_is_active( 'friends' ) ) {
+				$filenames[bp_get_friends_slug()] = 'friends';
+			}
+
+			if ( bp_is_active( 'groups' ) ) {
+				$filenames[bp_get_groups_slug()] = 'groups';
+			}
+
+			// The slug is the current action requested.
+			$slug = bp_current_action();
+
+			if ( bp_is_user() && isset( $filenames[ $slug ] ) ) {
+				require $this->path . 'bp-activity/screens/' . $filenames[ $slug ] . '.php';
 			}
 
 			// Screens - Single permalink.
@@ -185,6 +207,11 @@ class BP_Activity_Component extends BP_Component {
 			'search_string'         => __( 'Search Activity...', 'buddypress' ),
 			'global_tables'         => $global_tables,
 			'meta_tables'           => $meta_tables,
+			'block_globals'         => array(
+				'bp/latest-activities' => array(
+					'widget_classnames' => array( 'wp-block-bp-latest-activities', 'buddypress' ),
+				)
+			),
 		);
 
 		parent::setup_globals( $args );
@@ -340,7 +367,7 @@ class BP_Activity_Component extends BP_Component {
 				'parent'   => 'my-account-' . $this->id,
 				'id'       => 'my-account-' . $this->id . '-personal',
 				'title'    => _x( 'Personal', 'My Account Activity sub nav', 'buddypress' ),
-				'href'     => $activity_link,
+				'href'     => trailingslashit( $activity_link . 'just-me' ),
 				'position' => 10
 			);
 
@@ -410,7 +437,11 @@ class BP_Activity_Component extends BP_Component {
 				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
 					'item_id' => bp_displayed_user_id(),
 					'type'    => 'thumb',
-					'alt'	  => sprintf( __( 'Profile picture of %s', 'buddypress' ), bp_get_displayed_user_fullname() )
+					'alt'	  => sprintf(
+						/* translators: %s: member name */
+						__( 'Profile picture of %s', 'buddypress' ),
+						bp_get_displayed_user_fullname()
+					),
 				) );
 				$bp->bp_options_title  = bp_get_displayed_user_fullname();
 			}
@@ -434,5 +465,104 @@ class BP_Activity_Component extends BP_Component {
 		) );
 
 		parent::setup_cache_groups();
+	}
+
+	/**
+	 * Init the BP REST API.
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param array $controllers Optional. See BP_Component::rest_api_init() for
+	 *                           description.
+	 */
+	public function rest_api_init( $controllers = array() ) {
+		parent::rest_api_init( array( 'BP_REST_Activity_Endpoint' ) );
+	}
+
+	/**
+	 * Register the BP Activity Blocks.
+	 *
+	 * @since 7.0.0
+	 *
+	 * @param array $blocks Optional. See BP_Component::blocks_init() for
+	 *                      description.
+	 */
+	public function blocks_init( $blocks = array() ) {
+		$blocks = array(
+			'bp/latest-activities' => array(
+				'name'               => 'bp/latest-activities',
+				'editor_script'      => 'bp-latest-activities-block',
+				'editor_script_url'  => plugins_url( 'js/blocks/latest-activities.js', dirname(  __FILE__ ) ),
+				'editor_script_deps' => array(
+					'wp-blocks',
+					'wp-element',
+					'wp-components',
+					'wp-i18n',
+					'wp-block-editor',
+					'wp-server-side-render',
+					'bp-block-data',
+				),
+				'style'              => 'bp-latest-activities-block',
+				'style_url'          => plugins_url( 'css/blocks/latest-activities.css', dirname(  __FILE__ ) ),
+				'attributes'         => array(
+					'title'         => array(
+						'type'    => 'string',
+						'default' => __( 'Latest updates', 'buddypress' ),
+					),
+					'maxActivities' => array(
+						'type'    => 'number',
+						'default' => 5,
+					),
+					'type'          => array(
+						'type'    => 'array',
+						'default' => array( 'activity_update' ),
+					),
+					'postId'        => array(
+						'type'    => 'number',
+						'default' => 0,
+					),
+				),
+				'render_callback'    => 'bp_activity_render_latest_activities_block',
+			),
+		);
+
+		if ( bp_is_active( $this->id, 'embeds' ) ) {
+			$blocks['bp/embed-activity'] = array(
+				'name'               => 'bp/embed-activity',
+				'editor_script'      => 'bp-embed-activity-block',
+				'editor_script_url'  => plugins_url( 'js/blocks/embed-activity.js', dirname(  __FILE__ ) ),
+				'editor_script_deps' => array(
+					'wp-blocks',
+					'wp-element',
+					'wp-i18n',
+					'wp-components',
+					'wp-block-editor',
+					'wp-data',
+					'wp-compose',
+					'bp-block-data',
+				),
+			);
+		}
+
+		parent::blocks_init( $blocks );
+	}
+
+	/**
+	 * Add the Activity directory state.
+	 *
+	 * @since 10.0.0
+	 *
+	 * @param array   $states Optional. See BP_Component::admin_directory_states() for description.
+	 * @param WP_Post $post   Optional. See BP_Component::admin_directory_states() for description.
+	 * @return array          See BP_Component::admin_directory_states() for description.
+	 */
+	public function admin_directory_states( $states = array(), $post = null ) {
+		$bp = buddypress();
+
+		if ( isset( $bp->pages->activity->id ) && (int) $bp->pages->activity->id === (int) $post->ID ) {
+			$states['page_for_activity_directory'] = _x( 'BP Activity Page', 'page label', 'buddypress' );
+		}
+
+		return parent::admin_directory_states( $states, $post );
 	}
 }

@@ -67,14 +67,11 @@ class HTCC_Register {
      * @return void
      */
     public static function deactivate() {
-		$pageid = get_option('mobilemonkey_active_page_id');
+		$data = get_option('mobilemonkey_active_page_info');
 		$test = new MobileMonkeyApi();
-		$test->disconnectPage($pageid);
+		$test->disconnectPage($data['page_id']);
 		delete_option('mobilemonkey_token');
-		delete_option('mobilemonkey_company_id');
-		delete_option('mobilemonkey_active_page_id');
-		delete_option('mobilemonkey_active_page_remote_id');
-		delete_option('mobilemonkey_active_bot');
+		delete_option('mobilemonkey_active_page_info');
     }
 
     /**
@@ -84,14 +81,11 @@ class HTCC_Register {
      * @return void
      */
     public static function uninstall() {
-		$pageid = get_option('mobilemonkey_active_page_id');
+		$data = get_option('mobilemonkey_active_page_info');
 		$test = new MobileMonkeyApi();
-		$test->disconnectPage($pageid);
+		$test->disconnectPage($data['page_id']);
 		delete_option('mobilemonkey_token');
-		delete_option('mobilemonkey_company_id');
-		delete_option('mobilemonkey_active_page_id');
-		delete_option('mobilemonkey_active_page_remote_id');
-		delete_option('mobilemonkey_active_bot');
+		delete_option('mobilemonkey_active_page_info');
     }
     
 

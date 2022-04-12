@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2019 ServMask Inc.
+ * Copyright (C) 2014-2020 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php _e( 'Backups', AI1WM_PLUGIN_NAME ); ?>
 				</h1>
 
-				<?php include AI1WM_TEMPLATES_PATH . '/common/report-problem.php'; ?>
-
 				<?php if ( is_readable( AI1WM_BACKUPS_PATH ) && is_writable( AI1WM_BACKUPS_PATH ) ) : ?>
 					<div id="ai1wm-backups-list">
 						<?php include AI1WM_TEMPLATES_PATH . '/backups/backups-list.php'; ?>
@@ -72,20 +70,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php endif; ?>
 			</div>
 		</div>
-		<div class="ai1wm-right">
-			<div class="ai1wm-sidebar">
-				<div class="ai1wm-segment">
 
-					<?php if ( ! AI1WM_DEBUG ) : ?>
-						<?php include AI1WM_TEMPLATES_PATH . '/common/share-buttons.php'; ?>
-					<?php endif; ?>
+		<?php include AI1WM_TEMPLATES_PATH . '/common/sidebar-right.php'; ?>
 
-					<h2><?php _e( 'Leave Feedback', AI1WM_PLUGIN_NAME ); ?></h2>
-
-					<?php include AI1WM_TEMPLATES_PATH . '/common/leave-feedback.php'; ?>
-
-				</div>
-			</div>
-		</div>
 	</div>
 </div>

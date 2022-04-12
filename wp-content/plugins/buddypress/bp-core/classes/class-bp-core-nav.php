@@ -175,8 +175,13 @@ class BP_Core_Nav {
 				return false;
 			}
 
-			$nav_item = reset( $nav_items );
-			$this->nav[ $this->object_id ][ $slug ] = new BP_Core_Nav_Item( wp_parse_args( $args, (array) $nav_item ) );
+			$nav_item                               = reset( $nav_items );
+			$this->nav[ $this->object_id ][ $slug ] = new BP_Core_Nav_Item(
+				bp_parse_args(
+					$args,
+					(array) $nav_item
+				)
+			);
 
 			// Return the edited object.
 			return $this->nav[ $this->object_id ][ $slug ];
@@ -190,8 +195,10 @@ class BP_Core_Nav {
 			}
 
 			$sub_item = reset( $sub_items );
-
-			$params = wp_parse_args( $args, (array) $sub_item );
+			$params   = bp_parse_args(
+				$args,
+				(array) $sub_item
+			);
 
 			// When we have parents, it's for life, we can't change them!
 			if ( empty( $params['parent_slug'] ) || $parent_slug !== $params['parent_slug'] ) {
@@ -216,15 +223,15 @@ class BP_Core_Nav {
 	 */
 	public function delete_nav( $slug = '', $parent_slug = '' ) {
 
-		// Bail if slug is empty
+		// Bail if slug is empty.
 		if ( empty( $slug ) ) {
 			return false;
 		}
 
-		// We're deleting a child
+		// We're deleting a child.
 		if ( ! empty( $parent_slug ) ) {
 
-			// Validate the subnav
+			// Validate the subnav.
 			$sub_items = $this->get_secondary( array( 'parent_slug' => $parent_slug, 'slug' => $slug ), false );
 
 			if ( ! $sub_items ) {
@@ -237,15 +244,15 @@ class BP_Core_Nav {
 				return false;
 			}
 
-			// Delete the child
+			// Delete the child.
 			unset( $this->nav[ $this->object_id ][ $parent_slug . '/' . $slug ] );
 
-			// Return the deleted item's screen function
+			// Return the deleted item's screen function.
 			return array( $sub_item->screen_function );
 
-		// We're deleting a parent
+		// We're deleting a parent.
 		} else {
-			// Validate the nav
+			// Validate the nav.
 			$nav_items = $this->get_primary( array( 'slug' => $slug ), false );
 
 			if ( ! $nav_items ) {
@@ -267,7 +274,7 @@ class BP_Core_Nav {
 				foreach ( $sub_items as $sub_item ) {
 					$screen_functions[] = $sub_item->screen_function;
 
-					// Delete the child
+					// Delete the child.
 					unset( $this->nav[ $this->object_id ][ $nav_item->slug . '/' . $sub_item->slug ] );
 				}
 			}
@@ -292,14 +299,14 @@ class BP_Core_Nav {
 		$sorted = array();
 
 		foreach ( $items as $item ) {
-			// Default position
+			// Default position.
 			$position = 99;
 
 			if ( isset( $item->position ) ) {
 				$position = (int) $item->position;
 			}
 
-			// If position is already taken, move to the first next available
+			// If position is already taken, move to the first next available.
 			if ( isset( $sorted[ $position ] ) ) {
 				$sorted_keys = array_keys( $sorted );
 
@@ -325,7 +332,12 @@ class BP_Core_Nav {
 	 * @return array The list of primary objects nav
 	 */
 	public function get_primary( $args = array(), $sort = true ) {
-		$params = wp_parse_args( $args, array( 'primary' => true ) );
+		$params = bp_parse_args(
+			$args,
+			array(
+				'primary' => true,
+			)
+		);
 
 		// This parameter is not overridable.
 		if ( empty( $params['primary'] ) ) {
@@ -355,7 +367,12 @@ class BP_Core_Nav {
 	 * @return bool|array The list of secondary objects nav, or false if none set.
 	 */
 	public function get_secondary( $args = array(), $sort = true ) {
-		$params = wp_parse_args( $args, array( 'parent_slug' => '' ) );
+		$params = bp_parse_args(
+			$args,
+			array(
+				'parent_slug' => '',
+			)
+		);
 
 		// No need to search children if the parent is not set.
 		if ( empty( $params['parent_slug'] ) && empty( $params['secondary'] ) ) {

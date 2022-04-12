@@ -21,16 +21,18 @@ class BP_Groups_Widget extends WP_Widget {
 	 * Working as a group, we get things done better.
 	 *
 	 * @since 1.0.3
+	 * @since 9.0.0 Adds the `show_instance_in_rest` property to Widget options.
 	 */
 	public function __construct() {
 		$widget_ops = array(
 			'description'                 => __( 'A dynamic list of recently active, popular, newest, or alphabetical groups', 'buddypress' ),
 			'classname'                   => 'widget_bp_groups_widget buddypress widget',
 			'customize_selective_refresh' => true,
+			'show_instance_in_rest'       => true,
 		);
 		parent::__construct( false, _x( '(BuddyPress) Groups', 'widget name', 'buddypress' ), $widget_ops );
 
-		if ( is_customize_preview() || is_active_widget( false, false, $this->id_base ) ) {
+		if ( is_customize_preview() || bp_is_widget_block_active( '', $this->id_base ) ) {
 			add_action( 'bp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
 	}
@@ -102,7 +104,12 @@ class BP_Groups_Widget extends WP_Widget {
 
 		echo $before_title . $title . $after_title;
 
+		$max_limit  = bp_get_widget_max_count_limit( __CLASS__ );
 		$max_groups = ! empty( $instance['max_groups'] ) ? (int) $instance['max_groups'] : 5;
+
+		if ( $max_groups > $max_limit ) {
+			$max_groups = $max_limit;
+		}
 
 		$group_args = array(
 			'user_id'         => $user_id,
@@ -144,7 +151,8 @@ class BP_Groups_Widget extends WP_Widget {
 									} elseif ( 'popular' == $instance['group_default'] ) {
 										bp_group_member_count();
 									} else {
-										printf( __( 'active %s', 'buddypress' ), bp_get_group_last_active() );
+										/* translators: %s: last activity timestamp (e.g. "Active 1 hour ago") */
+										printf( __( 'Active %s', 'buddypress' ), bp_get_group_last_active() );
 									}
 								?>
 								</span>
@@ -183,10 +191,12 @@ class BP_Groups_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
+		$max_limit = bp_get_widget_max_count_limit( __CLASS__ );
+
 		$instance['title']         = strip_tags( $new_instance['title'] );
-		$instance['max_groups']    = strip_tags( $new_instance['max_groups'] );
+		$instance['max_groups']    = $new_instance['max_groups'] > $max_limit ? $max_limit : intval( $new_instance['max_groups'] );
 		$instance['group_default'] = strip_tags( $new_instance['group_default'] );
-		$instance['link_title']    = (bool) $new_instance['link_title'];
+		$instance['link_title']    = ! empty( $new_instance['link_title'] );
 
 		return $instance;
 	}
@@ -204,12 +214,19 @@ class BP_Groups_Widget extends WP_Widget {
 			'title'         => __( 'Groups', 'buddypress' ),
 			'max_groups'    => 5,
 			'group_default' => 'active',
-			'link_title'    => false
+			'link_title'    => false,
 		);
-		$instance = bp_parse_args( (array) $instance, $defaults, 'groups_widget_form' );
+
+		$instance = bp_parse_args(
+			(array) $instance,
+			$defaults,
+			'groups_widget_form'
+		);
+
+		$max_limit = bp_get_widget_max_count_limit( __CLASS__ );
 
 		$title 	       = strip_tags( $instance['title'] );
-		$max_groups    = strip_tags( $instance['max_groups'] );
+		$max_groups    = $instance['max_groups'] > $max_limit ? $max_limit : intval( $instance['max_groups'] );
 		$group_default = strip_tags( $instance['group_default'] );
 		$link_title    = (bool) $instance['link_title'];
 		?>
@@ -218,7 +235,7 @@ class BP_Groups_Widget extends WP_Widget {
 
 		<p><label for="<?php echo $this->get_field_id('link_title') ?>"><input type="checkbox" name="<?php echo $this->get_field_name('link_title') ?>" id="<?php echo $this->get_field_id('link_title') ?>" value="1" <?php checked( $link_title ) ?> /> <?php _e( 'Link widget title to Groups directory', 'buddypress' ) ?></label></p>
 
-		<p><label for="<?php echo $this->get_field_id( 'max_groups' ); ?>"><?php _e('Max groups to show:', 'buddypress'); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_groups' ); ?>" name="<?php echo $this->get_field_name( 'max_groups' ); ?>" type="text" value="<?php echo esc_attr( $max_groups ); ?>" style="width: 30%" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'max_groups' ); ?>"><?php _e( 'Max groups to show:', 'buddypress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_groups' ); ?>" name="<?php echo $this->get_field_name( 'max_groups' ); ?>" type="number" min="1" max="<?php echo esc_attr( $max_limit ); ?>" value="<?php echo esc_attr( $max_groups ); ?>" style="width: 30%" /></label></p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'group_default' ); ?>"><?php _e('Default groups to show:', 'buddypress'); ?></label>

@@ -7,7 +7,8 @@
  *
  * @package BuddyPress
  * @subpackage bp-legacy
- * @version 3.0.0
+ * @since 3.0.0
+ * @version 10.0.0
  */
 
 /**
@@ -38,7 +39,7 @@ do_action( 'bp_before_activity_entry' ); ?>
 
 			<div class="activity-inner">
 
-				<?php bp_activity_content_body(); ?>
+				<?php bp_get_template_part( 'activity/type-parts/content',  bp_activity_type_part() ); ?>
 
 			</div>
 
@@ -65,7 +66,12 @@ do_action( 'bp_before_activity_entry' ); ?>
 
 				<?php if ( bp_activity_can_comment() ) : ?>
 
-					<a href="<?php bp_activity_comment_link(); ?>" class="button acomment-reply bp-primary-action" id="acomment-comment-<?php bp_activity_id(); ?>"><?php printf( __( 'Comment %s', 'buddypress' ), '<span>' . bp_activity_get_comment_count() . '</span>' ); ?></a>
+					<a href="<?php bp_activity_comment_link(); ?>" class="button acomment-reply bp-primary-action" id="acomment-comment-<?php bp_activity_id(); ?>">
+						<?php
+						/* translators: %s: number of activity comments */
+						printf( __( 'Comment %s', 'buddypress' ), '<span>' . bp_activity_get_comment_count() . '</span>' );
+						?>
+					</a>
 
 				<?php endif; ?>
 
@@ -140,7 +146,7 @@ do_action( 'bp_before_activity_entry' ); ?>
 					 */
 					do_action( 'bp_activity_entry_comments' ); ?>
 
-					<?php wp_nonce_field( 'new_activity_comment', '_wpnonce_new_activity_comment' ); ?>
+					<?php wp_nonce_field( 'new_activity_comment', '_wpnonce_new_activity_comment_' . bp_get_activity_id() ); ?>
 
 				</form>
 

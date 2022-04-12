@@ -57,10 +57,6 @@ class HTCC_db {
          *  is_sdk_4_seconds  - if both checked - after page loaded, load sdk after 4 seconds
          */
 		$defpage_value =array (
-			'mobilemonkey_company_id' =>'',
-			'mobilemonkey_active_page_remote_id' =>'',
-			'mobilemonkey_active_page_id' =>'',
-			'mobilemonkey_active_bot' =>'',
 			'mobilemonkey_token' =>'',
 			'htcc_fb_js_src' =>''
 		);

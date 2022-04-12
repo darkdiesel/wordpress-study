@@ -2,9 +2,14 @@
 /**
  * Activity Post form JS Templates
  *
- * @version 3.1.0
+ * @since 3.0.0
+ * @version 5.0.0
  */
 ?>
+
+<script type="text/html" id="tmpl-activity-before-post-form-inputs">
+	<?php bp_nouveau_activity_hook( 'before', 'post_form' ); ?>
+</script>
 
 <script type="text/html" id="tmpl-activity-post-form-feedback">
 	<span class="bp-icon" aria-hidden="true"></span><p>{{{data.message}}}</p>
@@ -13,7 +18,7 @@
 <script type="text/html" id="tmpl-activity-post-form-avatar">
 	<# if ( data.display_avatar ) { #>
 		<a href="{{data.user_domain}}">
-			<img src="{{data.avatar_url}}" class="avatar user-{{data.user_id}}-avatar avatar-{{data.avatar_width}} photo" width="{{data.avatar_width}}" height="{{data.avatar_width}}" alt="{{data.avatar_alt}}" />
+			<img src="{{{data.avatar_url}}}" class="avatar user-{{data.user_id}}-avatar avatar-{{data.avatar_width}} photo" width="{{data.avatar_width}}" height="{{data.avatar_width}}" alt="{{data.avatar_alt}}" />
 		</a>
 	<# } #>
 </script>

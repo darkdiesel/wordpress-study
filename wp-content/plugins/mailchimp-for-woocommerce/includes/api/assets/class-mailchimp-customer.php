@@ -21,6 +21,7 @@ class MailChimp_WooCommerce_Customer
     protected $address;
     protected $requires_double_optin = false;
     protected $original_subscriber_status = null;
+    protected $wordpress_user = null;
 
     /**
      * @return array
@@ -34,8 +35,8 @@ class MailChimp_WooCommerce_Customer
             'company' => 'string',
             'first_name' => 'string',
             'last_name' => 'string',
-            'orders_count' => 'integer',
-            'total_spent' => 'integer',
+            //'orders_count' => 'integer',
+            //'total_spent' => 'integer',
         );
     }
 
@@ -230,6 +231,9 @@ class MailChimp_WooCommerce_Customer
         $this->requires_double_optin = (bool) $bool;
 
         if ($this->requires_double_optin) {
+            if (is_null($this->original_subscriber_status)) {
+                $this->original_subscriber_status = $this->opt_in_status;
+            }
             $this->opt_in_status = false;
         }
 
@@ -269,6 +273,26 @@ class MailChimp_WooCommerce_Customer
     }
 
     /**
+     * @param $user
+     * @return $this
+     */
+    public function setWordpressUser($user)
+    {
+        if ($user instanceof \WP_User) {
+            $this->wordpress_user = $user;
+        }
+        return $this;
+    }
+
+    /**
+     * @return null|\WP_User
+     */
+    public function getWordpressUser()
+    {
+        return $this->wordpress_user;
+    }
+
+    /**
      * @return array
      */
     public function toArray()
@@ -282,8 +306,8 @@ class MailChimp_WooCommerce_Customer
             'company' => (string) $this->getCompany(),
             'first_name' => (string) $this->getFirstName(),
             'last_name' => (string) $this->getLastName(),
-            'orders_count' => (int) $this->getOrdersCount(),
-            'total_spent' => floatval(number_format($this->getTotalSpent(), 2, '.', '')),
+            //'orders_count' => (int) $this->getOrdersCount(),
+            //'total_spent' => floatval(number_format($this->getTotalSpent(), 2, '.', '')),
             'address' => (empty($address) ? null : $address),
         ));
     }

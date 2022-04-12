@@ -230,9 +230,10 @@ abstract class BP_Core_oEmbed_Extension {
 
 		register_rest_route( 'oembed/1.0', "/embed/{$this->slug_endpoint}", array(
 			array(
-				'methods'  => WP_REST_Server::READABLE,
-				'callback' => array( $this, 'get_item' ),
-				'args'     => $args
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_item' ),
+				'permission_callback' => '__return_true',
+				'args'                => $args
 			),
 		) );
 	}
@@ -366,15 +367,18 @@ abstract class BP_Core_oEmbed_Extension {
 	 * @return array
 	 */
 	protected function get_oembed_response_data( $item, $width ) {
-		$data = wp_parse_args( $item, array(
-			'version'       => '1.0',
-			'provider_name' => get_bloginfo( 'name' ),
-			'provider_url'  => get_home_url(),
-			'author_name'   => get_bloginfo( 'name' ),
-			'author_url'    => get_home_url(),
-			'title'         => ucfirst( $this->slug_endpoint ),
-			'type'          => 'rich',
-		) );
+		$data = bp_parse_args(
+			$item,
+			array(
+				'version'       => '1.0',
+				'provider_name' => get_bloginfo( 'name' ),
+				'provider_url'  => get_home_url(),
+				'author_name'   => get_bloginfo( 'name' ),
+				'author_url'    => get_home_url(),
+				'title'         => ucfirst( $this->slug_endpoint ),
+				'type'          => 'rich',
+			)
+		);
 
 		/** This filter is documented in /wp-includes/embed.php */
 		$min_max_width = apply_filters( 'oembed_min_max_width', array(
@@ -480,7 +484,7 @@ abstract class BP_Core_oEmbed_Extension {
 		// Validate URL against our oEmbed endpoint. If not valid, bail.
 		// This is our mod to _oembed_rest_pre_serve_request().
 		$query_params = $request->get_query_params();
-		if ( false === $this->validate_url_to_item_id( $query_params['url'] ) ) {
+		if ( ! isset( $query_params['url'] ) || false === $this->validate_url_to_item_id( $query_params['url'] ) ) {
 			return $served;
 		}
 

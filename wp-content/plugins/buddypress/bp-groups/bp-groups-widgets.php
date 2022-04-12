@@ -11,12 +11,21 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Registers the Groups Legacy Widget.
+ *
+ * @since 10.0.0
+ */
+function bp_groups_register_groups_widget() {
+	register_widget( 'BP_Groups_Widget' );
+}
+
+/**
  * Register widgets for groups component.
  *
  * @since 1.0.0
  */
 function groups_register_widgets() {
-	add_action( 'widgets_init', function() { register_widget( 'BP_Groups_Widget' ); } );
+	add_action( 'widgets_init', 'bp_groups_register_groups_widget' );
 }
 add_action( 'bp_register_widgets', 'groups_register_widgets' );
 
@@ -65,11 +74,21 @@ function groups_ajax_widget_groups_list() {
 					<div class="item-title"><?php bp_group_link(); ?></div>
 					<div class="item-meta">
 						<?php if ( 'newest-groups' === $_POST['filter'] ) : ?>
-							<span class="activity" data-livestamp="<?php bp_core_iso8601_date( bp_get_group_date_created( 0, array( 'relative' => false ) ) ); ?>"><?php printf( __( 'created %s', 'buddypress' ), bp_get_group_date_created() ); ?></span>
+							<span class="activity" data-livestamp="<?php bp_core_iso8601_date( bp_get_group_date_created( 0, array( 'relative' => false ) ) ); ?>">
+								<?php
+								/* translators: %s: date */
+								printf( __( 'created %s', 'buddypress' ), bp_get_group_date_created() );
+								?>
+							</span>
 						<?php elseif ( 'popular-groups' === $_POST['filter'] ) : ?>
 							<span class="activity"><?php bp_group_member_count(); ?></span>
 						<?php else : ?>
-							<span class="activity" data-livestamp="<?php bp_core_iso8601_date( bp_get_group_last_active( 0, array( 'relative' => false ) ) ); ?>"><?php printf( __( 'active %s', 'buddypress' ), bp_get_group_last_active() ); ?></span>
+							<span class="activity" data-livestamp="<?php bp_core_iso8601_date( bp_get_group_last_active( 0, array( 'relative' => false ) ) ); ?>">
+								<?php
+								/* translators: %s: last activity timestamp (e.g. "Active 1 hour ago") */
+								printf( _x( 'Active %s', 'last time the group was active', 'buddypress' ), bp_get_group_last_active() );
+								?>
+							</span>
 						<?php endif; ?>
 					</div>
 				</div>

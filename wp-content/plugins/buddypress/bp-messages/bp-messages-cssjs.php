@@ -42,7 +42,7 @@ function messages_add_autocomplete_css() {
 
 		wp_enqueue_style( 'bp-messages-autocomplete', "{$url}autocomplete/jquery.autocompletefb{$min}.css", array(), bp_get_version() );
 
-		wp_style_add_data( 'bp-messages-autocomplete', 'rtl', true );
+		wp_style_add_data( 'bp-messages-autocomplete', 'rtl', 'replace' );
 		if ( $min ) {
 			wp_style_add_data( 'bp-messages-autocomplete', 'suffix', $min );
 		}
@@ -73,3 +73,22 @@ function messages_autocomplete_init_jsblock() {
 
 <?php
 }
+
+/**
+ * Registers a new script to manage the dismissal action for the Sitewide notice widget/block.
+ *
+ * @since 9.0.0
+ *
+ * @param array $scripts Data about the scripts to register.
+ * @return array Data about the scripts to register.
+ */
+function bp_messages_register_scripts( $scripts = array() ) {
+	$scripts['bp-sitewide-notices-script'] = array(
+		'file'         => plugins_url( 'js/sitewide-notices.js', __FILE__ ),
+		'dependencies' => array(),
+		'footer'       => true,
+	);
+
+	return $scripts;
+}
+add_filter( 'bp_core_register_common_scripts', 'bp_messages_register_scripts', 9, 1 );

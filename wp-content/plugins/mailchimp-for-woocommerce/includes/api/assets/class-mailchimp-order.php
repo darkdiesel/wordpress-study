@@ -32,6 +32,8 @@ class MailChimp_WooCommerce_Order
     protected $promos = array();
     protected $is_amazon_order = false;
     protected $is_privacy_protected = false;
+    protected $original_woo_status = null;
+    protected $ignore_if_new = false;
 
     /**
      * @param $bool
@@ -70,6 +72,43 @@ class MailChimp_WooCommerce_Order
     }
 
     /**
+     * @param string $status
+     * @return $this
+     */
+    public function setOriginalWooStatus($status)
+    {
+        $this->original_woo_status = (string) $status;
+        return $this;
+    }
+
+    /**
+     * @return null
+     */
+    public function getOriginalWooStatus()
+    {
+        return $this->original_woo_status;
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldIgnoreIfNotInMailchimp()
+    {
+        return (bool) $this->ignore_if_new;
+    }
+
+    /**
+     * @param $bool
+     * @return $this
+     */
+    public function flagAsIgnoreIfNotInMailchimp($bool)
+    {
+        $this->ignore_if_new = (bool) $bool;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getValidation()
@@ -99,8 +138,8 @@ class MailChimp_WooCommerce_Order
      */
     public function setId($id)
     {
-        $this->id = preg_replace('/[^0-9]/i','', $id);
-
+        // old regex preg_replace('/[^0-9]/i','', $id);
+        $this->id = preg_replace('/[^a-zA-Z\d\-_]/', '', $id);
         return $this;
     }
 
@@ -212,7 +251,7 @@ class MailChimp_WooCommerce_Order
     {
         $api = MailChimp_WooCommerce_MailChimpApi::getInstance();
         $cid = trim($id);
-        if (($campaign = $api->getCampaign($cid, false))) {
+        if (!empty($cid) && $campaign = $api->getCampaign($cid, false)) {
             $this->campaign_id = $campaign['id'];
         }
         return $this;
@@ -261,7 +300,7 @@ class MailChimp_WooCommerce_Order
      */
     public function getCurrencyCode()
     {
-        return $this->currency_code;
+        return !empty($this->currency_code) ? $this->currency_code : 'USD';
     }
 
     /**
@@ -276,7 +315,7 @@ class MailChimp_WooCommerce_Order
         }
 
         try {
-            $woo = new WC_Order($this->id);
+            $woo = wc_get_order($this->id);
             $this->currency_code = $woo->get_currency();
         } catch (\Exception $e) {
             $this->currency_code = get_woocommerce_currency();

@@ -38,10 +38,12 @@ function friends_format_notifications( $action, $item_id, $secondary_item_id, $t
 
 			// Set up the string and the filter.
 			if ( (int) $total_items > 1 ) {
+				/* translators: %d: the number of friends */
 				$text = sprintf( __( '%d friends accepted your friendship requests', 'buddypress' ), (int) $total_items );
 				$amount = 'multiple';
 			} else {
-				$text = sprintf( __( '%s accepted your friendship request', 'buddypress' ),  bp_core_get_user_displayname( $item_id ) );
+				/* translators: %s: friend name */
+				$text = sprintf( __( '%s accepted your friendship request', 'buddypress' ), bp_core_get_user_displayname( $item_id ) );
 				$amount = 'single';
 			}
 
@@ -54,10 +56,12 @@ function friends_format_notifications( $action, $item_id, $secondary_item_id, $t
 
 			// Set up the string and the filter.
 			if ( (int) $total_items > 1 ) {
+				/* translators: %d: the number of pending requests */
 				$text = sprintf( __( 'You have %d pending friendship requests', 'buddypress' ), (int) $total_items );
 				$amount = 'multiple';
 			} else {
-				$text = sprintf( __( 'You have a friendship request from %s', 'buddypress' ),  bp_core_get_user_displayname( $item_id ) );
+				/* translators: %s: friend name */
+				$text = sprintf( __( 'You have a friendship request from %s', 'buddypress' ), bp_core_get_user_displayname( $item_id ) );
 				$amount = 'single';
 			}
 
@@ -65,7 +69,7 @@ function friends_format_notifications( $action, $item_id, $secondary_item_id, $t
 	}
 
 	// Return either an HTML link or an array, depending on the requested format.
-	if ( 'string' == $format ) {
+	if ( 'string' === $format ) {
 
 		/**
 		 * Filters the format of friendship notifications based on type and amount * of notifications pending.
@@ -78,20 +82,20 @@ function friends_format_notifications( $action, $item_id, $secondary_item_id, $t
 		 *   - bp_friends_multiple_friendship_request_notification
 		 *
 		 * @since 1.0.0
+		 * @since 6.0.0 Adds the $secondary_item_id parameter.
 		 *
-		 * @param string|array $value       Depending on format, an HTML link to new requests profile
-		 *                                  tab or array with link and text.
-		 * @param int          $total_items The total number of messaging-related notifications
-		 *                                  waiting for the user.
-		 * @param int          $item_id     The primary item ID.
+		 * @param string|array $value             Depending on format, an HTML link to new requests profile tab or array with link and text.
+		 * @param int          $total_items       The total number of messaging-related notifications waiting for the user.
+		 * @param int          $item_id           The primary item ID.
+		 * @param int          $secondary_item_id The secondary item ID.
 		 */
-		$return = apply_filters( 'bp_friends_' . $amount . '_friendship_' . $action . '_notification', '<a href="' . esc_url( $link ) . '">' . esc_html( $text ) . '</a>', (int) $total_items, $item_id );
+		$return = apply_filters( 'bp_friends_' . $amount . '_friendship_' . $action . '_notification', '<a href="' . esc_url( $link ) . '">' . esc_html( $text ) . '</a>', (int) $total_items, $item_id, $secondary_item_id );
 	} else {
 		/** This filter is documented in bp-friends/bp-friends-notifications.php */
 		$return = apply_filters( 'bp_friends_' . $amount . '_friendship_' . $action . '_notification', array(
 			'link' => $link,
 			'text' => $text
-		), (int) $total_items, $item_id );
+		), (int) $total_items, $item_id, $secondary_item_id );
 	}
 
 	/**
@@ -172,8 +176,8 @@ add_action( 'friends_friendship_requested', 'bp_friends_friendship_requested_not
  *
  * @since 1.9.0
  *
- * @param int    $friendship_id Friendship ID (not used).
- * @param object $friendship    Friendship object.
+ * @param int                   $friendship_id Friendship ID (not used).
+ * @param BP_Friends_Friendship $friendship    The friendship object.
  */
 function bp_friends_mark_friendship_rejected_notifications_by_item_id( $friendship_id, $friendship ) {
 	bp_notifications_mark_notifications_by_item_id( $friendship->friend_user_id, $friendship->initiator_user_id, buddypress()->friends->id, 'friendship_request' );
@@ -211,8 +215,8 @@ add_action( 'friends_friendship_accepted', 'bp_friends_add_friendship_accepted_n
  *
  * @since 1.9.0
  *
- * @param int    $friendship_id Friendship ID (not used).
- * @param object $friendship    Friendship Object.
+ * @param int                   $friendship_id Friendship ID (not used).
+ * @param BP_Friends_Friendship $friendship    The friendship object.
  */
 function bp_friends_mark_friendship_withdrawn_notifications_by_item_id( $friendship_id, $friendship ) {
 	bp_notifications_delete_notifications_by_item_id( $friendship->friend_user_id, $friendship->initiator_user_id, buddypress()->friends->id, 'friendship_request' );
@@ -238,33 +242,34 @@ add_action( 'friends_remove_data', 'bp_friends_remove_notifications_data', 10, 1
  */
 function friends_screen_notification_settings() {
 
-	if ( !$send_requests = bp_get_user_meta( bp_displayed_user_id(), 'notification_friends_friendship_request', true ) )
-		$send_requests   = 'yes';
+	if ( ! $send_requests = bp_get_user_meta( bp_displayed_user_id(), 'notification_friends_friendship_request', true ) ) {
+		$send_requests = 'yes';
+	}
 
-	if ( !$accept_requests = bp_get_user_meta( bp_displayed_user_id(), 'notification_friends_friendship_accepted', true ) )
+	if ( ! $accept_requests = bp_get_user_meta( bp_displayed_user_id(), 'notification_friends_friendship_accepted', true ) )
 		$accept_requests = 'yes'; ?>
 
 	<table class="notification-settings" id="friends-notification-settings">
 		<thead>
 			<tr>
 				<th class="icon"></th>
-				<th class="title"><?php _ex( 'Friends', 'Friend settings on notification settings page', 'buddypress' ) ?></th>
-				<th class="yes"><?php _e( 'Yes', 'buddypress' ) ?></th>
-				<th class="no"><?php _e( 'No', 'buddypress' )?></th>
+				<th class="title"><?php _ex( 'Friends', 'Friend settings on notification settings page', 'buddypress' ); ?></th>
+				<th class="yes"><?php esc_html_e( 'Yes', 'buddypress' ); ?></th>
+				<th class="no"><?php esc_html_e( 'No', 'buddypress' ); ?></th>
 			</tr>
 		</thead>
 
 		<tbody>
 			<tr id="friends-notification-settings-request">
 				<td></td>
-				<td><?php _ex( 'A member sends you a friendship request', 'Friend settings on notification settings page', 'buddypress' ) ?></td>
+				<td><?php _ex( 'A member sends you a friendship request', 'Friend settings on notification settings page', 'buddypress' ); ?></td>
 				<td class="yes"><input type="radio" name="notifications[notification_friends_friendship_request]" id="notification-friends-friendship-request-yes" value="yes" <?php checked( $send_requests, 'yes', true ) ?>/><label for="notification-friends-friendship-request-yes" class="bp-screen-reader-text"><?php
 					/* translators: accessibility text */
-					_e( 'Yes, send email', 'buddypress' );
+					esc_html_e( 'Yes, send email', 'buddypress' );
 				?></label></td>
 				<td class="no"><input type="radio" name="notifications[notification_friends_friendship_request]" id="notification-friends-friendship-request-no" value="no" <?php checked( $send_requests, 'no', true ) ?>/><label for="notification-friends-friendship-request-no" class="bp-screen-reader-text"><?php
 					/* translators: accessibility text */
-					_e( 'No, do not send email', 'buddypress' );
+					esc_html_e( 'No, do not send email', 'buddypress' );
 				?></label></td>
 			</tr>
 			<tr id="friends-notification-settings-accepted">
@@ -272,11 +277,11 @@ function friends_screen_notification_settings() {
 				<td><?php _ex( 'A member accepts your friendship request', 'Friend settings on notification settings page', 'buddypress' ) ?></td>
 				<td class="yes"><input type="radio" name="notifications[notification_friends_friendship_accepted]" id="notification-friends-friendship-accepted-yes" value="yes" <?php checked( $accept_requests, 'yes', true ) ?>/><label for="notification-friends-friendship-accepted-yes" class="bp-screen-reader-text"><?php
 					/* translators: accessibility text */
-					_e( 'Yes, send email', 'buddypress' );
+					esc_html_e( 'Yes, send email', 'buddypress' );
 				?></label></td>
 				<td class="no"><input type="radio" name="notifications[notification_friends_friendship_accepted]" id="notification-friends-friendship-accepted-no" value="no" <?php checked( $accept_requests, 'no', true ) ?>/><label for="notification-friends-friendship-accepted-no" class="bp-screen-reader-text"><?php
 					/* translators: accessibility text */
-					_e( 'No, do not send email', 'buddypress' );
+					esc_html_e( 'No, do not send email', 'buddypress' );
 				?></label></td>
 			</tr>
 

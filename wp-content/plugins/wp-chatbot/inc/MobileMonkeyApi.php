@@ -8,15 +8,16 @@ class MobileMonkeyApi
 	private $src = 'wordpress';
 	private $pages = [];
 	private $active_page = false;
-	private $promoters = [];
-	private $landing_page;
 	private $env = true;
 	private $pagination;
 	private $contacts;
 	private $plugin_name = 'wp-chatbot';
 	private $page_info;
+	private $bot_id;
 	public $available_company;
 	public $as_mm = false;
+	public $notice = false;
+	public $app_domain = 'https://app.mobilemonkey.com/';
 
 	private function getApiDomain()
 	{
@@ -62,8 +63,7 @@ class MobileMonkeyApi
 	{
 
 		if ($connection_page_id) {
-
-			$pages = $this->getPages();
+			$pages = $this->pages;
 			foreach ($pages as $page) {
 				if ($page['id'] && $connection_page_id == $page['remote_id']) {
 					if (in_array($page['company_id'], $this->available_company)){
@@ -74,9 +74,124 @@ class MobileMonkeyApi
 			return get_option($this->option_prefix . 'company_id');
 		}
 	}
-	private function getActiveRemotePageId(){
-		return get_option($this->option_prefix . 'active_page_remote_id');
+	public function getActiveRemotePageId(){
+		$data = get_option($this->option_prefix . 'active_page_info');
+		return $data['remote_id'];
 	}
+
+
+    private function getInternalPageId($connection_page_id)
+    {
+
+        if ($connection_page_id) {
+
+            $pages = $this->pages;
+            foreach ($pages as $page) {
+                if ($page['id'] && $connection_page_id == $page['remote_id']) {
+                    return $page['id'];
+                }
+            }
+            return get_option($this->option_prefix . 'fb_internal_page_id');
+        }
+    }
+
+
+    public function getActiveBotId()
+    {
+		$data = get_option($this->option_prefix . 'active_page_info');
+		return $data['bot_id'];
+    }
+
+
+    public function getActivePageId()
+    {
+		$data = get_option($this->option_prefix . 'active_page_info');
+		return $data['id'];
+    }
+
+    public function getAvailableCompany(){
+        $args = [
+            'timeout' => 10,
+            'headers' => [
+                'Authorization' => $this->getToken(),
+                'Content-Type' => 'application/json; charset=utf-8',
+            ],
+            'method' => 'GET',
+        ];
+        $response = wp_remote_post($this->getApiDomain() . 'api/wordpress_settings/my_company_ids?v=' . HTCC_VERSION.'.2', $args);
+        $error = $this->ErrorHandler($response,'Available Company','get');
+        if ($error) {
+            $connect_response = json_decode($error);
+            return $connect_response;
+        }
+    }
+
+    public function setAvailableCompany(){
+        $company = $this->getAvailableCompany();
+        update_option($this->option_prefix . 'available_company', $company);
+        $this->available_company = $company;
+    }
+
+    public function getPages()
+    {
+        $args = [
+            'timeout' => 30,
+            'headers' => [
+                'Authorization' => $this->getToken()
+            ],
+            'body' =>[
+                'src' => $this->getSrc()
+            ]
+        ];
+        $pagesObj = NULL;
+        $pages = [];
+        $response = wp_remote_get($this->getApiDomain() . 'api/facebook_pages/available_options?src=' . $this->getSrc().'&limit=150&v=' . HTCC_VERSION.'.3', $args);
+        $content = wp_remote_retrieve_body($response);
+        if (!empty($content)) {
+            $pagesObj = json_decode($content);
+
+            if (empty($pagesObj->errors)) {
+                if(is_array($pagesObj->data)) {
+                    foreach ($pagesObj->data as $page) {
+                        $p = [
+                            'name' => $page->name,
+                            'remote_id' => $page->remote_id,
+                            'id' => $page->facebook_page_id,
+                            'bot_id' => $page->bot_id,
+                            'bot_kind' => $page->bot_kind,
+                            'company_id' => $page->company_id,
+                            'path' => add_query_arg([
+                                'page' => $this->plugin_name,
+                                'connect' => $page->remote_id,
+                                'page_name' => $page->name,
+                                'already_connected' => $page->facebook_page_id !== null
+                            ], admin_url('admin.php')),
+                        ];
+
+                        $pages[] = $p;
+                    }
+                }
+            }
+        }
+        $this->pages = $pages;
+        return $pages;
+    }
+
+    public function getActivePage($reset = false)
+    {
+
+        if (!$reset && !empty($this->active_page)) {
+            return $this->active_page;
+        }
+
+        $actpage = get_option("mobilemonkey_active_page_info");
+        if ($actpage){
+			$this->active_page = $actpage;
+			return $actpage;
+        }else
+            return false;
+    }
+
 
 	public function getSubscribeInfo()
 	{
@@ -97,6 +212,29 @@ class MobileMonkeyApi
 			$this->setWpPlan($connect_response->plan);
 			$this->setPageInfo($connect_response);
 			$this->setMessageStatistic($connect_response->current_outgoing_messages_statistic);
+		}
+	}
+
+	public function isCommentGuard(){
+		$args = [
+			'timeout' => 10,
+			'headers' => [
+				'Authorization' => $this->getToken(),
+				'Content-Type' => 'application/json; charset=utf-8',
+			],
+			'method' => 'GET',
+		];
+		$bot_id = $this->getActiveBotId();
+		if ($bot_id){
+			$response = wp_remote_post($this->getApiDomain() . 'api/bots/'.$bot_id.'/start_bots?page=1&per_page=25&kind=comment_guard&v=' . HTCC_VERSION.'.2', $args);
+			$content = wp_remote_retrieve_body($response);
+			if ($content){
+				$data = json_decode($content);
+				if ($data->start_bots){
+					return true;
+				}
+				else return false;
+			}
 		}
 	}
 
@@ -154,20 +292,7 @@ class MobileMonkeyApi
 		return get_option($this->option_prefix . 'wp_plan');
 	}
 
-	private function getInternalPageId($connection_page_id)
-	{
 
-		if ($connection_page_id) {
-
-			$pages = $this->getPages();
-			foreach ($pages as $page) {
-				if ($page['id'] && $connection_page_id == $page['remote_id']) {
-					return $page['id'];
-				}
-			}
-			return get_option($this->option_prefix . 'fb_internal_page_id');
-		}
-	}
 	private function default_custom_setting(){
 		$data = array();
 		$data['fb_logged_in_greeting'] = 'Hi! How can we help you?';
@@ -238,25 +363,6 @@ class MobileMonkeyApi
 		}
 	}
 
-	private function setActiveBotId($bot_id)
-	{
-		update_option($this->option_prefix . 'active_bot', $bot_id);
-	}
-
-	public function getActiveBotId()
-	{
-		return get_option($this->option_prefix . 'active_bot');
-	}
-
-	private function setActivePageId($page_id)
-	{
-		update_option($this->option_prefix . 'active_page_id', $page_id);
-	}
-
-	private function getActivePageId()
-	{
-		return get_option($this->option_prefix . 'active_page_id');
-	}
 
 	private function setEnvironment($environment)
 	{
@@ -306,13 +412,9 @@ class MobileMonkeyApi
 	{
 		$logout = filter_input(INPUT_GET, "logout", FILTER_SANITIZE_STRING);
 		if ($logout || $reset) {
-			$this->disconnectPage(get_option($this->option_prefix . 'active_page_id'));
+			$this->disconnectPage(get_option($this->active_page['page_id']));
 			delete_option('htcc_fb_js_src');
 			delete_option($this->option_prefix . 'token');
-			delete_option($this->option_prefix . 'company_id');
-			delete_option($this->option_prefix . 'active_page_id');
-			delete_option($this->option_prefix . 'active_page_remote_id');
-			delete_option($this->option_prefix . 'active_bot');
 			$this->refreshSettingsPage();
 		}
 	}
@@ -336,35 +438,14 @@ class MobileMonkeyApi
 
 	}
 
-	public function getAvailableCompany(){
-		$args = [
-			'timeout' => 10,
-			'headers' => [
-				'Authorization' => $this->getToken(),
-				'Content-Type' => 'application/json; charset=utf-8',
-			],
-			'method' => 'GET',
-		];
-		$response = wp_remote_post($this->getApiDomain() . 'api/wordpress_settings/my_company_ids?v=' . HTCC_VERSION.'.2', $args);
-		$error = $this->ErrorHandler($response,'Available Company','get');
-		if ($error) {
-			$connect_response = json_decode($error);
-			return $connect_response;
-		}
-	}
-
-	public function setAvailableCompany(){
-		$company = $this->getAvailableCompany();
-		update_option($this->option_prefix . 'available_company', $company);
-		$this->available_company = $company;
-	}
-
 
 	public function connectPage()
 	{
 		$pageId = filter_input(INPUT_GET, "connect", FILTER_SANITIZE_STRING);
 		$pageName = filter_input(INPUT_GET, "page_name", FILTER_SANITIZE_STRING);
+		$alreadyConnected = filter_input(INPUT_GET, "already_connected", FILTER_SANITIZE_STRING);
 		if ($pageId && $pageName) {
+			set_transient( 'wp-chatbot__previously-connected-page', $alreadyConnected == '1' );
 			$this->setAvailableCompany();
 			if (!$this->getCompanyId($pageId)){
 				$this->renderError('This Facebook page has already been connected in MobileMonkey to a company that you don\'t have access to. Please contact support@mobilemonkey.com for more information on how to resolve this issue.');
@@ -393,12 +474,18 @@ class MobileMonkeyApi
 			} elseif (!empty($connect_response->success)) {
 				if ($connect_response->facebook_page->remote_id) {
 					$options = get_option('htcc_options', array());
-					$options['fb_page_id'] = $connect_response->facebook_page->remote_id;
-					$this->setActivePageId($connect_response->facebook_page->remote_id);
-					$options['fb_internal_page_id'] = $connect_response->facebook_page->id;
-					update_option('htcc_options', $options);
+					$new_opt['remote_id'] = $connect_response->facebook_page->remote_id;
+					$new_opt['bot_id'] = $connect_response->facebook_page->active_bot_id;
+					$new_opt['name'] = $connect_response->facebook_page->name;
+					$new_opt['id'] = $connect_response->facebook_page->id;
+					$new_opt['path'] =add_query_arg([
+                        'page' => $this->plugin_name,
+                        'disconnect' => $connect_response->facebook_page->id,
+                    ], admin_url('admin.php'));
+                    update_option($this->option_prefix.'active_page_info', $new_opt);
 					if ($connect_response->facebook_page->active_bot_id) {
-						$custom_settings = $this->getCustomChatSettings($options['fb_page_id']);
+                        set_transient( 'pre_value', true, YEAR_IN_SECONDS );
+						$custom_settings = $this->getCustomChatSettings($connect_response->facebook_page->remote_id);
 						$default_setting = $this->default_custom_setting();
 						foreach ($custom_settings as $key=>$value){
 							if ($value == '' || !isset($value)){
@@ -417,12 +504,13 @@ class MobileMonkeyApi
 						update_option('htcc_options', $options);
 						delete_transient( 'done-tab' );
 						delete_transient( 'current-tab' );
+						delete_transient( 'cg_notice_off' );
+						delete_transient( 'lead_notice_off' );
 						$done_tab = array(
 							'1'=>"true",
 							'2'=>"false",
 							'3'=>"false",
 						);
-                        set_transient( 'pre_value', true, YEAR_IN_SECONDS );
 						set_transient( 'done-tab', $done_tab,  YEAR_IN_SECONDS );
 						set_transient( 'current-tab', '1',  YEAR_IN_SECONDS );
 						$this->refreshSettingsPage();
@@ -470,12 +558,31 @@ class MobileMonkeyApi
 		$this->ErrorHandler($response,'AS State Save','');
 	}
 
+	public function localDisconnectPage()
+	{
+		$this->active_page = false;
+		delete_option('htcc_as_options');
+		delete_option($this->option_prefix . 'page_info');
+		delete_option($this->option_prefix . 'account_info');
+		delete_option($this->option_prefix . 'current_subscribe');
+		delete_option($this->option_prefix . 'message_statistic');
+		delete_option($this->option_prefix . 'wp_plan');
+		delete_option($this->option_prefix . 'active_page_info');
+		delete_option('htcc_fb_js_src');
+		$this->refreshSettingsPage();
+	}
+	
 	public function disconnectPage($pageId='')
 	{
 		if (!$pageId){
 			$pageId = filter_input(INPUT_GET, "disconnect", FILTER_SANITIZE_STRING);
 		}
 		if ($pageId) {
+			$previouslyConnected = get_transient('wp-chatbot__previously-connected-page');
+			if ($previouslyConnected) {
+				$this->localDisconnectPage();
+				return true;
+			}
 			$args = [
 				'timeout' => 10,
 				'body' => json_encode([
@@ -491,25 +598,7 @@ class MobileMonkeyApi
 			$content = wp_remote_retrieve_body($response);
 			$connect_response = json_decode($content);
 			if (empty($content)) {
-
-				$this->active_page = false;
-
-				$options = get_option('htcc_options', array());
-				$options['fb_page_id'] = '';
-				$options['fb_welcome_message'] = '';
-				update_option('htcc_options', $options);
-				delete_option('htcc_as_options');
-				delete_option($this->option_prefix . 'page_info');
-				delete_option($this->option_prefix . 'account_info');
-				delete_option($this->option_prefix . 'current_subscribe');
-				delete_option($this->option_prefix . 'message_statistic');
-				delete_option($this->option_prefix . 'wp_plan');
-				delete_option($this->option_prefix . 'active_page_id');
-				delete_option($this->option_prefix . 'active_page_remote_id');
-				delete_option($this->option_prefix . 'active_bot');
-				delete_option('htcc_fb_js_src');
-				$this->refreshSettingsPage();
-
+				$this->localDisconnectPage();
 				return true;
 
 			} elseif (isset($response["response"]["code"]) && $response["response"]["code"] == 422) {
@@ -532,88 +621,6 @@ class MobileMonkeyApi
 		}
 	}
 
-	public function getPages()
-	{
-		$args = [
-			'timeout' => 10,
-			'headers' => [
-				'Authorization' => $this->getToken()
-			],
-			'body' =>[
-				'src' => $this->getSrc()
-			]
-		];
-		$pagesObj = NULL;
-		$pages = [];
-		$response = wp_remote_get($this->getApiDomain() . '/api/facebook_pages/available_options?src=' . $this->getSrc().'&v=' . HTCC_VERSION.'.2', $args);
-		$content = wp_remote_retrieve_body($response);
-		if (!empty($content)) {
-			$pagesObj = json_decode($content);
-
-			if (empty($pagesObj->errors)) {
-				if(is_array($pagesObj->data)) {
-					foreach ($pagesObj->data as $page) {
-						$p = [
-							'name' => $page->name,
-							'remote_id' => $page->remote_id,
-							'id' => $page->facebook_page_id,
-							'bot_id' => $page->bot_id,
-							'bot_kind' => $page->bot_kind,
-							'company_id' => $page->company_id,
-							'path' => add_query_arg([
-								'page' => $this->plugin_name,
-								'connect' => $page->remote_id,
-								'page_name' => $page->name
-							], admin_url('admin.php')),
-						];
-
-						$pages[] = $p;
-					}
-				}
-			}
-		}
-		$this->pages = $pages;
-		return $pages;
-	}
-
-	public function getActivePage($reset = false)
-	{
-
-		if (!$reset && !empty($this->active_page)) {
-			return $this->active_page;
-		}
-
-		$activePage = [];
-		$pages = $this->getPages();
-
-		$options = get_option('htcc_options', array());
-		$active_remote_page_id = $options['fb_page_id'];
-
-		foreach ($pages as $page) {
-			if ($active_remote_page_id == $page['remote_id']) {
-				$activePage['remote_id'] = $page['remote_id'];
-				$activePage['bot_id'] = $page['bot_id'];
-				$activePage['name'] = $page['name'];
-				$activePage['id'] = $page['id'];
-				if ($page['id']){
-				$activePage['path'] = add_query_arg([
-					'page' => $this->plugin_name,
-					'disconnect' => $page['id'],
-				], admin_url('admin.php'));
-				}else {
-					return false;
-					break;
-				}
-				update_option($this->option_prefix . 'active_page_remote_id', $page['remote_id']);
-				$this->setActivePageId($page['id']);
-				$this->setActiveBotId($page['bot_id']);
-				break;
-			}
-		}
-
-		$this->active_page = $activePage;
-		return $activePage;
-	}
 
 	public function sendUserEmail()
 	{
@@ -742,7 +749,6 @@ class MobileMonkeyApi
 				'src' => $this->getSrc()
 			]
 		];
-
 		$response = wp_remote_get($this->getApiDomain() . 'api/wordpress_settings/answering_service_v2?fb_page_remote_id=' . $remote_id . '&v=' . HTCC_VERSION.'.2', $args);
 		$error = $this->ErrorHandler($response,'Widget','get');
 		if ($error) {
@@ -832,6 +838,7 @@ class MobileMonkeyApi
             $data_widget = $this->getWidgets($page_id);
             $this->as_mm = empty($data_widget)?true:false;
 			$current_welcome_message = $this->getWelcomeMessage($page_id);
+			$pre_val = get_transient( 'pre_value' );
 			if (count($options,COUNT_NORMAL)==1 && $options['fb_welcome_message']||!$options) {
 				if ($this->as_mm == false) {
 					$data_widget = array_merge($data_widget, $triggers);
@@ -840,11 +847,7 @@ class MobileMonkeyApi
 							$var=false;
 						}
 					}
-					foreach ($data_widget as $k=>$v){
-						if (strpos($k, 'qa_')!==false){
-							$trig=false;
-						}
-					}
+
 					if ($var){
 						$data_widget['lq_1']['question'] = 'What is your budget?';
 						$data_widget['lq_1']['answers1']['answer'] = '$0';
@@ -853,25 +856,7 @@ class MobileMonkeyApi
 						$data_widget['lq_1']['answers4']['answer'] = '$500+';
 						$data_widget['lq_1']['answers4']['qualified'] = '1';
 					}
-					if ($trig){
-						$data_widget['qa_1']['phrases'] ='';
-						$data_widget['qa_1']['bot_responses'] ='';
-					}
-					$data_widget['answering_service_mm_only_mode'] = false;
-					$data_widget['fb_welcome_message'] = $current_welcome_message;
-					$data_widget['advanced_triggers_present'] = $triggers['advanced_triggers_present'];
-					$data_widget['fb_as_state'] = 0;
-					update_option('htcc_as_options', $data_widget);
-				}else {
-					foreach ($options as $key => $value) {
-						if (strpos($key, 'qa_') !== false) {
-							if (!empty($value['phrases']) && !empty($value['bot_responses'])) {
-								unset($options[$key]);
-							}
-						}
-					}
-					$data_widget = array_merge($options, $triggers);
-					if (!$options) {
+					if ($pre_val==true) {
 						foreach ($data_widget as $k => $v) {
 							if (strpos($k, 'qa_') !== false) {
 								$trig = false;
@@ -882,10 +867,37 @@ class MobileMonkeyApi
 							$data_widget['qa_1']['bot_responses'] = '';
 						}
 					}
+					$data_widget['answering_service_mm_only_mode'] = false;
 					$data_widget['fb_welcome_message'] = $current_welcome_message;
-					$data_widget['answering_service_mm_only_mode'] = true;
 					$data_widget['advanced_triggers_present'] = $triggers['advanced_triggers_present'];
+					$data_widget['fb_as_state'] = 0;
 					update_option('htcc_as_options', $data_widget);
+				}else {
+					if ($options){
+						foreach ($options as $key => $value) {
+							if (strpos($key, 'qa_') !== false) {
+								if (!empty($value['phrases']) && !empty($value['bot_responses'])) {
+									unset($options[$key]);
+								}
+							}
+						}
+						$data_widget = array_merge($options, $triggers);
+						if (!$options) {
+							foreach ($data_widget as $k => $v) {
+								if (strpos($k, 'qa_') !== false) {
+									$trig = false;
+								}
+							}
+							if ($trig) {
+								$data_widget['qa_1']['phrases'] = '';
+								$data_widget['qa_1']['bot_responses'] = '';
+							}
+						}
+						$data_widget['fb_welcome_message'] = $current_welcome_message;
+						$data_widget['answering_service_mm_only_mode'] = true;
+						$data_widget['advanced_triggers_present'] = $triggers['advanced_triggers_present'];
+						update_option('htcc_as_options', $data_widget);
+					}
 				}
 			}
 			if ($this->as_mm == false) {
@@ -921,6 +933,7 @@ class MobileMonkeyApi
 				$data_widget['advanced_triggers_present'] = $triggers['advanced_triggers_present'];
 				update_option('htcc_as_options', $data_widget);
 			}else {
+				if ($options){
 				foreach ($options as $key => $value) {
 					if (strpos($key, 'qa_') !== false) {
 						if (!empty($value['phrases']) && !empty($value['bot_responses'])) {
@@ -930,6 +943,7 @@ class MobileMonkeyApi
 				}
 				$data_widget['answering_service_mm_only_mode'] = empty($data_widget) ? true : '';
 				$data_widget = array_merge($options, $triggers);
+				}
 				if (!$options) {
 					foreach ($data_widget as $k => $v) {
 						if (strpos($k, 'qa_') !== false) {
@@ -947,6 +961,7 @@ class MobileMonkeyApi
 			}
 		}else{
 			$data_widget = $this->getWidgets($page_id);
+			$triggers = $this->getTriggers($page_id);
             $this->as_mm = empty($data_widget)?true:false;
             $state=empty($data_widget)?true:false;
             if ($state==false){
@@ -1012,6 +1027,8 @@ class MobileMonkeyApi
                     ];
                 }
             }
+            $options['advanced_triggers_present'] = $triggers['advanced_triggers_present'];
+			update_option('htcc_as_options', $options);
             $trigger_new['fb_page_remote_id'] = $this->getActiveRemotePageId();
             $this->updateTriggers($trigger_new);
 		}
@@ -1052,7 +1069,7 @@ class MobileMonkeyApi
 		$response = wp_remote_request($this->getApiDomain() . 'api/wordpress_settings/answering_service_v2', $args);
 		$error = ($this->ErrorHandler($response,'Widget','put'));
 		if ($error) {
-			return $response;
+			return $error;
 		}
 	}
 
@@ -1159,10 +1176,6 @@ class MobileMonkeyApi
 	{
 		$options = [];
 		$options['token'] = get_option($this->option_prefix . 'token');
-		$options['company_id'] = get_option($this->option_prefix . 'company_id');
-		$options['active_page_id'] = get_option($this->option_prefix . 'active_page_id');
-		$options['active_page_remote_id'] = get_option($this->option_prefix . 'active_page_remote_id');
-		$options['active_bot'] = get_option($this->option_prefix . 'active_bot');
 		$options['environment'] = get_option($this->option_prefix . 'environment');
 		$options['htcc_options'] = get_option('htcc_options');
 		return var_dump($options);
@@ -1324,8 +1337,16 @@ class MobileMonkeyApi
 			}
 		} elseif (!empty($connect_response->errors)) {
 			foreach ($connect_response->errors as $error) {
-				$this->renderError('Error: ' . $error);
+			    if ($code==422||$code==401||$code==404){
+					if ($point!="Welcome Message") {
+						delete_option('mobilemonkey_active_page_info');
+						break;
+					}
+                }
 			}
+		}elseif ($code==404){
+			delete_option('mobilemonkey_active_page_info');
+			return false;
 		} else {
 			if ($point=="Welcome Message" && $code==422){
 				return true;

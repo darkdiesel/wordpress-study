@@ -80,7 +80,10 @@ class BP_Embed extends WP_Embed {
 			return '';
 
 		$rawattr = $attr;
-		$attr = wp_parse_args( $attr, wp_embed_defaults() );
+		$attr    = bp_parse_args(
+			$attr,
+			wp_embed_defaults()
+		);
 
 		// Use kses to convert & into &amp; and we need to undo this
 		// See https://core.trac.wordpress.org/ticket/11311.
@@ -117,14 +120,9 @@ class BP_Embed extends WP_Embed {
 		 */
 		$id = apply_filters( 'embed_post_id', 0 );
 
-		$unfiltered_html   = current_user_can( 'unfiltered_html' );
-		$default_discovery = false;
-
 		// Since 4.4, WordPress is now an oEmbed provider.
-		if ( function_exists( 'wp_oembed_register_route' ) ) {
-			$unfiltered_html   = true;
-			$default_discovery = true;
-		}
+		$unfiltered_html   = true;
+		$default_discovery = true;
 
 		/**
 		 * Filters whether or not oEmbed discovery is on.
@@ -138,7 +136,13 @@ class BP_Embed extends WP_Embed {
 		$attr['discover'] = ( apply_filters( 'bp_embed_oembed_discover', $default_discovery ) && $unfiltered_html );
 
 		// Set up a new WP oEmbed object to check URL with registered oEmbed providers.
-		require_once( ABSPATH . WPINC . '/class-oembed.php' );
+		if ( file_exists( ABSPATH . WPINC . '/class-wp-oembed.php' ) ) {
+			require_once( ABSPATH . WPINC . '/class-wp-oembed.php' );
+		} else {
+			// class-oembed.php is deprecated in WordPress 5.3.0.
+			require_once( ABSPATH . WPINC . '/class-oembed.php' );
+		}
+
 		$oembed_obj = _wp_oembed_get_object();
 
 		// If oEmbed discovery is true, skip oEmbed provider check.

@@ -73,21 +73,29 @@ class MonsterInsights_Review {
 
 		if ( ! empty( $activated['connected_date'] ) ) {
 			// Only continue if plugin has been tracking for at least 14 days.
-			if ( ( $activated['connected_date'] + ( DAY_IN_SECONDS * 14 ) ) > time() ) {
+			$days = 14;
+			if ( monsterinsights_get_option( 'gadwp_migrated', 0 ) > 0 ) {
+				$days = 21;
+			}
+			if ( ( $activated['connected_date'] + ( DAY_IN_SECONDS * $days ) ) > time() ) {
 				return;
 			}
 		} else {
-			$data = array(
-				'installed_version' => MONSTERINSIGHTS_VERSION,
-				'installed_date'    => time(),
-				'installed_pro'     => monsterinsights_is_pro_version(),
-			);
+			if ( empty( $activated ) ) {
+				$data = array(
+					'installed_version' => MONSTERINSIGHTS_VERSION,
+					'installed_date'    => time(),
+					'installed_pro'     => monsterinsights_is_pro_version(),
+				);
+			} else {
+				$data = $activated;
+			}
 			// If already has a UA code mark as connected now.
 			if ( ! empty( $ua_code ) ) {
 				$data['connected_date'] = time();
 			}
 
-			update_option( 'monsterinsights_over_time', $data );
+			update_option( 'monsterinsights_over_time', $data, false );
 			return;
 		}
 

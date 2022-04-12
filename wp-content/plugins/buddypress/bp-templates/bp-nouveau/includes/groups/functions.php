@@ -3,7 +3,7 @@
  * Groups functions
  *
  * @since 3.0.0
- * @version 3.1.0
+ * @version 10.0.0
  */
 
 // Exit if accessed directly.
@@ -68,11 +68,18 @@ function bp_nouveau_groups_enqueue_scripts() {
 		' );
 	}
 
-	if ( ! bp_is_group_invites() && ! ( bp_is_group_create() && bp_is_group_creation_step( 'group-invites' ) ) ) {
-		return;
+	if ( bp_is_group_invites() || ( bp_is_group_create() && bp_is_group_creation_step( 'group-invites' ) ) ) {
+		wp_enqueue_script( 'bp-nouveau-group-invites' );
 	}
 
-	wp_enqueue_script( 'bp-nouveau-group-invites' );
+	if ( bp_rest_api_is_available() && bp_is_group_admin_page() && bp_is_group_admin_screen( 'manage-members' ) ) {
+		wp_enqueue_script( 'bp-group-manage-members' );
+		wp_localize_script(
+			'bp-group-manage-members',
+			'bpGroupManageMembersSettings',
+			bp_groups_get_group_manage_members_script_data( bp_get_current_group_id() )
+		);
+	}
 }
 
 /**
@@ -94,6 +101,18 @@ function bp_nouveau_groups_disallow_all_members_invites( $default = false ) {
 	 */
 	return apply_filters( 'bp_nouveau_groups_disallow_all_members_invites', $default );
 }
+
+/**
+ * Activate the Groups invitations feature if any member can be invited.
+ *
+ * @since 10.0.0
+ *
+ * @param bool True if any member can be invited. False otherwise.
+ */
+function bp_nouveau_is_groups_invitations_active() {
+	return ! bp_nouveau_groups_disallow_all_members_invites();
+}
+add_filter( 'bp_is_groups_invitations_active', 'bp_nouveau_is_groups_invitations_active' );
 
 /**
  * Localize the strings needed for the Group's Invite UI
@@ -151,6 +170,8 @@ function bp_nouveau_groups_localize_scripts( $params = array() ) {
 		'invites_form'       => __( 'Use the "Send" button to send your invite or the "Cancel" button to abort.', 'buddypress' ),
 		'invites_form_reset' => __( 'Group invitations cleared. Please use one of the available tabs to select members to invite.', 'buddypress' ),
 		'invites_sending'    => __( 'Sending group invitations. Please wait.', 'buddypress' ),
+
+		/* translators: %s: member name */
 		'removeUserInvite'   => __( 'Cancel invitation %s', 'buddypress' ),
 		'group_id'           => ! bp_get_current_group_id() ? bp_get_new_group_id() : bp_get_current_group_id(),
 		'is_group_create'    => bp_is_group_create(),
@@ -178,26 +199,37 @@ function bp_nouveau_groups_get_inviter_ids( $user_id, $group_id ) {
  * @since 3.0.0
  */
 function bp_nouveau_prepare_group_potential_invites_for_js( $user ) {
-	$bp = buddypress();
+	$bp    = buddypress();
+	$scope = '';
+	if ( isset( $bp->groups->invites_scope ) ) {
+		$scope = $bp->groups->invites_scope;
+	}
 
 	$response = array(
-		'id'           => intval( $user->ID ),
-		'name'         => $user->display_name,
-		'avatar'       => htmlspecialchars_decode( bp_core_fetch_avatar( array(
-			'item_id' => $user->ID,
-			'object'  => 'user',
-			'type'    => 'thumb',
-			'width'   => 50,
-			'height'  => 50,
-			'html'    => false )
-		) ),
+		'id'      => intval( $user->ID ),
+		'name'    => $user->display_name,
+		'avatar'  => htmlspecialchars_decode(
+			bp_core_fetch_avatar(
+				array(
+					'item_id' => $user->ID,
+					'object'  => 'user',
+					'type'    => 'thumb',
+					'width'   => 50,
+					'height'  => 50,
+					'html'    => false
+				)
+			)
+		),
+		'scope'      => $scope,
+		'is_sent'    => false,
+		'invited_by' => array(),
+		'can_invite' => 'invited' !== $scope,
 	);
 
 	// Do extra queries only if needed
-	if ( ! empty( $bp->groups->invites_scope ) && 'invited' === $bp->groups->invites_scope ) {
-		$response['is_sent']  = (bool) groups_check_user_has_invite( $user->ID, bp_get_current_group_id() );
-
-		$inviter_ids = bp_nouveau_groups_get_inviter_ids( $user->ID, bp_get_current_group_id() );
+	if ( 'invited' === $scope ) {
+		$response['is_sent'] = (bool) groups_check_user_has_invite( $user->ID, bp_get_current_group_id() );
+		$inviter_ids         = bp_nouveau_groups_get_inviter_ids( $user->ID, bp_get_current_group_id() );
 
 		foreach ( $inviter_ids as $inviter_id ) {
 			$class = false;
@@ -207,25 +239,25 @@ function bp_nouveau_prepare_group_potential_invites_for_js( $user ) {
 			}
 
 			$response['invited_by'][] = array(
-				'avatar' => htmlspecialchars_decode( bp_core_fetch_avatar( array(
-					'item_id' => $inviter_id,
-					'object'  => 'user',
-					'type'    => 'thumb',
-					'width'   => 50,
-					'height'  => 50,
-					'html'    => false,
-					'class'   => $class,
-				) ) ),
+				'avatar' => htmlspecialchars_decode(
+					bp_core_fetch_avatar(
+						array(
+							'item_id' => $inviter_id,
+							'object'  => 'user',
+							'type'    => 'thumb',
+							'width'   => 50,
+							'height'  => 50,
+							'html'    => false,
+							'class'   => $class,
+						)
+					)
+				),
 				'user_link' => bp_core_get_userlink( $inviter_id, false, true ),
 				'user_name' => bp_core_get_username( $inviter_id ),
 			);
 		}
 
-		if ( bp_is_item_admin() ) {
-			$response['can_edit'] = true;
-		} else {
-			$response['can_edit'] = in_array( bp_loggedin_user_id(), $inviter_ids, true );
-		}
+		$response['can_edit'] = bp_is_item_admin() || in_array( bp_loggedin_user_id(), $inviter_ids, true );
 	}
 
 	/**
@@ -243,24 +275,26 @@ function bp_nouveau_prepare_group_potential_invites_for_js( $user ) {
  * @since 3.0.0
  */
 function bp_nouveau_get_group_potential_invites( $args = array() ) {
-	$r = bp_parse_args( $args, array(
-		'group_id'     => bp_get_current_group_id(),
-		'type'         => 'alphabetical',
-		'per_page'     => 20,
-		'page'         => 1,
-		'search_terms' => false,
-		'member_type'  => false,
-		'user_id'      => 0,
-		'is_confirmed' => true,
-	) );
+	$r = bp_parse_args(
+		$args,
+		array(
+			'group_id'     => bp_get_current_group_id(),
+			'type'         => 'alphabetical',
+			'per_page'     => 20,
+			'page'         => 1,
+			'search_terms' => false,
+			'member_type'  => false,
+			'user_id'      => 0,
+			'is_confirmed' => true,
+		)
+	);
 
 	if ( empty( $r['group_id'] ) ) {
 		return false;
 	}
 
 	// Check the current user's access to the group.
-	$group = groups_get_group( $r['group_id'] );
-	if ( ! $group->user_has_access && ! bp_current_user_can( 'bp_moderate' ) ) {
+	if ( ! bp_groups_user_can_send_invites( $r['group_id'] ) ) {
 		return false;
 	}
 
@@ -299,34 +333,34 @@ function bp_nouveau_get_group_potential_invites( $args = array() ) {
 }
 
 /**
+ * Rename the Group invite step.
+ *
  * @since 3.0.0
+ * @since 10.0.0 The function is no more creating a Group invite step.
+ *
+ * @param array $steps The Group create steps.
+ * @return array       The Group create steps.
  */
 function bp_nouveau_group_invites_create_steps( $steps = array() ) {
-	if ( bp_is_active( 'friends' ) && isset( $steps['group-invites'] ) ) {
-		// Simply change the name
+	if ( isset( $steps['group-invites'] ) ) {
 		$steps['group-invites']['name'] = _x( 'Invite', 'Group invitations menu title', 'buddypress' );
-		return $steps;
 	}
-
-	// Add the create step if friends component is not active
-	$steps['group-invites'] = array(
-		'name'     => _x( 'Invite', 'Group invitations menu title', 'buddypress' ),
-		'position' => 30,
-	);
 
 	return $steps;
 }
 
 /**
+ * Rename the Group Invites nav.
+ *
  * @since 3.0.0
+ * @since 10.0.0 The function is no longer creating a Group invite nav.
  */
 function bp_nouveau_group_setup_nav() {
 	if ( ! bp_is_group() || ! bp_groups_user_can_send_invites() ) {
 		return;
 	}
 
-	// Simply change the name
-	if ( bp_is_active( 'friends' ) ) {
+	if ( bp_is_active( 'groups', 'invitations' ) ) {
 		$bp = buddypress();
 
 		$bp->groups->nav->edit_nav(
@@ -334,30 +368,20 @@ function bp_nouveau_group_setup_nav() {
 			'send-invites',
 			bp_get_current_group_slug()
 		);
-
-	// Create the Subnav item for the group
-	} else {
-		$current_group = groups_get_current_group();
-		$group_link    = bp_get_group_permalink( $current_group );
-
-		bp_core_new_subnav_item( array(
-			'name'            => _x( 'Invite', 'Group invitations menu title', 'buddypress' ),
-			'slug'            => 'send-invites',
-			'parent_url'      => $group_link,
-			'parent_slug'     => $current_group->slug,
-			'screen_function' => 'groups_screen_group_invite',
-			'item_css_id'     => 'invite',
-			'position'        => 70,
-			'user_has_access' => $current_group->user_has_access,
-			'no_access_url'   => $group_link,
-		) );
 	}
 }
 
 /**
+ * Includes a message into the sent invitation email.
+ *
  * @since 3.0.0
+ * @deprecated 6.3.0
+ *
+ * @param string $message The message to send with the invite
  */
 function bp_nouveau_groups_invites_custom_message( $message = '' ) {
+	_deprecated_function( __FUNCTION__, '6.3.0' );
+
 	if ( empty( $message ) ) {
 		return $message;
 	}
@@ -409,7 +433,7 @@ function bp_nouveau_prepare_group_for_js( $item ) {
  * @since 3.0.0
  */
 function bp_nouveau_groups_invites_restriction_nav() {
-	$slug        = bp_get_settings_slug();
+	$slug        = bp_nouveau_get_component_slug( 'settings' );
 	$user_domain = bp_loggedin_user_domain();
 
 	if ( bp_displayed_user_domain() ) {
@@ -439,7 +463,7 @@ function bp_nouveau_groups_invites_restriction_nav() {
  */
 function bp_nouveau_groups_invites_restriction_admin_nav( $wp_admin_nav ) {
 	// Setup the logged in user variables.
-	$settings_link = trailingslashit( bp_loggedin_user_domain() . bp_get_settings_slug() );
+	$settings_link = trailingslashit( bp_loggedin_user_domain() . bp_nouveau_get_component_slug( 'settings' ) );
 
 	// Add the "Group Invites" subnav item.
 	$wp_admin_nav[] = array(
@@ -480,7 +504,7 @@ function bp_nouveau_groups_screen_invites_restriction() {
 			bp_core_add_message( __( 'You are not allowed to perform this action.', 'buddypress' ), 'error' );
 		}
 
-		bp_core_redirect( trailingslashit( bp_displayed_user_domain() . bp_get_settings_slug() ) . 'invites/' );
+		bp_core_redirect( trailingslashit( bp_displayed_user_domain() . bp_nouveau_get_component_slug( 'settings' ) ) . 'invites/' );
 	}
 
 	/**
@@ -492,6 +516,40 @@ function bp_nouveau_groups_screen_invites_restriction() {
 	 */
 	bp_core_load_template( apply_filters( 'bp_nouveau_groups_screen_invites_restriction', 'members/single/settings/group-invites' ) );
 }
+
+/**
+ * Makes sure the BP REST API groups/invites endpoint respects invite restrictions.
+ *
+ * @since 7.2.1
+ *
+ * @param bool|WP_Error   $retval  Whether the request can continue.
+ * @param WP_REST_Request $request The request sent to the API.
+ * @return bool|WP_Error
+ */
+function bp_nouveau_restrict_rest_group_invite_to_friends( $retval, $request ) {
+	if ( true === $retval && bp_is_active( 'friends' ) ) {
+		$group_id   = $request->get_param( 'group_id' );
+		$user_id    = $request->get_param( 'user_id' );
+		$inviter_id = $request->get_param( 'inviter_id' );
+
+		if ( ! $inviter_id ) {
+			$inviter_id = bp_loggedin_user_id();
+		}
+
+		if ( bp_nouveau_groups_get_group_invites_setting( $user_id ) && 'is_friend' !== BP_Friends_Friendship::check_is_friend( $inviter_id, $user_id ) ) {
+			$retval = new WP_Error(
+				'bp_rest_group_invite_cannot_create_item',
+				__( 'Sorry, you are not allowed to create the invitation as requested.', 'buddypress' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+	}
+
+	return $retval;
+}
+add_filter( 'bp_rest_group_invites_create_item_permissions_check', 'bp_nouveau_restrict_rest_group_invite_to_friends', 10, 2 );
 
 /**
  * @since 3.0.0
@@ -519,7 +577,7 @@ function bp_nouveau_get_groups_directory_nav_items() {
 				'component' => 'groups',
 				'slug'      => 'personal', // slug is used because BP_Core_Nav requires it, but it's the scope
 				'li_class'  => array(),
-				'link'      => bp_loggedin_user_domain() . bp_get_groups_slug() . '/my-groups/',
+				'link'      => bp_loggedin_user_domain() . bp_nouveau_get_component_slug( 'groups' ) . '/my-groups/',
 				'text'      => __( 'My Groups', 'buddypress' ),
 				'count'     => $my_groups_count,
 				'position'  => 15,
@@ -805,7 +863,7 @@ function bp_nouveau_groups_customizer_controls( $controls = array() ) {
 			'type'       => 'checkbox',
 		),
 		'group_front_boxes' => array(
-			'label'      => __( 'Enable widget region for group homepages. When enabled, the site admin can add widgets to group pages via the Widgets panel.', 'buddypress' ),
+			'label'      => __( 'Enable custom boxes for group homepages. When enabled, Plugins using the BuddyPress Group Extension API can include content into these boxes.', 'buddypress' ),
 			'section'    => 'bp_nouveau_group_front_page',
 			'settings'   => 'bp_nouveau_appearance[group_front_boxes]',
 			'type'       => 'checkbox',
@@ -932,7 +990,7 @@ function bp_nouveau_group_locate_template_part( $template = '' ) {
 	// Use a global to avoid requesting the hierarchy for each template
 	if ( ! isset( $bp_nouveau->groups->current_group_hierarchy ) ) {
 		$bp_nouveau->groups->current_group_hierarchy = array(
-			'groups/single/%s-id-' . sanitize_file_name( $current_group->id ) . '.php',
+			'groups/single/%s-id-' . (int) $current_group->id                     . '.php',
 			'groups/single/%s-slug-' . sanitize_file_name( $current_group->slug ) . '.php',
 		);
 
@@ -1164,7 +1222,7 @@ function bp_nouveau_group_get_core_manage_screens( $id = '' ) {
 	$screens = array(
 		'edit-details'        => array( 'hook' => 'group_details_admin',             'nonce' => 'groups_edit_group_details'  ),
 		'group-settings'      => array( 'hook' => 'group_settings_admin',            'nonce' => 'groups_edit_group_settings' ),
-		'group-avatar'        => array(),
+		'group-avatar'        => array( 'hook' => 'group_settings_avatar',           'nonce' => ''                           ),
 		'group-cover-image'   => array( 'hook' => 'group_settings_cover_image',      'nonce' => ''                           ),
 		'manage-members'      => array( 'hook' => 'group_manage_members_admin',      'nonce' => ''                           ),
 		'membership-requests' => array( 'hook' => 'group_membership_requests_admin', 'nonce' => ''                           ),
@@ -1221,3 +1279,25 @@ function bp_nouveau_groups_notification_filters() {
 		bp_nouveau_notifications_register_filter( $notification );
 	}
 }
+
+/**
+ * Makes sure the Nouveau specific behavior about Group invites visibility is applied to the REST API.
+ *
+ * @since 7.2.1
+ *
+ * @param true|WP_Error   $retval  Whether the current user can list invites.
+ * @param WP_REST_Request $request The request sent to the API.
+ * @return true|WP_Error Whether the current user can list invites.
+ */
+function bp_nouveau_rest_group_invites_get_items_permissions_check( $retval, $request ) {
+	if ( is_wp_error( $retval ) ) {
+		$group_id = (int) $request['group_id'];
+
+		if ( groups_is_user_member( bp_loggedin_user_id(), $group_id ) ) {
+			$retval = true;
+		}
+	}
+
+	return $retval;
+}
+add_filter( 'bp_rest_group_invites_get_items_permissions_check', 'bp_nouveau_rest_group_invites_get_items_permissions_check', 10, 2 );

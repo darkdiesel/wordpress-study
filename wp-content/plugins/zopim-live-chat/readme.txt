@@ -2,8 +2,8 @@
 Contributors: zendesk_official
 Tags: chat, chat online, contact plugin, contact us, customer support, free chat, chat software, IM chat, live chat, live chat inc, live chat services, live chat software, live chatting, live help, live support, live web chat, livechat, live help, live support, olark, online chat, online support, php live chat, snapengage, support software, website chat, wordpress chat, wordpress live chat, wordpress live chat plugin, Zopim, zendesk, Zopim live chat, banckle, clickdesk, click desk
 Requires at least: 3.1
-Tested up to: 5.1.1
-Stable tag: 1.4.15
+Tested up to: 5.5
+Stable tag: 1.4.18
 
 Zendesk Chat (previously Zopim) lets you monitor and chat with visitors surfing your store in real-time. Impress them personally and ease them into their purchase.
 
@@ -48,6 +48,15 @@ What are you waiting for? Download Zendesk Chat plugin now and <a href="https://
 * Arabic | Bulgarian | Chinese | Croatian | Czech | Danish | Dutch; Flemish | Estonian | Faroese | Finnish | French | Georgian | German | Greek | Hebrew | Hungarian | Icelandic | Indonesian | Italian | Japanese | Korean | Kurdish | Latvian | Lithuanian | Macedonian | Malay | Norwegian Bokmal | Persian | Polish | Portuguese | Romanian | Russian | Serbian | Slovak | Slovenian | Spanish; Castilian | Swedish | Thai | Turkish | Ukranian | Urdu | Vietnamese
 
 == Changelog ==
+
+= 1.4.18 =
+* Tested on Wordpress v5.5
+
+= 1.4.17 =
+* Tested on Wordpress v5.4.2
+
+= 1.4.16 =
+* Updated plugin to support Wordpress v5.4.1
 
 = 1.4.15 =
 * Tested on Wordpress v5.1.1

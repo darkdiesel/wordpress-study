@@ -128,7 +128,7 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 		}
 
 		// Add Enhanced link attribution.
-		if ( monsterinsights_get_option( 'enhanced_link_attribution', false ) ) {
+		if ( monsterinsights_get_option( 'link_attribution', false ) ) {
 			$options['enhanced_link_attribution'] = "'require', 'linkid', 'linkid.js'";
 		}
 
@@ -191,25 +191,15 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 	 * @return string Javascript to output.
 	 */
 	public function frontend_output( ) {
-		$options        = $this->frontend_tracking_options();
-		$src     	    = apply_filters( 'monsterinsights_frontend_output_analytics_src', '//www.google-analytics.com/analytics.js' );
-		$compat     	= monsterinsights_get_option( 'gatracker_compatibility_mode', false );
-		$compat    	 	= $compat ? 'window.ga = __gaTracker;' : '';
-		$track_user 	= monsterinsights_track_user();
-		$ua         	= monsterinsights_get_ua();
-		$output     	= '';
-		$reason     	= '';
-		$attributes     = apply_filters( 'monsterinsights_tracking_analytics_script_attributes', array( 'type' => "text/javascript", 'data-cfasync' => 'false'  ) );
-		$attr_string    = '';
-		if ( ! empty( $attributes ) ) {
-			foreach( $attributes as $attr_name => $attr_value ) {
-	 			if ( ! empty( $attr_name ) ) {
-	 				$attr_string .= ' ' . sanitize_key( $attr_name ) . '="' . esc_attr( $attr_value ) . '"';
-	 			} else {
-	 				$attr_string .= ' ' . sanitize_key( $attr_value );
-	 			}
-			}
-		}
+		$options     = $this->frontend_tracking_options();
+		$src         = apply_filters( 'monsterinsights_frontend_output_analytics_src', '//www.google-analytics.com/analytics.js' );
+		$compat_mode = apply_filters( 'monsterinsights_get_option_gatracker_compatibility_mode', true );
+		$compat      = $compat_mode ? 'window.ga = __gaTracker;' : '';
+		$track_user  = monsterinsights_track_user();
+		$ua          = monsterinsights_get_ua();
+		$output      = '';
+		$reason      = '';
+		$attr_string = monsterinsights_get_frontend_analytics_script_atts();
 		ob_start();
 		?>
 <!-- This site uses the Google Analytics by MonsterInsights plugin v<?php echo MONSTERINSIGHTS_VERSION; ?> - Using Analytics tracking - https://www.monsterinsights.com/ -->
@@ -218,7 +208,7 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 		$reason = __( 'Note: MonsterInsights is not currently configured on this site. The site owner needs to authenticate with Google Analytics in the MonsterInsights settings panel.', 'google-analytics-for-wordpress' );
 	    $output .=  '<!-- ' . esc_html( $reason ) . ' -->' . PHP_EOL;
 	} else if ( current_user_can( 'monsterinsights_save_settings' ) ) {
-		$reason = __( 'Note: MonsterInsights does not track you as a logged in site administrator to prevent site owners from accidentally skewing their own Google Analytics data.'. PHP_EOL . 'If you are testing Google Analytics code, please do so either logged out or in the private browsing/incognito mode of your web browser.', 'google-analytics-for-wordpress' );
+		$reason = __( 'Note: MonsterInsights does not track you as a logged-in site administrator to prevent site owners from accidentally skewing their own Google Analytics data.'. PHP_EOL . 'If you are testing Google Analytics code, please do so either logged out or in the private browsing/incognito mode of your web browser.', 'google-analytics-for-wordpress' );
 	    $output .=  '<!-- ' . esc_html( $reason ) . ' -->' . PHP_EOL;
 	} else {
 		$reason = __( 'Note: The site owner has disabled Google Analytics tracking for your user role.', 'google-analytics-for-wordpress' );
@@ -228,6 +218,7 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 } ?>
 <?php if ( $ua ) { ?>
 <script<?php echo $attr_string;?>>
+    (window.gaDevIds=window.gaDevIds||[]).push("dZGIzZG");
 	var mi_version         = '<?php echo MONSTERINSIGHTS_VERSION; ?>';
 	var mi_track_user      = <?php echo ( $track_user ? 'true' : 'false' ); ?>;
 	var mi_no_track_reason = <?php echo ( $reason ? "'" . esc_js( $reason)  . "'": "''" ); ?>;
@@ -251,6 +242,12 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 	  document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
 	  window[disableStr] = true;
 	}
+
+	if ( 'undefined' === typeof gaOptout ) {
+		function gaOptout() {
+			__gaTrackerOptout();
+		}
+	}
 	<?php } ?>
 
 	if ( mi_track_user ) {
@@ -270,6 +267,10 @@ class MonsterInsights_Tracking_Analytics extends MonsterInsights_Tracking_Abstra
 				echo '	' . $item['value'] . "\n";
 			}
 		}
+	}
+	if ( $compat_mode ) {
+		// Ensure that GA is fully loaded and assign to ga.
+		echo "		__gaTracker( function() { window.ga = __gaTracker; } );\n";
 	}
 	?>
 	} else {

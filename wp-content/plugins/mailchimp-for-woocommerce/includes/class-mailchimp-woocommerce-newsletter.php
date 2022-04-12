@@ -32,7 +32,15 @@ class MailChimp_Newsletter extends MailChimp_WooCommerce_Options
      */
     public function applyNewsletterField($checkout)
     {
-        if (!is_admin()) {
+        // some folks have asked to be able to check out on behalf of customers. I guess this makes sense
+        // if they want to do this, but it needs to be a constant and custom.
+        $allow_admin = defined('MAILCHIMP_ALLOW_ADMIN_NEWSLETTER') && MAILCHIMP_ALLOW_ADMIN_NEWSLETTER;
+
+        if ($allow_admin || !is_admin()) {
+            $api = mailchimp_get_api();
+
+            // get the gdpr fields from the cache - or call it again and save for 5 minutes.
+            $GDPRfields = $api->getCachedGDPRFields(mailchimp_get_list_id(), 5);
 
             // if the user has chosen to hide the checkbox, don't do anything.
             if (($default_setting = $this->getOption('mailchimp_checkbox_defaults', 'check')) === 'hide') {
@@ -40,8 +48,8 @@ class MailChimp_Newsletter extends MailChimp_WooCommerce_Options
             }
 
             // allow the user to specify the text in the newsletter label.
-            $label = $this->getOption('newsletter_label', __('Subscribe to our newsletter', 'mc-woocommerce'));
-
+            $label = $this->getOption('newsletter_label');
+            if ($label == '') $label = __('Subscribe to our newsletter', 'mailchimp-for-woocommerce');
             // if the user chose 'check' or nothing at all, we default to true.
             $default_checked = $default_setting === 'check';
             $status = $default_checked;
@@ -51,21 +59,37 @@ class MailChimp_Newsletter extends MailChimp_WooCommerce_Options
             if (is_user_logged_in()) {
                 $status = get_user_meta(get_current_user_id(), 'mailchimp_woocommerce_is_subscribed', true);
                 /// if the user is logged in - and is already subscribed - just ignore this checkbox.
-                if ((bool) $status) {
-                    return;
-                }
                 if ($status === '' || $status === null) {
                     $status = $default_checked;
                 }
             }
 
-            // echo out the checkbox.
+            // echo out the subscription checkbox.
             $checkbox = '<p class="form-row form-row-wide mailchimp-newsletter">';
             $checkbox .= '<input class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" id="mailchimp_woocommerce_newsletter" type="checkbox" name="mailchimp_woocommerce_newsletter" value="1"'.($status ? ' checked="checked"' : '').'> ';
             $checkbox .= '<label for="mailchimp_woocommerce_newsletter" class="woocommerce-form__label woocommerce-form__label-for-checkbox inline"><span>' . $label . '</span></label>';
             $checkbox .= '</p>';
             $checkbox .= '<div class="clear"></div>';
 
+            // only render these fields if it's an array that has valid data.
+            if (!empty($GDPRfields) && is_array($GDPRfields)) {
+                $checkbox .= "<div id='mailchimp-gdpr-fields'><p>";
+                    $checkbox .= __('Please select all the ways you would like to hear from us', 'mailchimp-for-woocommerce');
+                    $checkbox .= "<div class='clear'></div>";
+                    
+                    foreach ($GDPRfields as $key => $field) {
+                        $marketing_permission_id = $field['marketing_permission_id'];
+                        $text = $field['text'];
+                        
+                        // Add to the checkbox output
+                        $checkbox .= "<input type='hidden' value='0' name='mailchimp_woocommerce_gdpr[{$marketing_permission_id}]'>";
+                        $checkbox .= "<input class='woocommerce-form__input woocommerce-form__input-checkbox input-checkbox' id='mailchimp_woocommerce_gdpr[{$marketing_permission_id}]' type='checkbox' name='mailchimp_woocommerce_gdpr[{$marketing_permission_id}]' value='1'".($status ? ' checked="checked"' : '').">";
+                        $checkbox .= "<label for='mailchimp_woocommerce_gdpr[{$marketing_permission_id}]' class='woocommerce-form__label woocommerce-form__label-for-checkbox inline'><span>{$text}</span></label>";
+                        $checkbox .= "<div class='clear'></div>";
+                    }
+                $checkbox .= "</p></div>";
+            }
+            
             echo apply_filters( 'mailchimp_woocommerce_newsletter_field', $checkbox, $status, $label);
         }
     }

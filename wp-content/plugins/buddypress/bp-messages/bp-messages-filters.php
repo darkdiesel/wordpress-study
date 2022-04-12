@@ -32,12 +32,10 @@ add_filter( 'messages_message_subject_before_save', 'force_balance_tags' );
 add_filter( 'messages_notice_message_before_save',  'force_balance_tags' );
 add_filter( 'messages_notice_subject_before_save',  'force_balance_tags' );
 
-if ( function_exists( 'wp_encode_emoji' ) ) {
-	add_filter( 'messages_message_subject_before_save', 'wp_encode_emoji' );
-	add_filter( 'messages_message_content_before_save', 'wp_encode_emoji' );
-	add_filter( 'messages_notice_message_before_save',  'wp_encode_emoji' );
-	add_filter( 'messages_notice_subject_before_save',  'wp_encode_emoji' );
-}
+add_filter( 'messages_message_subject_before_save', 'wp_encode_emoji' );
+add_filter( 'messages_message_content_before_save', 'wp_encode_emoji' );
+add_filter( 'messages_notice_message_before_save',  'wp_encode_emoji' );
+add_filter( 'messages_notice_subject_before_save',  'wp_encode_emoji' );
 
 add_filter( 'bp_get_message_notice_subject',     'wptexturize' );
 add_filter( 'bp_get_message_notice_text',        'wptexturize' );
@@ -78,6 +76,8 @@ add_filter( 'bp_get_messages_content_value',          'stripslashes_deep'    );
 add_filter( 'bp_get_the_thread_message_content',      'stripslashes_deep'    );
 add_filter( 'bp_get_the_thread_subject',              'stripslashes_deep'    );
 add_filter( 'bp_get_message_thread_content',          'stripslashes_deep', 1 );
+
+add_filter( 'bp_get_the_thread_message_content', 'bp_core_add_loading_lazy_attribute' );
 
 // Personal data export.
 add_filter( 'wp_privacy_personal_data_exporters', 'bp_messages_register_personal_data_exporter' );
@@ -134,14 +134,16 @@ function bp_messages_filter_kses( $content ) {
  * Register Messages personal data exporter.
  *
  * @since 4.0.0
+ * @since 5.0.0 adds an `exporter_bp_friendly_name` param to exporters.
  *
  * @param array $exporters  An array of personal data exporters.
  * @return array An array of personal data exporters.
  */
 function bp_messages_register_personal_data_exporter( $exporters ) {
 	$exporters['buddypress-messages'] = array(
-		'exporter_friendly_name' => __( 'BuddyPress Messages', 'buddypress' ),
-		'callback'               => 'bp_messages_personal_data_exporter',
+		'exporter_friendly_name'    => __( 'BuddyPress Messages', 'buddypress' ),
+		'callback'                  => 'bp_messages_personal_data_exporter',
+		'exporter_bp_friendly_name' => _x( 'Private Messages', 'BuddyPress Messages data exporter friendly name', 'buddypress' ),
 	);
 
 	return $exporters;

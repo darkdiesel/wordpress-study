@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2019 ServMask Inc.
+ * Copyright (C) 2014-2020 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Ai1wm_Export_Init {
 
 	public static function execute( $params ) {
-
 		$blog_id = null;
 
 		// Get subsite Blog ID
@@ -39,6 +38,9 @@ class Ai1wm_Export_Init {
 				$blog_id = array_shift( $sites );
 			}
 		}
+
+		// Set progress
+		Ai1wm_Status::info( __( 'Preparing to export...', AI1WM_PLUGIN_NAME ) );
 
 		// Set archive
 		if ( empty( $params['archive'] ) ) {

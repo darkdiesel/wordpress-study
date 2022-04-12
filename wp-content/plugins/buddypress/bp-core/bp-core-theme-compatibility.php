@@ -189,7 +189,7 @@ function bp_use_theme_compat_with_current_theme() {
  *    fallback check for themes that were derived from bp-default, and have
  *    not been updated for BP 1.7+; we make the assumption that any theme in
  *    this category will have the members-loop.php template, and so use its
- *    presence as an indicator that theme compatibility is not required
+ *    presence as an indicator that theme compatibility is not required.
  *
  * @since 1.9.0
  *
@@ -432,7 +432,7 @@ function bp_register_theme_compat_default_features() {
 	 * than the width used by BuddyPress, so we need to manually set the
 	 * content width for the concerned themes.
 	 *
-	 * Example: array( stylesheet => content width used by BuddyPress )
+	 * Example: array( stylesheet => content width used by BuddyPress ).
 	 */
 	$bp_content_widths = array(
 		'twentyfifteen'  => 1300,
@@ -464,7 +464,7 @@ function bp_register_theme_compat_default_features() {
 	bp_set_theme_compat_feature( 'legacy', array(
 		'name'     => 'cover_image',
 		'settings' => array(
-			'components'   => array( 'xprofile', 'groups' ),
+			'components'   => array( 'members', 'groups' ),
 			'width'        => $bp_content_width,
 			'height'       => $top_offset + round( $avatar_height / 2 ),
 			'callback'     => 'bp_legacy_theme_cover_image',
@@ -549,71 +549,77 @@ function bp_theme_compat_reset_post( $args = array() ) {
 
 	// Switch defaults if post is set.
 	if ( isset( $wp_query->post ) ) {
-		$dummy = wp_parse_args( $args, array(
-			'ID'                    => $wp_query->post->ID,
-			'post_status'           => $wp_query->post->post_status,
-			'post_author'           => $wp_query->post->post_author,
-			'post_parent'           => $wp_query->post->post_parent,
-			'post_type'             => $wp_query->post->post_type,
-			'post_date'             => $wp_query->post->post_date,
-			'post_date_gmt'         => $wp_query->post->post_date_gmt,
-			'post_modified'         => $wp_query->post->post_modified,
-			'post_modified_gmt'     => $wp_query->post->post_modified_gmt,
-			'post_content'          => $wp_query->post->post_content,
-			'post_title'            => $wp_query->post->post_title,
-			'post_excerpt'          => $wp_query->post->post_excerpt,
-			'post_content_filtered' => $wp_query->post->post_content_filtered,
-			'post_mime_type'        => $wp_query->post->post_mime_type,
-			'post_password'         => $wp_query->post->post_password,
-			'post_name'             => $wp_query->post->post_name,
-			'guid'                  => $wp_query->post->guid,
-			'menu_order'            => $wp_query->post->menu_order,
-			'pinged'                => $wp_query->post->pinged,
-			'to_ping'               => $wp_query->post->to_ping,
-			'ping_status'           => $wp_query->post->ping_status,
-			'comment_status'        => $wp_query->post->comment_status,
-			'comment_count'         => $wp_query->post->comment_count,
-			'filter'                => $wp_query->post->filter,
+		$dummy = bp_parse_args(
+			$args,
+			array(
+				'ID'                    => $wp_query->post->ID,
+				'post_status'           => $wp_query->post->post_status,
+				'post_author'           => $wp_query->post->post_author,
+				'post_parent'           => $wp_query->post->post_parent,
+				'post_type'             => $wp_query->post->post_type,
+				'post_date'             => $wp_query->post->post_date,
+				'post_date_gmt'         => $wp_query->post->post_date_gmt,
+				'post_modified'         => $wp_query->post->post_modified,
+				'post_modified_gmt'     => $wp_query->post->post_modified_gmt,
+				'post_content'          => $wp_query->post->post_content,
+				'post_title'            => $wp_query->post->post_title,
+				'post_excerpt'          => $wp_query->post->post_excerpt,
+				'post_content_filtered' => $wp_query->post->post_content_filtered,
+				'post_mime_type'        => $wp_query->post->post_mime_type,
+				'post_password'         => $wp_query->post->post_password,
+				'post_name'             => $wp_query->post->post_name,
+				'guid'                  => $wp_query->post->guid,
+				'menu_order'            => $wp_query->post->menu_order,
+				'pinged'                => $wp_query->post->pinged,
+				'to_ping'               => $wp_query->post->to_ping,
+				'ping_status'           => $wp_query->post->ping_status,
+				'comment_status'        => $wp_query->post->comment_status,
+				'comment_count'         => $wp_query->post->comment_count,
+				'filter'                => $wp_query->post->filter,
 
-			'is_404'                => false,
-			'is_page'               => false,
-			'is_single'             => false,
-			'is_archive'            => false,
-			'is_tax'                => false,
-		) );
+				'is_404'                => false,
+				'is_page'               => false,
+				'is_single'             => false,
+				'is_archive'            => false,
+				'is_tax'                => false,
+			)
+		);
 	} else {
-		$dummy = wp_parse_args( $args, array(
-			'ID'                    => -9999,
-			'post_status'           => 'public',
-			'post_author'           => 0,
-			'post_parent'           => 0,
-			'post_type'             => 'page',
-			'post_date'             => 0,
-			'post_date_gmt'         => 0,
-			'post_modified'         => 0,
-			'post_modified_gmt'     => 0,
-			'post_content'          => '',
-			'post_title'            => '',
-			'post_excerpt'          => '',
-			'post_content_filtered' => '',
-			'post_mime_type'        => '',
-			'post_password'         => '',
-			'post_name'             => '',
-			'guid'                  => '',
-			'menu_order'            => 0,
-			'pinged'                => '',
-			'to_ping'               => '',
-			'ping_status'           => '',
-			'comment_status'        => 'closed',
-			'comment_count'         => 0,
-			'filter'                => 'raw',
+		$dummy = bp_parse_args(
+			$args,
+			array(
+				'ID'                    => -9999,
+				'post_status'           => 'public',
+				'post_author'           => 0,
+				'post_parent'           => 0,
+				'post_type'             => 'page',
+				'post_date'             => 0,
+				'post_date_gmt'         => 0,
+				'post_modified'         => 0,
+				'post_modified_gmt'     => 0,
+				'post_content'          => '',
+				'post_title'            => '',
+				'post_excerpt'          => '',
+				'post_content_filtered' => '',
+				'post_mime_type'        => '',
+				'post_password'         => '',
+				'post_name'             => '',
+				'guid'                  => '',
+				'menu_order'            => 0,
+				'pinged'                => '',
+				'to_ping'               => '',
+				'ping_status'           => '',
+				'comment_status'        => 'closed',
+				'comment_count'         => 0,
+				'filter'                => 'raw',
 
-			'is_404'                => false,
-			'is_page'               => false,
-			'is_single'             => false,
-			'is_archive'            => false,
-			'is_tax'                => false,
-		) );
+				'is_404'                => false,
+				'is_page'               => false,
+				'is_single'             => false,
+				'is_archive'            => false,
+				'is_tax'                => false,
+			)
+		);
 	}
 
 	// Bail if dummy post is empty.
@@ -665,7 +671,7 @@ function bp_theme_compat_reset_post( $args = array() ) {
  */
 function bp_template_include_theme_compat( $template = '' ) {
 	// If embed template, bail.
-	if ( true === function_exists( 'is_embed' ) && is_embed() ) {
+	if ( is_embed() ) {
 		return $template;
 	}
 
@@ -945,7 +951,7 @@ function bp_comments_open( $open, $post_id = 0 ) {
  *
  * @since 1.9.2
  *
- * @param string $retval The current post content.
+ * @param  string $retval The current post content.
  * @return string $retval
  */
 function bp_theme_compat_toggle_is_page( $retval = '' ) {

@@ -3,7 +3,7 @@
  * BP Nouveau Group's manage members template.
  *
  * @since 3.0.0
- * @version 3.1.0
+ * @version 10.0.0
  */
 ?>
 
@@ -11,7 +11,13 @@
 	<?php esc_html_e( 'Manage Group Members', 'buddypress' ); ?>
 </h2>
 
-	<p class="bp-help-text"><?php esc_html_e( 'Manage your group members; promote to moderators, admins or demote or ban.', 'buddypress' ); ?></p>
+<p class="bp-help-text"><?php esc_html_e( 'Manage your group members; promote to moderators, admins or demote or ban.', 'buddypress' ); ?></p>
+
+<?php if ( bp_rest_api_is_available() ) :
+
+	bp_groups_manage_group_members_interface();
+
+else : ?>
 
 	<dl class="groups-manage-members-list">
 
@@ -119,5 +125,6 @@
 
 		bp_nouveau_user_feedback( 'group-manage-members-none' );
 
-	endif; ?>
+	endif;
 
+endif;

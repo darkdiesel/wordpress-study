@@ -30,8 +30,8 @@ if (!class_exists('HTCC_Admin')) :
 		{
 			$this->api = new MobileMonkeyApi();
 			$this->token = $this->api->connectMobileMonkey();
-			$this->options = get_option('htcc_options');
-			$this->fb_page_id = $this->options['fb_page_id'];
+			$this->options_as = get_option('htcc_as_options');
+			$this->fb_page_id = $this->api->getActiveRemotePageId();
 			$this->botid = $this->api->getActiveBotId();
 			$this->internal = $this->api->getActivePage();
 			$this->stepdis = "close";
@@ -63,6 +63,9 @@ if (!class_exists('HTCC_Admin')) :
 			);
 
 			if ($this->fb_page_id && $this->token && $this->internal){
+				if(get_transient('wp-chatbot__previously-connected-page')) {
+					return;
+				}
 				add_submenu_page(
 					'wp-chatbot',
 					'wp-chatbot',
@@ -126,8 +129,60 @@ if (!class_exists('HTCC_Admin')) :
 
 		}
 		public function example_admin_notice() {
+            $delay = get_transient( 'banner_notice_off' );
 			if (!$this->fb_page_id || !$this->token || !$this->internal){
-				HT_CC::view('ht-cc-admin-notice-not-connected');
+			    if ($delay!=true){
+				    HT_CC::view('ht-cc-admin-notice-not-connected');
+                }
+			}
+		}
+		public function new_leads() {
+			if ($this->fb_page_id && $this->token && $this->internal){
+                $notice = get_transient( 'lead_notice_off' );
+                $contacts = $this->api->getContacts();
+                $count = 0;
+                if (isset($contacts)){
+                    foreach ($contacts as $contact){
+                        $date = new DateTime();
+                        $match_date = new DateTime($contact->created_at);
+                        $interval = $match_date->diff($date);
+                        $day = $interval->format('%r%a');
+                        if ($day<=3&&$day>=0){
+                            $count +=1;
+                        }
+                    }
+
+				}
+			    if ($count>=2&&!$this->options_as['email']){
+			        if ($notice != true ){
+						$this->api->notice = true;
+                        $leads_info = [
+							'header_text' => "You had  $count  new leads on your website in the last 3 days. ",
+							'p_text'=>"Set up notifications in WP-Chatbot to get an email each time a new lead is detected!",
+							'button_text'=>"SET UP NOTIFICATION",
+                            'type'=>'lead'
+                        ];
+                        HT_CC::view('ht-cc-admin-top-banner',$leads_info);
+                    }
+                }
+			}
+
+		}
+		public function mobile_promo() {
+			if ($this->fb_page_id && $this->token && $this->internal) {
+				if ($this->api->notice != true){
+					$notice = get_transient( 'promo_notice_off' );
+					if ($notice != true ) {
+						$leads_info = [
+							'header_text' => "Heard about our mobile app?",
+							'p_text' => " Install the app now to respond to customers straight from your phone",
+							'button_text' => "Download App",
+							'type' => 'promo'
+						];
+						HT_CC::view('ht-cc-admin-top-banner', $leads_info);
+					}
+
+			    }
 			}
 		}
 		/**
@@ -157,6 +212,32 @@ if (!class_exists('HTCC_Admin')) :
 			wp_send_json_success ($response);
         }
 
+        public function notice_lead_off()
+        {
+            $response= array('done'=>true);
+           set_transient( 'lead_notice_off', true, WEEK_IN_SECONDS*2);
+            wp_send_json_success ($response);
+        }
+
+		public function notice_promo_off()
+		{
+			$response= array('done'=>true);
+			set_transient( 'promo_notice_off', true);
+			wp_send_json_success ($response);
+		}
+		public function ht_cc_admin_sidebar__hide_mobile_app_banner()
+		{
+			$response= array('done'=>true);
+			set_transient( 'ht_cc_admin_sidebar__hide_mobile_app_banner', true);
+			wp_send_json_success ($response);
+		}
+
+        public function pre_val(){
+			set_transient( 'pre_value', false, YEAR_IN_SECONDS );
+			$response= array('done'=>true);
+			wp_send_json_success ($response);
+        }
+
 		public function set_tab_done(){
 			$tab = get_transient( 'done-tab' );
 			$resp_tab = $_GET['state']+$tab;
@@ -169,6 +250,19 @@ if (!class_exists('HTCC_Admin')) :
 			set_transient( 'current-tab', preg_replace('/[^0-9]/', '', $_POST['current']),YEAR_IN_SECONDS );
 			wp_send_json_success ();
         }
+
+        public function banner_off(){
+		    $response= array('done'=>true);
+            set_transient( 'banner_notice_off', true, WEEK_IN_SECONDS*2);
+            wp_send_json_success ($response);
+        }
+
+        public function cg_off(){
+            $response= array('done'=>true);
+            set_transient( 'cg_notice_off', true, WEEK_IN_SECONDS*2);
+            wp_send_json_success ($response);
+        }
+
 
 		/**
 		 * Options page - Regsiter, add section and add setting fields
@@ -269,16 +363,21 @@ if (!class_exists('HTCC_Admin')) :
                 <h3 class="qa_head"><?php _e('Q&A', 'wp-chatbot') ?></h3>
                 <p class="qa_p"><?php _e('WP-Chatbot will answer questions on your page based on keywords detected in the user’s question.', 'wp-chatbot') ?></p>
                 <div class="qa_new-wrapper">
-					<?php echo $html;?>
+			        <?php
+                    if (!$htcc_as_options['advanced_triggers_present']||$this->api->getCurrentSubscription()) {
+						echo $html;
+					}
+                    ?>
                 </div>
             </div>
+            <?php $trigger = $htcc_as_options['advanced_triggers_present']&&!$this->api->getCurrentSubscription()? "disabled":""; ?>
             <div class="qa-button__add">
-                <span class="add_qa"><b>+</b> Add Q&A</span>
+                <span class="add_qa <?php echo $trigger?>" ><b>+</b> Add Q&A</span>
                 <div class="pro_button__wrapper" style="opacity: 1; display: none;"><a href="#" class="pro_button__link"><div class="pro_button"><div class="pro_button__content"><p>Upgrade to unlock this feature</p><h3>Get <b>50% off</b> when you upgrade today.</h3></div><div class="pro_button__action"><span class="pro_button_action__text">Upgrade</span></div></div></a></div>
             </div>
             <?php if ($htcc_as_options['advanced_triggers_present']){?>
                 <div class="have_qa">
-                    <a target="_blank" href="https://app.mobilemonkey.com/chatbot-editor/" >You have more advanced Q&As created in MobileMonkey. Go to MobileMonkey to edit those Q&As</a>
+                    <a target="_blank" href="<?php echo $this->api->app_domain ?>chatbot-editor/<?php echo $this->internal['bot_id'] ?>/trigger" >You have more advanced Q&As created in MobileMonkey. Go to MobileMonkey to edit those Q&As</a>
                 </div>
 		    <?php
 		    }
@@ -458,7 +557,7 @@ if (!class_exists('HTCC_Admin')) :
                     <h6><?php _e('Looks like you made changes to the Answering Service in MobileMonkey. Please go to MobileMonkey to continue editing.', 'wp-chatbot') ?></h6>
                     <div class="but__wrap">
                         <a target="_blank" rel="noopener noreferrer"
-                           href='https://app.mobilemonkey.com/chatbot-editor/<?php echo $this->internal['bot_id'] ?>/build/'
+                           href='<?php echo $this->api->app_domain ?>chatbot-editor/<?php echo $this->internal['bot_id'] ?>/build/'
                            class="go_mm"><?php _e('Go to MobileMonkey') ?></a>
                     </div>
                 </div>
@@ -722,9 +821,9 @@ if (!class_exists('HTCC_Admin')) :
                             </a>
                         </div>
                     </div>
-                    <p>Show - The greeting dialog will always be shown when the plugin loads.</p>
-                    <p>Fade - The greeting dialog of the plugin will be shown, then fade away and stay minimized afterwards.</p>
-                    <p>Hide - The greeting dialog of the plugin will always be minimized until a user clicks on the plugin.</p>
+                    <label class="gray">Show - The greeting dialog will always be shown when the plugin loads.</label>
+                    <label class="gray">Fade - The greeting dialog of the plugin will be shown, then fade away and stay minimized afterwards.</label>
+                    <label class="gray">Hide - The greeting dialog of the plugin will always be minimized until a user clicks on the plugin.</label>
                 </div>
             </div>
 			<?php

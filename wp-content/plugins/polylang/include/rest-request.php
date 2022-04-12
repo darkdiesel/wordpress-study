@@ -1,73 +1,93 @@
 <?php
+/**
+ * @package Polylang
+ */
 
 /**
- * REST API controller
- * accessible as $polylang global object
- *
- * Properties:
- * options        => inherited, reference to Polylang options array
- * model          => inherited, reference to PLL_Model object
- * links_model    => inherited, reference to PLL_Links_Model object
- * links          => reference to PLL_Admin_Links object
- * static_pages   => reference to PLL_Static_Pages object
- * filters_links  => reference to PLL_Filters_Links object
- * posts          => reference to PLL_CRUD_Posts object
- * terms          => reference to PLL_CRUD_Terms object
- * sync           => reference to PLL_Sync object
+ * Main Polylang class for REST API requrests, accessible from @see PLL().
  *
  * @since 2.6
  */
 class PLL_REST_Request extends PLL_Base {
-	public $links, $posts, $terms, $filters_links, $sync;
+	/**
+	 * @var PLL_Language|false|null A `PLL_Language` when defined, `false` otherwise. `null` until the language
+	 *                              definition process runs.
+	 */
+	public $curlang;
 
 	/**
-	 * Setup filters
+	 * @var PLL_Filters|null
+	 */
+	public $filters;
+
+	/**
+	 * @var PLL_Filters_Links|null
+	 */
+	public $filters_links;
+
+	/**
+	 * @var PLL_Admin_Links|null
+	 */
+	public $links;
+
+	/**
+	 * @var PLL_Nav_Menu|null
+	 */
+	public $nav_menu;
+
+	/**
+	 * @var PLL_Static_Pages|null
+	 */
+	public $static_pages;
+
+	/**
+	 * @var PLL_Filters_Widgets_Options|null
+	 */
+	public $filters_widgets_options;
+
+	/**
+	 * Setup filters.
 	 *
 	 * @since 2.6
+	 *
+	 * @return void
 	 */
 	public function init() {
 		parent::init();
 
-		if ( $this->model->get_languages_list() ) {
+		if ( ! $this->model->get_languages_list() ) {
+			return;
+		}
 
-			/** This action is documented in include/class-polylang.php */
-			do_action( 'pll_no_language_defined' ); // To load overridden textdomains.
-
-			$this->filters_links = new PLL_Filters_Links( $this );
-
-			// Static front page and page for posts
-			if ( 'page' === get_option( 'show_on_front' ) ) {
-				$this->static_pages = new PLL_Static_Pages( $this );
+		if ( ! empty( $_REQUEST['lang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			if ( is_string( $_REQUEST['lang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				$this->curlang = $this->model->get_language( sanitize_key( $_REQUEST['lang'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 			}
 
-			$this->links = new PLL_Admin_Links( $this );
-			$this->posts = new PLL_CRUD_Posts( $this );
-			$this->terms = new PLL_CRUD_Terms( $this );
-			$this->sync  = new PLL_Sync( $this );
-
-			$this->nav_menu = new PLL_Nav_Menu( $this ); // For auto added pages to menu
-
-			// Share term slugs
-			if ( get_option( 'permalink_structure' ) && $this->options['force_lang'] && class_exists( 'PLL_Share_Term_Slug' ) ) {
-				$this->share_term_slug = version_compare( $GLOBALS['wp_version'], '4.8', '<' ) ?
-					new PLL_Frontend_Share_Term_Slug( $this ) :
-					new PLL_Share_Term_Slug( $this );
-			}
-
-			// Translate slugs, only for pretty permalinks
-			if ( get_option( 'permalink_structure' ) && class_exists( 'PLL_Translate_Slugs' ) ) {
-				$curlang = null;
-				$slugs_model = new PLL_Translate_Slugs_Model( $this );
-				$this->translate_slugs = new PLL_Translate_Slugs( $slugs_model, $curlang );
-			}
-
-			if ( class_exists( 'PLL_Sync_Post_REST' ) ) {
-				$this->sync_post = new PLL_Sync_Post_REST( $this );
-			}
-
-			if ( class_exists( 'PLL_Duplicate_REST' ) ) {
-				$this->duplicate_rest = new PLL_Duplicate_REST();
+			if ( empty( $this->curlang ) && ! empty( $this->options['default_lang'] ) && is_string( $this->options['default_lang'] ) ) {
+				// A lang has been requested but it is invalid, let's fall back to the default one.
+				$this->curlang = $this->model->get_language( sanitize_key( $this->options['default_lang'] ) );
 			}
 		}
+
+		if ( ! empty( $this->curlang ) ) {
+			/** This action is documented in frontend/choose-lang.php */
+			do_action( 'pll_language_defined', $this->curlang->slug, $this->curlang );
+		} else {
+			/** This action is documented in include/class-polylang.php */
+			do_action( 'pll_no_language_defined' ); // To load overridden textdomains.
+		}
+
+		$this->filters_links           = new PLL_Filters_Links( $this );
+		$this->filters                 = new PLL_Filters( $this );
+		$this->filters_widgets_options = new PLL_Filters_Widgets_Options( $this );
+
+		// Static front page and page for posts.
+		if ( 'page' === get_option( 'show_on_front' ) ) {
+			$this->static_pages = new PLL_Static_Pages( $this );
+		}
+
+		$this->links    = new PLL_Admin_Links( $this );
+		$this->nav_menu = new PLL_Nav_Menu( $this ); // For auto added pages to menu.
 	}
 }

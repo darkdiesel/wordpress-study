@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package Polylang
+ */
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php'; // since WP 3.1
@@ -35,11 +38,12 @@ class PLL_Table_Settings extends WP_List_Table {
 	}
 
 	/**
-	 * Displays a single row
+	 * Displays a single row.
 	 *
 	 * @since 1.8
 	 *
-	 * @param object $item PLL_Settings_Module object
+	 * @param PLL_Settings_Module $item Settings module item.
+	 * @return void
 	 */
 	public function single_row( $item ) {
 		// Classes to reuse css from the plugins list table
@@ -85,31 +89,29 @@ class PLL_Table_Settings extends WP_List_Table {
 	}
 
 	/**
-	 * Generates the columns for a single row of the table
+	 * Generates the columns for a single row of the table.
 	 *
 	 * @since 1.8
 	 *
-	 * @param object $item The current item
+	 * @param PLL_Settings_Module $item Settings module item.
+	 * @return void
 	 */
 	protected function single_row_columns( $item ) {
-		list( $columns, $hidden, $sortable, $primary ) = $this->get_column_info();
+		$column_info = $this->get_column_info();
+		$columns     = $column_info[0];
+		$primary     = $column_info[3];
 
-		foreach ( $columns as $column_name => $column_display_name ) {
+		foreach ( array_keys( $columns ) as $column_name ) {
 			$classes = "$column_name column-$column_name";
 			if ( $primary === $column_name ) {
 				$classes .= ' column-primary';
-			}
-
-			if ( in_array( $column_name, $hidden ) ) {
-				$classes .= ' hidden';
 			}
 
 			if ( 'cb' == $column_name ) {
 				echo '<th scope="row" class="check-column">';
 				echo $this->column_cb( $item ); // phpcs:ignore WordPress.Security.EscapeOutput
 				echo '</th>';
-			}
-			else {
+			} else {
 				printf( '<td class="%s">', esc_attr( $classes ) );
 				echo $this->column_default( $item, $column_name ); // phpcs:ignore WordPress.Security.EscapeOutput
 				echo '</td>';
@@ -118,13 +120,13 @@ class PLL_Table_Settings extends WP_List_Table {
 	}
 
 	/**
-	 * Displays the item information in a column ( default case )
+	 * Displays the item information in a column (default case).
 	 *
 	 * @since 1.8
 	 *
-	 * @param object $item
-	 * @param string $column_name
-	 * @return string
+	 * @param PLL_Settings_Module $item        Settings module item.
+	 * @param string              $column_name Column name.
+	 * @return string The column name.
 	 */
 	protected function column_default( $item, $column_name ) {
 		if ( 'plugin-title' == $column_name ) {
@@ -134,11 +136,11 @@ class PLL_Table_Settings extends WP_List_Table {
 	}
 
 	/**
-	 * Gets the list of columns
+	 * Gets the list of columns.
 	 *
 	 * @since 1.8
 	 *
-	 * @return array the list of column titles
+	 * @return string[] The list of column titles.
 	 */
 	public function get_columns() {
 		return array(
@@ -164,10 +166,19 @@ class PLL_Table_Settings extends WP_List_Table {
 	 *
 	 * @since 1.8
 	 *
-	 * @param array $items
+	 * @param PLL_Settings_Module[] $items Array of settings module items.
+	 * @return void
 	 */
 	public function prepare_items( $items = array() ) {
 		$this->_column_headers = array( $this->get_columns(), array(), $this->get_sortable_columns(), $this->get_primary_column_name() );
+
+		// Sort rows, lowest priority on top.
+		usort(
+			$items,
+			function( $a, $b ) {
+				return $a->priority > $b->priority ? 1 : -1;
+			}
+		);
 		$this->items = $items;
 	}
 
@@ -177,6 +188,7 @@ class PLL_Table_Settings extends WP_List_Table {
 	 * @since 2.1
 	 *
 	 * @param string $which 'top' or 'bottom'
+	 * @return void
 	 */
-	protected function display_tablenav( $which ) {}
+	protected function display_tablenav( $which ) {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }

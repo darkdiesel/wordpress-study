@@ -3,7 +3,7 @@
  * Groups Ajax functions
  *
  * @since 3.0.0
- * @version 4.4.0
+ * @version 6.3.0
  */
 
 // Exit if accessed directly.
@@ -189,7 +189,7 @@ function bp_nouveau_ajax_joinleave_group() {
 			break;
 
 			case 'groups_request_membership' :
-				if ( ! groups_send_membership_request( bp_loggedin_user_id(), $group->id ) ) {
+				if ( ! groups_send_membership_request( [ 'user_id' => bp_loggedin_user_id(), 'group_id' => $group->id ] ) ) {
 					$response = array(
 						'feedback' => sprintf(
 							'<div class="bp-feedback error"><span class="bp-icon" aria-hidden="true"></span><p>%s</p></div>',
@@ -283,6 +283,22 @@ function bp_nouveau_ajax_get_users_to_invite() {
 		wp_send_json_error( $response );
 	}
 
+	if ( ! bp_is_group_create() && ! bp_groups_user_can_send_invites( bp_get_current_group_id(), bp_loggedin_user_id() ) ) {
+		$invite_status = bp_group_get_invite_status( bp_get_current_group_id() );
+		if ( 'admins' === $invite_status ) {
+			$message = __( 'Inviting members to join this group is restricted to Group Administrators.', 'buddypress' );
+		} else {
+			$message = __( 'Inviting members to join this group is restricted to Group Moderators and Administrators.', 'buddypress' );
+		}
+
+		wp_send_json_error(
+			array(
+				'feedback' => $message,
+				'type'     => 'error',
+			)
+		);
+	}
+
 	$request = bp_parse_args(
 		$_POST,
 		array(
@@ -331,6 +347,11 @@ function bp_nouveau_ajax_get_users_to_invite() {
 			if ( 0 === (int) bp_get_total_friend_count( bp_loggedin_user_id() ) ) {
 				$error = array(
 					'feedback' => __( 'You have no friends!', 'buddypress' ),
+					'type'     => 'info',
+				);
+			} else {
+				$error = array(
+					'feedback' => __( 'No friends were found. Try another filter.', 'buddypress' ),
 					'type'     => 'info',
 				);
 			}
@@ -397,6 +418,7 @@ function bp_nouveau_ajax_send_group_invites() {
 				array(
 					'user_id'  => $user_id,
 					'group_id' => $group_id,
+					'content'  => $_POST['message'],
 				)
 			);
 		}
@@ -406,20 +428,8 @@ function bp_nouveau_ajax_send_group_invites() {
 		wp_send_json_error( $response );
 	}
 
-	if ( ! empty( $_POST['message'] ) ) {
-		$bp->groups->invites_message = wp_kses( wp_unslash( $_POST['message'] ), array() );
-
-		add_filter( 'groups_notification_group_invites_message', 'bp_nouveau_groups_invites_custom_message', 10, 1 );
-	}
-
 	// Send the invites.
-	groups_send_invites( bp_loggedin_user_id(), $group_id );
-
-	if ( ! empty( $_POST['message'] ) ) {
-		unset( $bp->groups->invites_message );
-
-		remove_filter( 'groups_notification_group_invites_message', 'bp_nouveau_groups_invites_custom_message', 10, 1 );
-	}
+	groups_send_invites( array(	'group_id' => $group_id ) );
 
 	if ( array_search( false, $invited ) ) {
 		$errors = array_keys( $invited, false );
@@ -469,23 +479,27 @@ function bp_nouveau_ajax_remove_group_invite() {
 		wp_send_json_error( $response );
 	}
 
-	// Verify pending invite.
-	$invites_args = array(
-		'is_confirmed' => false,
-		'is_banned'    => null,
-		'is_admin'     => null,
-		'is_mod'       => null,
-	);
-	$invites = bp_get_user_groups( $user_id, $invites_args );
-	if ( empty( $invites ) ) {
+	// Verify that a sent invite exists.
+	$inviter_ids = groups_get_invites( array(
+		'user_id'     => $user_id,
+		'item_id'     => $group_id,
+		'invite_sent' => 'sent',
+		'fields'      => 'inviter_ids'
+	) );
+
+	if ( empty( $inviter_ids ) ) {
 		wp_send_json_error( $response );
 	}
 
-	if ( ! groups_is_user_admin( bp_loggedin_user_id(), $group_id ) ) {
+	// Is the current user the inviter?
+	$inviter_id = in_array( bp_loggedin_user_id(), $inviter_ids, true ) ? bp_loggedin_user_id() : false;
+
+	// A site moderator, group admin or the inviting user should be able to remove an invitation.
+	if ( ! bp_is_item_admin() && ! $inviter_id ) {
 		wp_send_json_error( $response );
 	}
 
-	if ( BP_Groups_Member::check_for_membership_request( $user_id, $group_id ) ) {
+	if ( groups_is_user_member( $user_id, $group_id ) ) {
 		wp_send_json_error(
 			array(
 				'feedback' => __( 'The member is already a member of the group.', 'buddypress' ),
@@ -495,8 +509,8 @@ function bp_nouveau_ajax_remove_group_invite() {
 		);
 	}
 
-	// Remove the unsent invitation.
-	if ( ! groups_uninvite_user( $user_id, $group_id ) ) {
+	// Remove the invitation.
+	if ( ! groups_uninvite_user( $user_id, $group_id, $inviter_id ) ) {
 		wp_send_json_error(
 			array(
 				'feedback' => __( 'Group invitation could not be removed.', 'buddypress' ),

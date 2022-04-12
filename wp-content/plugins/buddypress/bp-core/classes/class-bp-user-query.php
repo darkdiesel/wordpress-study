@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * Member directories, the Friends component, etc.
  *
  * @since 1.7.0
+ * @since 10.0.0 Added $date_query parameter.
  *
  * @param array $query {
  *     Query arguments. All items are optional.
@@ -49,6 +50,9 @@ defined( 'ABSPATH' ) || exit;
  *                                                  associated with $meta_key matches $meta_value. Default: false.
  *     @type array             $xprofile_query      Filter results by xprofile data. Requires the xprofile component.
  *                                                  See {@see BP_XProfile_Query} for details.
+ *     @type array             $date_query          Filter results by member last activity date. See first parameter of
+ *                                                  {@link WP_Date_Query::__construct()} for syntax. Only applicable if
+ *                                                  $type is either 'active', 'random', 'newest', or 'online'.
  *     @type bool              $populate_extras     True if you want to fetch extra metadata
  *                                                  about returned users, such as total group and friend counts.
  *     @type string            $count_total         Determines how BP_User_Query will do a count of total users matching
@@ -154,25 +158,29 @@ class BP_User_Query {
 		$this->setup_hooks();
 
 		if ( ! empty( $this->query_vars_raw ) ) {
-			$this->query_vars = wp_parse_args( $this->query_vars_raw, array(
-				'type'                => 'newest',
-				'per_page'            => 0,
-				'page'                => 1,
-				'user_id'             => 0,
-				'search_terms'        => false,
-				'search_wildcard'     => 'both',
-				'include'             => false,
-				'exclude'             => false,
-				'user_ids'            => false,
-				'member_type'         => '',
-				'member_type__in'     => '',
-				'member_type__not_in' => '',
-				'meta_key'            => false,
-				'meta_value'          => false,
-				'xprofile_query'      => false,
-				'populate_extras'     => true,
-				'count_total'         => 'count_query'
-			) );
+			$this->query_vars = bp_parse_args(
+				$this->query_vars_raw,
+				array(
+					'type'                => 'newest',
+					'per_page'            => 0,
+					'page'                => 1,
+					'user_id'             => 0,
+					'search_terms'        => false,
+					'search_wildcard'     => 'both',
+					'include'             => false,
+					'exclude'             => false,
+					'user_ids'            => false,
+					'member_type'         => '',
+					'member_type__in'     => '',
+					'member_type__not_in' => '',
+					'meta_key'            => false,
+					'meta_value'          => false,
+					'xprofile_query'      => false,
+					'date_query'          => false,
+					'populate_extras'     => true,
+					'count_total'         => 'count_query',
+				)
+			);
 
 			/**
 			 * Fires before the construction of the BP_User_Query query.
@@ -183,7 +191,7 @@ class BP_User_Query {
 			 */
 			do_action_ref_array( 'bp_pre_user_query_construct', array( &$this ) );
 
-			// Get user ids
+			// Get user ids.
 			// If the user_ids param is present, we skip the query.
 			if ( false !== $this->query_vars['user_ids'] ) {
 				$this->user_ids = wp_parse_id_list( $this->query_vars['user_ids'] );
@@ -279,6 +287,12 @@ class BP_User_Query {
 				$sql['orderby'] = "ORDER BY u.date_recorded";
 				$sql['order']   = "DESC";
 
+				// Date query.
+				$date_query = BP_Date_Query::get_where_sql( $date_query, 'u.date_recorded' );
+				if ( ! empty( $date_query ) ) {
+					$sql['where']['date_query'] = $date_query;
+				}
+
 				break;
 
 			// 'active', 'newest', and 'random' queries
@@ -299,6 +313,12 @@ class BP_User_Query {
 				} else {
 					$sql['orderby'] = "ORDER BY u.date_recorded";
 					$sql['order'] = "DESC";
+				}
+
+				// Date query.
+				$date_query = BP_Date_Query::get_where_sql( $date_query, 'u.date_recorded' );
+				if ( ! empty( $date_query ) ) {
+					$sql['where']['date_query'] = $date_query;
 				}
 
 				break;
@@ -374,7 +394,7 @@ class BP_User_Query {
 		}
 
 		// 'exclude' - User ids to exclude from the results.
-		if ( false !== $exclude ) {
+		if ( ! empty( $exclude ) ) {
 			$exclude_ids    = implode( ',', wp_parse_id_list( $exclude ) );
 			$sql['where'][] = "u.{$this->uid_name} NOT IN ({$exclude_ids})";
 		}
@@ -573,10 +593,12 @@ class BP_User_Query {
 
 		), $this ) );
 
-		// We calculate total_users using a standalone query, except
-		// when a whitelist of user_ids is passed to the constructor.
-		// This clause covers the latter situation, and ensures that
-		// pagination works when querying by $user_ids.
+		/*
+		 * We calculate total_users using a standalone query, except
+		 * when a list of specific user_ids is passed to the constructor.
+		 * This clause covers the latter situation, and ensures that
+		 * pagination works when querying by $user_ids.
+		 */
 		if ( empty( $this->total_users ) ) {
 			$this->total_users = count( $wp_user_query->results );
 		}
@@ -684,7 +706,7 @@ class BP_User_Query {
 
 		// Set a last_activity value for each user, even if it's empty.
 		foreach ( $this->results as $user_id => $user ) {
-			$user_last_activity = isset( $last_activities[ $user_id ] ) ? $last_activities[ $user_id ]['date_recorded'] : '';
+			$user_last_activity = isset( $last_activities[ $user_id ]['date_recorded'] ) ? $last_activities[ $user_id ]['date_recorded'] : '';
 			$this->results[ $user_id ]->last_activity = $user_last_activity;
 		}
 
