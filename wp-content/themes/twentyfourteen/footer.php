@@ -12,7 +12,7 @@
 
 		</div><!-- #main -->
 
-		<footer id="colophon" class="site-footer" role="contentinfo">
+		<footer id="colophon" class="site-footer">
 
 			<?php get_sidebar( 'footer' ); ?>
 
@@ -24,7 +24,10 @@
 				}
 				?>
 				<a href="<?php echo esc_url( __( 'https://wordpress.org/', 'twentyfourteen' ) ); ?>" class="imprint">
-					<?php printf( __( 'Proudly powered by %s', 'twentyfourteen' ), 'WordPress' ); ?>
+					<?php
+					/* translators: %s: WordPress */
+					printf( __( 'Proudly powered by %s', 'twentyfourteen' ), 'WordPress' );
+					?>
 				</a>
 			</div><!-- .site-info -->
 		</footer><!-- #colophon -->
