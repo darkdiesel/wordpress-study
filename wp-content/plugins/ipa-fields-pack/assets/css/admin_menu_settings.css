@@ -1,0 +1,17 @@
+.wrap-header{margin-bottom:25px}
+.ajax-process{display:none;padding:2px}
+.color-yes{
+    color: #1b6e08;
+}
+.color-no,
+.color-note{
+    color: #b22222;
+}
+
+
+.postbox h2.hndle {
+    font-size: 14px;
+    padding: 8px 12px;
+    margin: 0;
+    line-height: 1.4;
+}

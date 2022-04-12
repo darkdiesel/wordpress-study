@@ -1,0 +1,15 @@
+{
+  "name": "IPA Post Meta",
+  "version": "1.5.1",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery-ui": "~1.11.4"
+  }
+}

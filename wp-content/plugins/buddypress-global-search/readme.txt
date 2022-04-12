@@ -3,8 +3,8 @@ Contributors: buddyboss
 Donate link: https://www.buddyboss.com/donate/
 Tags: buddypress, search, social networking, activity, profiles, messaging, friends, groups, forums, notifications, settings, social, community, networks, networking
 Requires at least: 3.8
-Tested up to: 4.9.6
-Stable tag: 1.1.9
+Tested up to: 5.2.2
+Stable tag: 1.2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -69,6 +69,14 @@ For BuddyPress customizations, submit your request at [BuddyBoss](https://www.bu
 2. **Admin** - set which components should be searchable
 
 == Changelog ==
+
+= 1.2.1 =
+* Fix - inactive members in group members were not listing in search results
+* Fix - conflict with ThickBox and opening iframes on the page
+* Tweak - 'bboss_global_search_query_results' filter added to query results, for developers to hook into
+
+= 1.2.0 =
+* Tested with WordPress 5.2.1
 
 = 1.1.9 =
 * New - Added Support for BuddyPress Nouveau template

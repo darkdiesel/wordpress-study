@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress - 5.2.x - Development package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-05-18 09:16:22+0000\n"
+"PO-Revision-Date: 2019-09-11 07:21:56+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -87,9 +87,9 @@ msgstr "."
 msgid "number_format_decimal_point"
 msgstr ","
 
-#: wp-includes/taxonomy.php:2281
-msgid "Could not insert term taxonomy into the database."
-msgstr "Der Taxonomie-Begriff konnte nicht in die Datenbank eingefügt werden."
+#: wp-includes/customize/class-wp-customize-theme-control.php:97
+msgid "New version available."
+msgstr "Neue Version verfügbar."
 
 #: wp-includes/load.php:152
 msgid "Insufficient Requirements"
@@ -153,7 +153,7 @@ msgstr "Bitte kontaktiere dein Hosting-Unternehmen, um Unterstützung bei der we
 
 #: wp-includes/class-wp-fatal-error-handler.php:173
 msgid "The site is experiencing technical difficulties. Please check your site admin email inbox for instructions."
-msgstr "Die Website hat technische Schwierigkeiten. Bitte das E-Mail-Postfach des Website-Administrators prüfen, um dort weitere Anweisungen zu finden."
+msgstr "Die Website hat technische Schwierigkeiten. Bitte prüfe das E-Mail-Postfach des Website-Administrators, um dort weitere Anweisungen zu finden."
 
 #: wp-includes/class-wp-recovery-mode.php:177
 msgid "Error occurred on a non-protected endpoint."
@@ -404,7 +404,7 @@ msgstr "Lies mehr über Permalinks"
 
 #: wp-includes/js/dist/edit-post.js:5663
 msgid "The last part of the URL. "
-msgstr "Der letzte Teil der URL."
+msgstr "Der letzte Teil der URL. "
 
 #: wp-includes/js/dist/edit-post.js:5630
 msgid "URL Slug"
@@ -450,11 +450,11 @@ msgstr "Funktion deaktiviert"
 msgid "Block Manager"
 msgstr "Block-Manager"
 
-#: wp-includes/js/dist/block-editor.js:17991
+#: wp-includes/js/dist/block-editor.js:18013
 msgid "Change block type or style"
 msgstr "Block-Typ oder Stil ändern"
 
-#: wp-includes/js/dist/block-editor.js:17059
+#: wp-includes/js/dist/block-editor.js:17081
 #: wp-includes/js/dist/block-library.js:6537
 #: wp-includes/js/dist/block-library.js:16785
 #: wp-includes/js/dist/block-library.js:17628
@@ -463,17 +463,17 @@ msgctxt "block style"
 msgid "Default"
 msgstr "Standard"
 
-#: wp-includes/js/dist/block-editor.js:14321
+#: wp-includes/js/dist/block-editor.js:14343
 msgctxt "keyboard key"
 msgid "Space"
 msgstr "Leertaste"
 
-#: wp-includes/js/dist/block-editor.js:14314
+#: wp-includes/js/dist/block-editor.js:14336
 msgctxt "keyboard key"
 msgid "Backspace"
 msgstr "Backspace"
 
-#: wp-includes/js/dist/block-editor.js:13782
+#: wp-includes/js/dist/block-editor.js:13804
 msgid "More Rich Text Controls"
 msgstr "Mehr Rich-Text-Steuerelemente"
 
@@ -561,31 +561,31 @@ msgid "Recovery Mode not initialized."
 msgstr "Wiederherstellungsmodus nicht initialisiert."
 
 #. translators: user role for subscriber
-#: wp-includes/capabilities.php:994
+#: wp-includes/capabilities.php:1019
 msgctxt "User role"
 msgid "Subscriber"
 msgstr "Abonnent"
 
 #. translators: user role for contributors
-#: wp-includes/capabilities.php:992
+#: wp-includes/capabilities.php:1017
 msgctxt "User role"
 msgid "Contributor"
 msgstr "Mitarbeiter"
 
 #. translators: user role for authors
-#: wp-includes/capabilities.php:990
+#: wp-includes/capabilities.php:1015
 msgctxt "User role"
 msgid "Author"
 msgstr "Autor"
 
 #. translators: user role for editors
-#: wp-includes/capabilities.php:988
+#: wp-includes/capabilities.php:1013
 msgctxt "User role"
 msgid "Editor"
 msgstr "Redakteur"
 
 #. translators: user role for administrators
-#: wp-includes/capabilities.php:986
+#: wp-includes/capabilities.php:1011
 msgctxt "User role"
 msgid "Administrator"
 msgstr "Administrator"
@@ -640,19 +640,19 @@ msgstr "Keine Begriffe zum Anzeigen."
 
 #. translators: %s: the amount of additional, not visible images in the gallery
 #. widget preview.
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:218
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:217
 msgid "Additional images added to this gallery: %s"
 msgstr "Weitere Bilder wurden dieser Galerie hinzugefügt: %s"
 
 #. translators: %s: the image file name.
-#: wp-includes/widgets/class-wp-widget-media-image.php:359
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:204
+#: wp-includes/widgets/class-wp-widget-media-image.php:358
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:203
 msgid "The current image has no alternative text. The file name is: %s"
 msgstr "Das aktuelle Bild hat keinen Alternativtext. Der Dateiname ist: %s"
 
 #: wp-includes/admin-bar.php:1070
 msgid "Exit Recovery Mode"
-msgstr "Wiederherstellungsmodus verlassen"
+msgstr "Wiederherstellungsmodus beenden"
 
 #. translators: %s: number of comments in moderation
 #: wp-includes/admin-bar.php:890
@@ -916,7 +916,7 @@ msgid "Top Toolbar"
 msgstr "Obere Werkzeugleiste"
 
 #. translators: %d: number of words
-#: wp-includes/js/dist/block-editor.js:17185
+#: wp-includes/js/dist/block-editor.js:17207
 msgid "%d word"
 msgid_plural "%d words"
 msgstr[0] "%d Wort"
@@ -942,23 +942,23 @@ msgstr "Permalink"
 msgid "To edit the featured image, you need permission to upload media."
 msgstr "Du benötigst die Berechtigung, Medien hochzuladen, um das Beitragsbild bearbeiten zu können."
 
-#: wp-includes/js/dist/block-editor.js:16101
+#: wp-includes/js/dist/block-editor.js:16123
 msgid "Given your current role, you can only link a video, you cannot upload."
 msgstr "Mit deiner Benutzerrolle kannst du nur ein Video verlinken, aber keins hochladen."
 
-#: wp-includes/js/dist/block-editor.js:16099
+#: wp-includes/js/dist/block-editor.js:16121
 msgid "Given your current role, you can only link an image, you cannot upload."
 msgstr "Mit deiner Benutzerrolle kannst du nur ein Bild verlinken, aber keins hochladen."
 
-#: wp-includes/js/dist/block-editor.js:16097
+#: wp-includes/js/dist/block-editor.js:16119
 msgid "Given your current role, you can only link an audio, you cannot upload."
 msgstr "Mit deiner Benutzerrolle kannst du nur ein Audio verlinken, aber keins hochladen."
 
-#: wp-includes/js/dist/block-editor.js:16094
+#: wp-includes/js/dist/block-editor.js:16116
 msgid "Given your current role, you can only link a media file, you cannot upload."
 msgstr "Mit deiner Benutzerrolle kannst du nur eine Mediendatei verlinken, aber keine hochladen."
 
-#: wp-includes/js/dist/block-editor.js:16073
+#: wp-includes/js/dist/block-editor.js:16095
 msgid "To edit this block, you need permission to upload media."
 msgstr "Du benötigst die Berechtigung, Medien hochzuladen, um diesen Block bearbeiten zu können."
 
@@ -970,7 +970,7 @@ msgstr "(ausgewählter Block)"
 msgid "Block tools"
 msgstr "Block-Werkzeuge"
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:163
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:162
 msgid "Sorry, you are not allowed to view autosaves of this post."
 msgstr "Du bist leider nicht berechtigt, automatische Speicherungen dieses Beitrags anzuzeigen."
 
@@ -1000,12 +1000,12 @@ msgstr "Beginne mit dem Schreiben von Text oder HTML"
 msgid "Type text or HTML"
 msgstr "Schreib Text oder HTML"
 
-#: wp-includes/js/dist/block-editor.js:12830
+#: wp-includes/js/dist/block-editor.js:12852
 #: wp-includes/js/dist/block-library.js:5734
 msgid "Start writing or type / to choose a block"
 msgstr "Schreib etwas oder tippe / zur Blockauswahl"
 
-#: wp-includes/js/dist/block-editor.js:17968
+#: wp-includes/js/dist/block-editor.js:17990
 msgid "Block icon"
 msgstr "Block-Icon"
 
@@ -1410,19 +1410,19 @@ msgstr "Medien links anzeigen"
 msgid "Write list…"
 msgstr "Schreibe eine Liste…"
 
-#: wp-includes/js/dist/block-editor.js:14320
+#: wp-includes/js/dist/block-editor.js:14342
 msgid "Indent list item"
 msgstr "Listenelement einrücken"
 
-#: wp-includes/js/dist/block-editor.js:14313
+#: wp-includes/js/dist/block-editor.js:14335
 msgid "Outdent list item"
 msgstr "Listenelement ausrücken"
 
-#: wp-includes/js/dist/block-editor.js:14300
+#: wp-includes/js/dist/block-editor.js:14322
 msgid "Convert to ordered list"
 msgstr "In nummerierte Liste umwandeln"
 
-#: wp-includes/js/dist/block-editor.js:14287
+#: wp-includes/js/dist/block-editor.js:14309
 msgid "Convert to unordered list"
 msgstr "In Aufzählung umwandeln"
 
@@ -1432,7 +1432,7 @@ msgstr "Nummerierte Liste"
 
 #: wp-includes/js/dist/block-library.js:7687
 msgid "Create a bulleted or numbered list."
-msgstr "Eine gepunktete oder nummerierte Liste erstellen."
+msgstr "Eine Aufzählungs- oder nummerierte Liste erstellen."
 
 #: wp-includes/js/dist/block-library.js:18306
 msgid "recent posts"
@@ -1494,7 +1494,7 @@ msgstr "Foto"
 
 #: wp-includes/js/dist/block-library.js:10703
 msgid "Insert an image to make a visual statement."
-msgstr "Ein Bild einfügen, um einen visuellen Akzent zu setzen."
+msgstr "Ein Bild einfügen, um eine visuelle Aussage zu treffen."
 
 #: wp-includes/js/dist/block-library.js:10336
 msgid "Image Dimensions"
@@ -1521,7 +1521,7 @@ msgstr "Bild bearbeiten"
 
 #: wp-includes/js/dist/block-library.js:17131
 msgid "Write HTML…"
-msgstr "Schreibe HTML…"
+msgstr "Schreib HTML…"
 
 #: wp-includes/js/dist/block-library.js:17178
 msgid "embed"
@@ -1554,7 +1554,7 @@ msgstr "Überschrift %d"
 
 #: wp-includes/js/dist/block-library.js:13964
 msgid "Write heading…"
-msgstr "Schreibe Überschrift…"
+msgstr "Schreib eine Überschrift…"
 
 #: wp-includes/js/dist/block-library.js:13926
 msgid "Text Alignment"
@@ -1893,7 +1893,7 @@ msgstr "Medien bearbeiten"
 
 #: wp-includes/js/dist/block-library.js:15114
 msgid "Add an image or video with a text overlay — great for headers."
-msgstr "Ein Bild oder Video mit einem Text-Overlay hinzufügen – ideal für Header."
+msgstr "Ein Bild oder Video mit Overlay-Text hinzufügen – ideal für Header."
 
 #: wp-includes/js/dist/block-library.js:14934
 #: wp-includes/js/dist/block-library.js:15113
@@ -2130,7 +2130,7 @@ msgid "Close settings"
 msgstr "Einstellungen schließen"
 
 #. translators: %d: number of blocks
-#: wp-includes/js/dist/block-editor.js:17181
+#: wp-includes/js/dist/block-editor.js:17203
 msgid "%d block"
 msgid_plural "%d blocks"
 msgstr[0] "%d Block"
@@ -2493,24 +2493,24 @@ msgstr "Klares Rot"
 msgid "Pale pink"
 msgstr "Helles Rosa"
 
-#: wp-includes/js/dist/block-editor.js:19674
+#: wp-includes/js/dist/block-editor.js:19696
 msgid "Additional CSS Class"
 msgstr "Zusätzliche CSS-Klasse"
 
-#: wp-includes/js/dist/block-editor.js:19578
+#: wp-includes/js/dist/block-editor.js:19600
 msgid "Anchors lets you link directly to a section on a page."
-msgstr "Mit Anker kannst du direkt zu einem Abschnitt auf einer Seite verlinken."
+msgstr "Mit Ankern kannst du direkt zu einem Abschnitt auf einer Seite verlinken."
 
-#: wp-includes/js/dist/block-editor.js:19577
+#: wp-includes/js/dist/block-editor.js:19599
 msgid "HTML Anchor"
 msgstr "HTML-Anker"
 
-#: wp-includes/js/dist/block-editor.js:15862
+#: wp-includes/js/dist/block-editor.js:15884
 #: wp-includes/js/dist/block-library.js:10371
 msgid "Link Settings"
 msgstr "Link-Einstellungen"
 
-#: wp-includes/js/dist/block-editor.js:16589
+#: wp-includes/js/dist/block-editor.js:16611
 msgid "Insert Link"
 msgstr "Link einfügen"
 
@@ -2554,7 +2554,7 @@ msgstr "Dokument-Statistiken"
 msgid "Content structure"
 msgstr "Inhaltliche Struktur"
 
-#: wp-includes/js/dist/block-editor.js:16933
+#: wp-includes/js/dist/block-editor.js:16955
 msgid "Skip to the selected block"
 msgstr "Zum ausgewählten Block wechseln"
 
@@ -2679,11 +2679,11 @@ msgstr "Veröffentlichen…"
 
 #: wp-includes/js/dist/editor.js:10731
 msgid "Publish:"
-msgstr "Veröffentlichung: "
+msgstr "Veröffentlichung:"
 
 #: wp-includes/js/dist/editor.js:10725
 msgid "Visibility:"
-msgstr "Sichtbarkeit: "
+msgstr "Sichtbarkeit:"
 
 #: wp-includes/js/dist/editor.js:10718
 msgid "Double-check your settings before publishing."
@@ -2896,7 +2896,7 @@ msgstr "Schreibe einen Textauszug (optional)"
 msgid "Allow Comments"
 msgstr "Kommentare erlauben"
 
-#: wp-includes/js/dist/block-editor.js:13617
+#: wp-includes/js/dist/block-editor.js:13639
 msgid "(%s: %s)"
 msgstr "(%s: %s)"
 
@@ -2912,23 +2912,23 @@ msgstr "kein Titel"
 msgid "Order"
 msgstr "Reihenfolge"
 
-#: wp-includes/js/dist/block-editor.js:16091
+#: wp-includes/js/dist/block-editor.js:16113
 msgid "Drag a video, upload a new one or select a file from your library."
 msgstr "Ziehe ein Video hierher, lade ein neues hoch oder wähle eine Datei aus deiner Mediathek aus."
 
-#: wp-includes/js/dist/block-editor.js:16089
+#: wp-includes/js/dist/block-editor.js:16111
 msgid "Drag an image, upload a new one or select a file from your library."
 msgstr "Ziehe ein Bild hierher, lade ein neues hoch oder wähle eine Datei aus deiner Mediathek aus."
 
-#: wp-includes/js/dist/block-editor.js:16087
+#: wp-includes/js/dist/block-editor.js:16109
 msgid "Drag an audio, upload a new one or select a file from your library."
 msgstr "Ziehe ein Audio hierher, lade ein neues hoch oder wähle eine Datei aus deiner Mediathek aus."
 
-#: wp-includes/js/dist/block-editor.js:16084
+#: wp-includes/js/dist/block-editor.js:16106
 msgid "Drag a media file, upload a new one or select a file from your library."
 msgstr "Ziehe eine Mediendatei hierher, lade eine neue hoch oder wähle eine Datei aus deiner Mediathek aus."
 
-#: wp-includes/js/dist/block-editor.js:15922
+#: wp-includes/js/dist/block-editor.js:15944
 msgid "Paste or type URL"
 msgstr "URL einfügen oder eingeben"
 
@@ -3008,66 +3008,66 @@ msgstr "Diese Farbkombination kann für Menschen schwer zu lesen sein. Versuche 
 msgid "This color combination may be hard for people to read. Try using a darker background color and/or a brighter text color."
 msgstr "Diese Farbkombination kann für Menschen schwer zu lesen sein. Versuche eine dunklere Hintergrundfarbe und/oder eine hellere Textfarbe zu verwenden."
 
-#: wp-includes/js/dist/block-editor.js:13530
+#: wp-includes/js/dist/block-editor.js:13552
 msgid "(current %s: %s)"
 msgstr "(aktuell %s: %s)"
 
-#: wp-includes/js/dist/block-editor.js:18022
+#: wp-includes/js/dist/block-editor.js:18044
 msgid "Transform To:"
 msgstr "Umwandeln in:"
 
-#: wp-includes/js/dist/block-editor.js:18015
+#: wp-includes/js/dist/block-editor.js:18037
 msgid "Block Styles"
 msgstr "Block-Stile"
 
-#: wp-includes/js/dist/block-editor.js:17991
+#: wp-includes/js/dist/block-editor.js:18013
 msgid "Change type of %d block"
 msgid_plural "Change type of %d blocks"
 msgstr[0] "Typ des %d Blocks ändern"
 msgstr[1] "Typ der %d Blöcke ändern"
 
-#: wp-includes/js/dist/block-editor.js:17573
+#: wp-includes/js/dist/block-editor.js:17595
 msgid "Remove from Reusable Blocks"
 msgstr "Von wiederverwendbaren Blöcken entfernen"
 
-#: wp-includes/js/dist/block-editor.js:17485
+#: wp-includes/js/dist/block-editor.js:17507
 msgid "Convert to Regular Block"
 msgstr "In normalen Block umwandeln"
 
-#: wp-includes/js/dist/block-editor.js:17481
+#: wp-includes/js/dist/block-editor.js:17503
 msgid "Add to Reusable Blocks"
 msgstr "Zu wiederverwendbaren Blöcken hinzufügen"
 
-#: wp-includes/js/dist/block-editor.js:17852
+#: wp-includes/js/dist/block-editor.js:17874
 msgid "Remove Block"
 msgstr "Block entfernen"
 
-#: wp-includes/js/dist/block-editor.js:17831
+#: wp-includes/js/dist/block-editor.js:17853
 msgid "Insert After"
 msgstr "Danach einfügen"
 
-#: wp-includes/js/dist/block-editor.js:17826
+#: wp-includes/js/dist/block-editor.js:17848
 msgid "Insert Before"
 msgstr "Davor einfügen"
 
-#: wp-includes/js/dist/block-editor.js:17821
+#: wp-includes/js/dist/block-editor.js:17843
 msgid "Duplicate"
 msgstr "Duplizieren"
 
 #: wp-includes/js/dist/block-editor.js:9729
-#: wp-includes/js/dist/block-editor.js:17785
+#: wp-includes/js/dist/block-editor.js:17807
 msgid "More options"
 msgstr "Mehr Optionen"
 
-#: wp-includes/js/dist/block-editor.js:17785
+#: wp-includes/js/dist/block-editor.js:17807
 msgid "Hide options"
 msgstr "Optionen ausblenden"
 
-#: wp-includes/js/dist/block-editor.js:17419
+#: wp-includes/js/dist/block-editor.js:17441
 msgid "Edit visually"
 msgstr "Visuell bearbeiten"
 
-#: wp-includes/js/dist/block-editor.js:17419
+#: wp-includes/js/dist/block-editor.js:17441
 msgid "Edit as HTML"
 msgstr "Als HTML bearbeiten"
 
@@ -3125,7 +3125,7 @@ msgstr "Bewege %1$s Block von Position %2$d nach unten zur Position %3$d"
 msgid "Block %s is the only block, and cannot be moved"
 msgstr "Block %s ist der einzige Block und kann nicht verschoben werden"
 
-#: wp-includes/js/dist/block-editor.js:12458
+#: wp-includes/js/dist/block-editor.js:12480
 msgid "Block: %s"
 msgstr "Block: %s"
 
@@ -3140,7 +3140,7 @@ msgid "Resolve"
 msgstr "Lösen"
 
 #: wp-includes/js/dist/block-editor.js:9988
-#: wp-includes/js/dist/block-editor.js:17637
+#: wp-includes/js/dist/block-editor.js:17659
 msgid "Convert to Blocks"
 msgstr "In Blöcke umwandeln"
 
@@ -3158,12 +3158,12 @@ msgid "This block has encountered an error and cannot be previewed."
 msgstr "In diesem Block ist ein Fehler aufgetreten und eine Vorschau ist nicht möglich."
 
 #: wp-includes/js/dist/block-editor.js:11346
-#: wp-includes/js/dist/block-editor.js:12862
-#: wp-includes/js/dist/block-editor.js:12963
+#: wp-includes/js/dist/block-editor.js:12884
+#: wp-includes/js/dist/block-editor.js:12985
 msgid "Add block"
 msgstr "Block hinzufügen"
 
-#: wp-includes/js/dist/block-editor.js:17244
+#: wp-includes/js/dist/block-editor.js:17266
 msgid "No block selected."
 msgstr "Kein Block ausgewählt."
 
@@ -3186,7 +3186,7 @@ msgstr "Ausrichtung ändern"
 
 #: wp-includes/js/dist/block-editor.js:7974
 msgid "Full width"
-msgstr "Volle Breite"
+msgstr "Gesamte Breite"
 
 #: wp-includes/js/dist/block-editor.js:7970
 msgid "Wide width"
@@ -3434,13 +3434,13 @@ msgstr "Individueller Farbwähler"
 
 #: wp-includes/js/dist/components.js:27728
 #: wp-includes/js/dist/components.js:33378
-#: wp-includes/js/dist/block-editor.js:16323
+#: wp-includes/js/dist/block-editor.js:16345
 msgid "No results."
 msgstr "Keine Ergebnisse."
 
 #: wp-includes/js/dist/components.js:27726
 #: wp-includes/js/dist/components.js:33376
-#: wp-includes/js/dist/block-editor.js:16321
+#: wp-includes/js/dist/block-editor.js:16343
 msgid "%d result found, use up and down arrow keys to navigate."
 msgid_plural "%d results found, use up and down arrow keys to navigate."
 msgstr[0] "%d Ergebnis gefunden, benutze die Pfeile nach oben oder unten zum Navigieren."
@@ -3640,15 +3640,15 @@ msgstr "Version des Inhalt-Block-Formates, das von dem Objekt genutzt wird."
 msgid "Slug automatically generated from the object title."
 msgstr "Aus dem Objekttitel automatisch generierte Titelform."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:353
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:352
 msgid "There is nothing to save. The autosave and the post content are the same."
 msgstr "Es gibt nichts zu speichern. Die automatische Speicherung und der aktuelle Beitragsinhalt sind identisch."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:302
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:301
 msgid "Preview link for the post."
 msgstr "Vorschau-Link für diesen Beitrag."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:253
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:252
 msgid "There is no autosave revision for this post."
 msgstr "Es gibt keine automatisch gespeicherte Revision von diesem Beitrag."
 
@@ -3656,11 +3656,11 @@ msgstr "Es gibt keine automatisch gespeicherte Revision von diesem Beitrag."
 msgid "Permalink template for the object."
 msgstr "Permalink-Template für das Objekt."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:247
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:246
 msgid "Invalid parent post ID."
 msgstr "Ungültige übergeordnete Beitrags-ID."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:117
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:116
 msgid "The ID for the object."
 msgstr "Die ID des Objekts."
 
@@ -4213,8 +4213,8 @@ msgctxt "customizer changeset status"
 msgid "Scheduled"
 msgstr "Geplant"
 
-#: wp-includes/customize/class-wp-customize-theme-control.php:115
-#: wp-includes/customize/class-wp-customize-theme-control.php:123
+#: wp-includes/customize/class-wp-customize-theme-control.php:122
+#: wp-includes/customize/class-wp-customize-theme-control.php:130
 msgctxt "theme"
 msgid "Installed"
 msgstr "Installiert"
@@ -4245,7 +4245,7 @@ msgid "Click &#8220;Next&#8221; to start adding links to your new menu."
 msgstr "&#8222;Weiter&#8220; klicken, um deinem neuen Menü Links hinzuzufügen."
 
 #. translators: %s: a list of valid video file extensions
-#: wp-includes/widgets/class-wp-widget-media-video.php:51
+#: wp-includes/widgets/class-wp-widget-media-video.php:50
 msgid "Sorry, we can&#8217;t load the video at the supplied URL. Please check that the URL is for a supported video file (%s) or stream (e.g. YouTube and Vimeo)."
 msgstr "Leider kann das Video mit der angegebenen URL nicht geladen werden. Bitte prüfe, ob die URL auf eine unterstützte Videodatei (%s) oder einen Stream (z.&nbsp;B. YouTube oder Vimeo) verweist."
 
@@ -4362,7 +4362,7 @@ msgstr "Während der Vorschau eines neuen Themes kannst du weiterhin Widgets und
 
 #: wp-includes/class-wp-customize-manager.php:4938
 msgid "Looking for a theme? You can search or browse the WordPress.org theme directory, install and preview themes, then activate them right here."
-msgstr "Suchst du ein Theme? Du kannst im Theme-Verzeichnis von WordPress.org stöbern und suchen, Themes installieren und als Vorschau ansehen, um sie direkt hier zu aktivieren."
+msgstr "Suchst du ein Theme? Du kannst im Theme-Verzeichnis auf WordPress.org stöbern und suchen, Themes installieren und als Vorschau ansehen, um sie direkt hier zu aktivieren."
 
 #: wp-includes/script-loader.php:1326
 msgid "Something went wrong. Your change may not have been saved. Please try again. There is also a chance that you may need to manually fix and upload the file over FTP."
@@ -4370,7 +4370,7 @@ msgstr "Etwas lief schief. Deine Änderung wurde vermutlich nicht gespeichert. B
 
 #: wp-includes/class-wp-customize-manager.php:5580
 msgid "Screen reader users: when in forms mode, you may need to press the escape key twice."
-msgstr "Benutzer von Screen-Readern: Im Formular-Modus kann es sein, dass du die Escape-Taste zweimal drücken musst."
+msgstr "Benutzer von Screen-Readern: Im Formular-Modus kann es sein, dass die Escape-Taste zweimal gedrückt werden muss."
 
 #: wp-includes/class-wp-customize-nav-menus.php:634
 msgctxt "menu locations"
@@ -4413,19 +4413,19 @@ msgstr "Nicht unterstützter ValueType (%s)."
 msgid "Widgets need to be registered using %s, before they can be displayed."
 msgstr "Widgets müssen unter Verwendung von %s registriert werden, bevor sie angezeigt werden können."
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:337
+#: wp-includes/widgets/class-wp-widget-media-image.php:336
 msgid "Link to:"
 msgstr "Link auf: "
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:38
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:37
 msgid "No images selected"
 msgstr "Keine Bilder ausgewählt"
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:30
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:29
 msgid "Displays an image gallery."
 msgstr "Zeigt eine Bildergalerie an."
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:28
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:27
 #: wp-includes/js/dist/editor.js:8815
 #: wp-includes/js/dist/block-library.js:13262
 #: wp-includes/js/dist/block-library.js:13421
@@ -4970,7 +4970,7 @@ msgstr ""
 
 #: wp-includes/functions.php:6509
 msgid "Only UUID V4 is supported at this time."
-msgstr "Zur Zeit wird nur UUID V4 unterstützt."
+msgstr "Zurzeit wird nur UUID V4 unterstützt."
 
 #: wp-includes/deprecated.php:3935 wp-includes/deprecated.php:3952
 msgid "The Press This plugin is required."
@@ -4994,7 +4994,7 @@ msgstr "Zurück zu den Theme-Quellen"
 msgid "Search WordPress.org themes"
 msgstr "Themes auf WordPress.org suchen"
 
-#: wp-includes/customize/class-wp-customize-theme-control.php:128
+#: wp-includes/customize/class-wp-customize-theme-control.php:135
 msgid "Install &amp; Preview"
 msgstr "Installation und Vorschau"
 
@@ -5238,7 +5238,7 @@ msgstr "Noch keine Änderungen gespeichert, es kann nichts in den Papierkorb gel
 
 #: wp-includes/class-wp-customize-manager.php:3050
 msgid "There was an authentication problem. Please reload and try again."
-msgstr "Es gab ein Authentifizierungsproblem. Bitte lade neu und probiere es nochmal."
+msgstr "Es gab ein Authentifizierungsproblem. Bitte neu laden und nochmal probieren."
 
 #. translators: %s: number of invalid settings
 #: wp-includes/script-loader.php:1464 wp-includes/script-loader.php:1466
@@ -5326,17 +5326,17 @@ msgctxt "label for button in the media widget"
 msgid "Add Media"
 msgstr "Medien hinzufügen"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:39
+#: wp-includes/widgets/class-wp-widget-media-video.php:38
 msgctxt "label for button in the video widget"
 msgid "Add Video"
 msgstr "Video hinzufügen"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:39
+#: wp-includes/widgets/class-wp-widget-media-image.php:38
 msgctxt "label for button in the image widget"
 msgid "Add Image"
 msgstr "Bild hinzufügen"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:39
+#: wp-includes/widgets/class-wp-widget-media-audio.php:38
 msgctxt "label for button in the audio widget"
 msgid "Add Audio"
 msgstr "Audio hinzufügen"
@@ -5398,7 +5398,7 @@ msgstr "Das Netzwerk erlaubt aktuell keine Registrierungen."
 msgid "Greetings Network Administrator!"
 msgstr "Hallo, Netzwerkadministrator!"
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:62
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:61
 #: wp-includes/widgets/class-wp-widget-media.php:151
 msgid "Title for the widget"
 msgstr "Titel für das Widget"
@@ -5454,127 +5454,127 @@ msgid "A media item."
 msgstr "Ein Medien-Element."
 
 #. translators: %s: video extension
-#: wp-includes/widgets/class-wp-widget-media-video.php:97
+#: wp-includes/widgets/class-wp-widget-media-video.php:96
 msgid "URL to the %s video source file"
 msgstr "URL der %s-Quelldatei"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:49
+#: wp-includes/widgets/class-wp-widget-media-video.php:48
 msgid "Video Widget"
 msgstr "Video-Widget"
 
 #. translators: %d: widget count
-#: wp-includes/widgets/class-wp-widget-media-video.php:48
+#: wp-includes/widgets/class-wp-widget-media-video.php:47
 msgid "Video Widget (%d)"
 msgid_plural "Video Widget (%d)"
 msgstr[0] "Video-Widget (%d)"
 msgstr[1] "Video-Widgets (%d)"
 
 #. translators: %s: URL to media library
-#: wp-includes/widgets/class-wp-widget-media-video.php:44
+#: wp-includes/widgets/class-wp-widget-media-video.php:43
 msgid "We can&#8217;t find that video. Check your <a href=\"%s\">media library</a> and make sure it wasn&#8217;t deleted."
 msgstr "Wir können dieses Video nicht finden. Prüfe deine <a href=\"%s\">Mediathek</a> und stelle sicher, dass es nicht gelöscht wurde. "
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:41
+#: wp-includes/widgets/class-wp-widget-media-video.php:40
 msgctxt "label for button in the video widget; should preferably not be longer than ~13 characters long"
 msgid "Edit Video"
 msgstr "Video bearbeiten"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:40
+#: wp-includes/widgets/class-wp-widget-media-video.php:39
 msgctxt "label for button in the video widget; should preferably not be longer than ~13 characters long"
 msgid "Replace Video"
 msgstr "Video ersetzen"
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:39
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:38
 msgctxt "label for button in the gallery widget; should not be longer than ~13 characters long"
 msgid "Add Images"
 msgstr "Bilder hinzufügen"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:30
+#: wp-includes/widgets/class-wp-widget-media-video.php:29
 msgid "Displays a video from the media library or from YouTube, Vimeo, or another provider."
 msgstr "Zeigt ein Video aus der Mediathek oder von YouTube, Vimeo oder einem anderen Anbieter."
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:49
+#: wp-includes/widgets/class-wp-widget-media-image.php:48
 msgid "Image Widget"
 msgstr "Bild-Widget"
 
 #. translators: %d: widget count
-#: wp-includes/widgets/class-wp-widget-media-image.php:48
+#: wp-includes/widgets/class-wp-widget-media-image.php:47
 msgid "Image Widget (%d)"
 msgid_plural "Image Widget (%d)"
 msgstr[0] "Bild-Widget (%d)"
 msgstr[1] "Bild-Widgets (%d)"
 
 #. translators: %s: URL to media library
-#: wp-includes/widgets/class-wp-widget-media-image.php:44
+#: wp-includes/widgets/class-wp-widget-media-image.php:43
 msgid "We can&#8217;t find that image. Check your <a href=\"%s\">media library</a> and make sure it wasn&#8217;t deleted."
 msgstr "Wir können dieses Bild nicht finden. Prüfe deine <a href=\"%s\">Mediathek</a> und stelle sicher, dass es nicht gelöscht wurde. "
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:41
+#: wp-includes/widgets/class-wp-widget-media-image.php:40
 msgctxt "label for button in the image widget; should preferably not be longer than ~13 characters long"
 msgid "Edit Image"
 msgstr "Bild bearbeiten"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:40
+#: wp-includes/widgets/class-wp-widget-media-image.php:39
 msgctxt "label for button in the image widget; should preferably not be longer than ~13 characters long"
 msgid "Replace Image"
 msgstr "Bild ersetzen"
 
-#: wp-includes/widgets/class-wp-widget-media-gallery.php:41
+#: wp-includes/widgets/class-wp-widget-media-gallery.php:40
 msgctxt "label for button in the gallery widget; should not be longer than ~13 characters long"
 msgid "Edit Gallery"
 msgstr "Galerie bearbeiten"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:30
+#: wp-includes/widgets/class-wp-widget-media-image.php:29
 msgid "Displays an image."
 msgstr "Zeigt ein Bild an."
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:349
-#: wp-includes/widgets/class-wp-widget-media-audio.php:197
-#: wp-includes/widgets/class-wp-widget-media-video.php:241
+#: wp-includes/widgets/class-wp-widget-media-image.php:348
+#: wp-includes/widgets/class-wp-widget-media-audio.php:196
+#: wp-includes/widgets/class-wp-widget-media-video.php:240
 msgid "Unable to preview media due to an unknown error."
 msgstr "Medienvorschau aufgrund eines unbekannten Fehlers nicht möglich."
 
 #. translators: %s: audio extension
-#: wp-includes/widgets/class-wp-widget-media-audio.php:86
+#: wp-includes/widgets/class-wp-widget-media-audio.php:85
 msgid "URL to the %s audio source file"
 msgstr "URL der %s-Quelldatei"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:50
+#: wp-includes/widgets/class-wp-widget-media-audio.php:49
 msgid "Looks like this isn&#8217;t the correct kind of file. Please link to an audio file instead."
 msgstr "Dies ist scheinbar nicht der richtige Dateityp. Bitte verlinke anstatt dessen auf eine Audiodatei."
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:49
+#: wp-includes/widgets/class-wp-widget-media-audio.php:48
 msgid "Audio Widget"
 msgstr "Audio-Widget"
 
 #. translators: %d: widget count
-#: wp-includes/widgets/class-wp-widget-media-audio.php:48
+#: wp-includes/widgets/class-wp-widget-media-audio.php:47
 msgid "Audio Widget (%d)"
 msgid_plural "Audio Widget (%d)"
 msgstr[0] "Audio-Widget (%d)"
 msgstr[1] "Audio-Widgets (%d)"
 
 #. translators: %s: URL to media library
-#: wp-includes/widgets/class-wp-widget-media-audio.php:44
+#: wp-includes/widgets/class-wp-widget-media-audio.php:43
 msgid "We can&#8217;t find that audio file. Check your <a href=\"%s\">media library</a> and make sure it wasn&#8217;t deleted."
 msgstr "Wir können diese Audiodatei nicht finden. Prüfe deine <a href=\"%s\">Mediathek</a> und stelle sicher, dass sie nicht gelöscht wurde."
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:41
+#: wp-includes/widgets/class-wp-widget-media-audio.php:40
 msgctxt "label for button in the audio widget; should preferably not be longer than ~13 characters long"
 msgid "Edit Audio"
 msgstr "Audio bearbeiten"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:40
+#: wp-includes/widgets/class-wp-widget-media-audio.php:39
 msgctxt "label for button in the audio widget; should preferably not be longer than ~13 characters long"
 msgid "Replace Audio"
 msgstr "Audio ersetzen"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:38
+#: wp-includes/widgets/class-wp-widget-media-audio.php:37
 #: wp-includes/customize/class-wp-customize-media-control.php:233
 msgid "No audio selected"
 msgstr "Keine Audiodatei ausgewählt"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:30
+#: wp-includes/widgets/class-wp-widget-media-audio.php:29
 msgid "Displays an audio player."
 msgstr "Zeigt einen Audioplayer."
 
@@ -6301,7 +6301,7 @@ msgstr "Video auswählen"
 msgid "Change video"
 msgstr "Video wechseln"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:38
+#: wp-includes/widgets/class-wp-widget-media-video.php:37
 #: wp-includes/customize/class-wp-customize-media-control.php:223
 msgid "No video selected"
 msgstr "Kein Video ausgewählt"
@@ -7143,8 +7143,8 @@ msgstr "Die ID des zugeordneten Beitragsobjekts."
 #: wp-includes/rest-api/endpoints/class-wp-rest-revisions-controller.php:94
 #: wp-includes/rest-api/endpoints/class-wp-rest-revisions-controller.php:655
 #: wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php:1979
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:87
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:113
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:86
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:112
 msgid "The ID for the parent of the object."
 msgstr "Die Eltern-ID des Objektes."
 
@@ -7412,7 +7412,7 @@ msgstr "Besuchern erlauben, neue Beiträge zu kommentieren."
 
 #: wp-includes/option.php:2053
 msgid "Allow link notifications from other blogs (pingbacks and trackbacks) on new articles."
-msgstr "Link-Benachrichtigungen von anderen Blogs (Pingbacks und Trackbacks) zu neuen Beiträgen ermöglichen"
+msgstr "Link-Benachrichtigungen von anderen Blogs (Pingbacks und Trackbacks) zu neuen Beiträgen erlauben"
 
 #: wp-includes/option.php:2038
 msgid "Blog pages show at most."
@@ -7486,13 +7486,12 @@ msgstr "Themes filtern"
 msgid "Change theme"
 msgstr "Theme wechseln"
 
-#. translators: %s: "Update now" button
-#: wp-includes/customize/class-wp-customize-theme-control.php:97
+#: wp-includes/customize/class-wp-customize-theme-control.php:102
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 
 #. translators: %s: "Update now" button
-#: wp-includes/customize/class-wp-customize-theme-control.php:97
+#: wp-includes/customize/class-wp-customize-theme-control.php:101
 msgid "New version available. %s"
 msgstr "Neue Version verfügbar. %s"
 
@@ -7836,7 +7835,7 @@ msgstr "Pause"
 msgid "Play"
 msgstr "Abspielen"
 
-#: wp-includes/taxonomy.php:2124 wp-includes/taxonomy.php:2842
+#: wp-includes/taxonomy.php:2124 wp-includes/taxonomy.php:2838
 msgid "A name is required for this term."
 msgstr "Für diesen Begriff ist ein Name erforderlich."
 
@@ -8155,7 +8154,7 @@ msgstr "Link-Optionen"
 msgid "Link inserted."
 msgstr "Link eingefügt."
 
-#: wp-includes/script-loader.php:1394 wp-includes/js/dist/block-editor.js:16420
+#: wp-includes/script-loader.php:1394 wp-includes/js/dist/block-editor.js:16442
 msgid "Link selected."
 msgstr "Link ausgewählt."
 
@@ -8384,7 +8383,7 @@ msgid "Invalid object type"
 msgstr "Ungültiger Objekt-Typ"
 
 #: wp-includes/class-wp-editor.php:1283
-#: wp-includes/js/dist/block-editor.js:16482
+#: wp-includes/js/dist/block-editor.js:16504
 msgid "Paste URL or type to search"
 msgstr "URL einfügen oder zum Suchen tippen"
 
@@ -9472,7 +9471,7 @@ msgstr "Inhalt:"
 
 #: wp-includes/class-wp-xmlrpc-server.php:620
 msgid "Allow link notifications from other blogs (pingbacks and trackbacks) on new articles"
-msgstr "Link-Benachrichtigungen von anderen Blogs (Pingbacks und Trackbacks) zu neuen Beiträgen ermöglichen"
+msgstr "Link-Benachrichtigungen von anderen Blogs (Pingbacks und Trackbacks) zu neuen Beiträgen erlauben"
 
 #: wp-includes/class-wp-editor.php:1303
 msgid "Ctrl + letter:"
@@ -9573,7 +9572,7 @@ msgstr "In diesem Bereich werden Navigations-Menüs für Inhalte verwaltet, die 
 #. translators: 1: item name, 2: item position, 3: parent item name
 #: wp-includes/class-wp-customize-nav-menus.php:506
 msgid "%1$s. Sub item number %2$d under %3$s."
-msgstr "%1$s. Unterelelement %2$d von %3$s."
+msgstr "%1$s. Unterpunkt-Nummer %2$d von %3$s."
 
 #. translators: 1: item name, 2: item position, 3: total number of items
 #: wp-includes/class-wp-customize-nav-menus.php:504
@@ -9602,7 +9601,7 @@ msgstr "Unter %s verschieben"
 
 #: wp-includes/class-wp-customize-nav-menus.php:494
 msgid "Move to the top"
-msgstr "Ganz nach oben verschieben"
+msgstr "Nach ganz oben verschieben"
 
 #: wp-includes/class-wp-customize-nav-menus.php:493
 msgid "Move down one"
@@ -9701,7 +9700,7 @@ msgstr "CSS-Klassen"
 msgid "Title Attribute"
 msgstr "HTML-Attribut title (optional)"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:143
+#: wp-includes/widgets/class-wp-widget-media-image.php:142
 #: wp-includes/media-template.php:1082
 #: wp-includes/customize/class-wp-customize-nav-menu-item-control.php:106
 #: wp-includes/class-wp-editor.php:1741
@@ -9788,7 +9787,7 @@ msgstr[0] "%1$s Antwort zu %2$s"
 msgstr[1] "%1$s Antworten zu %2$s"
 
 #. translators: %s: theme name
-#: wp-includes/customize/class-wp-customize-theme-control.php:108
+#: wp-includes/customize/class-wp-customize-theme-control.php:115
 msgid "<span>Previewing:</span> %s"
 msgstr "<span>Vorschau von:</span> %s"
 
@@ -9830,7 +9829,7 @@ msgstr "Installation erfolgreich abgeschlossen."
 msgid "Taxonomy names must be between 1 and 32 characters in length."
 msgstr "Taxonomie-Namen müssen eine Länge zwischen 1 und 32 Zeichen haben."
 
-#: wp-includes/taxonomy.php:3804
+#: wp-includes/taxonomy.php:3800
 msgid "Could not split shared term."
 msgstr "Der gemeinsam genutzte Begriff konnte nicht aufgeteilt werden."
 
@@ -9999,7 +9998,7 @@ msgid "Theme Details"
 msgstr "Theme-Details"
 
 #: wp-includes/script-loader.php:1767
-#: wp-includes/customize/class-wp-customize-theme-control.php:120
+#: wp-includes/customize/class-wp-customize-theme-control.php:127
 msgid "Live Preview"
 msgstr "Live-Vorschau"
 
@@ -10272,7 +10271,7 @@ msgstr "Datei wählen"
 msgid "Select image"
 msgstr "Bild auswählen"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:38
+#: wp-includes/widgets/class-wp-widget-media-image.php:37
 #: wp-includes/customize/class-wp-customize-media-control.php:244
 msgid "No image selected"
 msgstr "Kein Bild ausgewählt"
@@ -10351,7 +10350,7 @@ msgstr "Mehrfachauswahl"
 
 #. translators: %s: taxonomy label, %l: list of terms formatted as per
 #. $term_template
-#: wp-includes/taxonomy.php:4317
+#: wp-includes/taxonomy.php:4313
 msgid "%s: %l."
 msgstr "%s: %l."
 
@@ -10483,7 +10482,7 @@ msgstr "Bitrate"
 
 #: wp-includes/class-wp-customize-widgets.php:418
 msgid "Widgets are independent sections of content that can be placed into widgetized areas provided by your theme (commonly called sidebars)."
-msgstr "Widgets sind eigenständige Inhaltsabschnitte. Widgets können in vorgesehenen Bereichen platziert werden, die von deinem Theme zur Verfügung gestellt werden (üblicherweise Seitenleiste genannt)."
+msgstr "Widgets sind unabhängige Inhaltsabschnitte und können in dafür vorgesehene Bereiche platziert werden, die von deinem Theme zur Verfügung gestellt werden (üblicherweise Seitenleiste genannt)."
 
 #. translators: %s: the site/panel title in the Customizer
 #: wp-includes/class-wp-customize-panel.php:362
@@ -10581,12 +10580,12 @@ msgstr "Album"
 msgid "Artist"
 msgstr "Künstler"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:120
+#: wp-includes/widgets/class-wp-widget-media-image.php:119
 #: wp-includes/media-template.php:1076
 msgid "Image CSS Class"
 msgstr "Bild-CSS-Klasse"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:151
+#: wp-includes/widgets/class-wp-widget-media-image.php:150
 #: wp-includes/media-template.php:1072
 msgid "Image Title Attribute"
 msgstr "Bild title-Attribut"
@@ -10628,7 +10627,7 @@ msgstr "Einstellungen anzeigen"
 msgid "Show Video List"
 msgstr "Videoliste anzeigen"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:129
+#: wp-includes/widgets/class-wp-widget-media-image.php:128
 #: wp-includes/media-template.php:1089
 #: wp-includes/js/dist/block-library.js:10388
 msgid "Link CSS Class"
@@ -10665,7 +10664,7 @@ msgctxt "auto preload"
 msgid "Auto"
 msgstr "Automatisch"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:86
+#: wp-includes/widgets/class-wp-widget-media-video.php:85
 #: wp-includes/media-template.php:1273 wp-includes/media-template.php:1278
 msgid "Tracks (subtitles, captions, descriptions, chapters, or metadata)"
 msgstr "Titel (Untertitel, Beschriftungen, Beschreibungen, Kapitel oder Meta-Daten)"
@@ -10872,7 +10871,7 @@ msgstr "Quadrat"
 
 #: wp-includes/script-loader.php:911 wp-includes/class-wp-editor.php:1080
 msgid "Bulleted list"
-msgstr "Aufzählung"
+msgstr "Aufzählungsliste"
 
 #: wp-includes/class-wp-editor.php:1048
 msgctxt "HTML elements"
@@ -11636,7 +11635,7 @@ msgstr "#%d (kein Titel)"
 
 #: wp-includes/post-template.php:1941
 msgid "JavaScript must be enabled to use this feature."
-msgstr "Um dieses Feature zu nutzen, muss JavaScript aktiviert sein. "
+msgstr "Um diese Funktion zu nutzen, muss JavaScript aktiviert sein."
 
 #. translators: Date/Time format, see https://secure.php.net/date
 #. translators: localized date and time format, see https://secure.php.net/date
@@ -11764,7 +11763,7 @@ msgstr "Beschrifte dieses Bild&#160;&hellip;"
 msgid "Random Order"
 msgstr "Zufällige Sortierung"
 
-#: wp-includes/media.php:3689 wp-includes/js/dist/block-editor.js:16155
+#: wp-includes/media.php:3689 wp-includes/js/dist/block-editor.js:16177
 msgid "Insert from URL"
 msgstr "Von URL einfügen"
 
@@ -11833,9 +11832,9 @@ msgstr[1] "Videos <span class=\"count\">(%s)</span>"
 msgid "Manage Video"
 msgstr "Video verwalten"
 
-#: wp-includes/widgets/class-wp-widget-media-video.php:28
+#: wp-includes/widgets/class-wp-widget-media-video.php:27
 #: wp-includes/post.php:2630 wp-includes/js/dist/editor.js:8833
-#: wp-includes/js/dist/block-editor.js:16114
+#: wp-includes/js/dist/block-editor.js:16136
 #: wp-includes/js/dist/block-library.js:15794
 msgid "Video"
 msgstr "Video"
@@ -11868,9 +11867,9 @@ msgstr "Zu dieser Seite hochgeladen"
 msgid "Insert into page"
 msgstr "In die Seite einfügen"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:28
+#: wp-includes/widgets/class-wp-widget-media-audio.php:27
 #: wp-includes/post.php:2629 wp-includes/js/dist/editor.js:8836
-#: wp-includes/js/dist/block-editor.js:16110
+#: wp-includes/js/dist/block-editor.js:16132
 #: wp-includes/js/dist/block-library.js:14521
 msgid "Audio"
 msgstr "Audio"
@@ -11958,7 +11957,7 @@ msgstr "Dateien für den Upload bereitstellen"
 msgid "Create Gallery"
 msgstr "Galerie erstellen"
 
-#: wp-includes/media.php:3657 wp-includes/js/dist/block-editor.js:16146
+#: wp-includes/media.php:3657 wp-includes/js/dist/block-editor.js:16168
 msgid "Media Library"
 msgstr "Mediathek"
 
@@ -12026,7 +12025,7 @@ msgstr "Medien-Datei"
 msgid "Attachment Page"
 msgstr "Anhang-Seite"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:104
+#: wp-includes/widgets/class-wp-widget-media-image.php:103
 #: wp-includes/media-template.php:698 wp-includes/media-template.php:780
 #: wp-includes/media-template.php:934 wp-includes/media-template.php:1044
 #: wp-includes/js/dist/block-library.js:10373
@@ -12108,7 +12107,7 @@ msgctxt "Display name based on first name and last name"
 msgid "%1$s %2$s"
 msgstr "%1$s %2$s"
 
-#: wp-includes/taxonomy.php:2540
+#: wp-includes/taxonomy.php:2536
 msgid "Could not insert term relationship into the database."
 msgstr "Die Begriffsbeziehung konnte nicht in die Datenbank eingefügt werden."
 
@@ -12154,7 +12153,7 @@ msgctxt "Uploader: Drop files here - or - Select Files"
 msgid "or"
 msgstr "oder"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:97
+#: wp-includes/widgets/class-wp-widget-media-image.php:96
 #: wp-includes/media-template.php:422 wp-includes/media-template.php:900
 #: wp-includes/media-template.php:967
 msgid "Alternative Text"
@@ -12233,7 +12232,7 @@ msgid "Select file"
 msgstr "Datei auswählen"
 
 #: wp-includes/admin-bar.php:434
-#: wp-includes/customize/class-wp-customize-theme-control.php:112
+#: wp-includes/customize/class-wp-customize-theme-control.php:119
 msgid "Customize"
 msgstr "Customizer"
 
@@ -12349,7 +12348,7 @@ msgstr "Erlaubte Dateien"
 msgid "Remove"
 msgstr "Entfernen"
 
-#: wp-includes/js/dist/block-editor.js:16134
+#: wp-includes/js/dist/block-editor.js:16156
 msgid "Upload"
 msgstr "Hochladen"
 
@@ -12391,7 +12390,7 @@ msgstr "Du bist leider nicht berechtigt, Begriffe in dieser Taxonomie zu bearbei
 #: wp-includes/class-wp-xmlrpc-server.php:2161
 #: wp-includes/rest-api/endpoints/class-wp-rest-terms-controller.php:414
 #: wp-includes/rest-api/endpoints/class-wp-rest-terms-controller.php:537
-#: wp-includes/taxonomy.php:2135 wp-includes/taxonomy.php:2846
+#: wp-includes/taxonomy.php:2135 wp-includes/taxonomy.php:2842
 msgid "Parent term does not exist."
 msgstr "Übergeordneter Begriff existiert nicht."
 
@@ -12416,8 +12415,8 @@ msgstr "Du bist leider nicht berechtigt, in dieser Taxonomie Begriffe zu erstell
 #: wp-includes/taxonomy.php:721 wp-includes/taxonomy.php:821
 #: wp-includes/taxonomy.php:1003 wp-includes/taxonomy.php:1169
 #: wp-includes/taxonomy.php:1968 wp-includes/taxonomy.php:2106
-#: wp-includes/taxonomy.php:2421 wp-includes/taxonomy.php:2596
-#: wp-includes/taxonomy.php:2800
+#: wp-includes/taxonomy.php:2417 wp-includes/taxonomy.php:2592
+#: wp-includes/taxonomy.php:2796
 msgid "Invalid taxonomy."
 msgstr "Ungültige Taxonomie."
 
@@ -12440,7 +12439,7 @@ msgstr "Template"
 
 #: wp-includes/widgets/class-wp-widget-links.php:176
 msgid "Number of links to show:"
-msgstr "Anzahl der zu zeigenden Links: "
+msgstr "Anzahl der zu zeigenden Links:"
 
 #: wp-includes/widgets/class-wp-widget-links.php:161
 msgid "Link ID"
@@ -12485,7 +12484,7 @@ msgstr "Untertitel"
 msgid "Your latest posts"
 msgstr "Deine letzten Beiträge"
 
-#: wp-includes/js/dist/block-editor.js:17259
+#: wp-includes/js/dist/block-editor.js:17281
 msgid "Styles"
 msgstr "Styles"
 
@@ -12885,8 +12884,8 @@ msgstr "Werkzeugleiste"
 msgid "Very dark gray"
 msgstr "Sehr dunkles Grau"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:71
-#: wp-includes/widgets/class-wp-widget-media-video.php:73
+#: wp-includes/widgets/class-wp-widget-media-audio.php:70
+#: wp-includes/widgets/class-wp-widget-media-video.php:72
 #: wp-includes/media-template.php:1157 wp-includes/media-template.php:1248
 #: wp-includes/js/dist/block-library.js:14458
 #: wp-includes/js/dist/block-library.js:15711
@@ -14162,12 +14161,12 @@ msgstr "Es fehlt ein Stylesheet."
 msgid "The parent theme is missing. Please install the \"%s\" parent theme."
 msgstr "Das übergeordnete Theme fehlt. Bitte installiere das übergeordnete Theme &#8222;%s&#8220;, da du Child-Themes sonst nicht nutzen kannst."
 
-#: wp-includes/taxonomy.php:4389
+#: wp-includes/taxonomy.php:4385
 msgid "Invalid object ID."
 msgstr "Ungültige Objekt-ID."
 
 #. translators: %s: taxonomy term slug
-#: wp-includes/taxonomy.php:2908
+#: wp-includes/taxonomy.php:2904
 msgid "The slug &#8220;%s&#8221; is already in use by another term."
 msgstr "Die Titelform &#8222;%s&#8220; wird bereits von einem anderen Begriff verwendet."
 
@@ -14175,12 +14174,12 @@ msgstr "Die Titelform &#8222;%s&#8220; wird bereits von einem anderen Begriff ve
 msgid "Could not insert term into the database."
 msgstr "Der Begriff konnte nicht in die Datenbank eingefügt werden."
 
-#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:183
+#: wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php:182
 msgid "Invalid item ID."
 msgstr "Ungültige Element-ID."
 
-#: wp-includes/taxonomy.php:817 wp-includes/taxonomy.php:2813
-#: wp-includes/taxonomy.php:4171
+#: wp-includes/taxonomy.php:817 wp-includes/taxonomy.php:2809
+#: wp-includes/taxonomy.php:4167
 msgid "Empty Term."
 msgstr "Leerer Begriff."
 
@@ -14294,9 +14293,9 @@ msgid "of"
 msgstr "von"
 
 #: wp-includes/script-loader.php:1102
-#: wp-includes/widgets/class-wp-widget-media-image.php:28
+#: wp-includes/widgets/class-wp-widget-media-image.php:27
 #: wp-includes/class-wp-editor.php:1110 wp-includes/js/dist/editor.js:8821
-#: wp-includes/js/dist/block-editor.js:16112
+#: wp-includes/js/dist/block-editor.js:16134
 #: wp-includes/js/dist/block-library.js:10702
 #: wp-includes/js/dist/format-library.js:570
 msgid "Image"
@@ -14333,7 +14332,7 @@ msgstr "Alle offenen Tags schließen"
 #: wp-includes/blocks/rss.php:27 wp-includes/rss.php:917
 #: wp-includes/widgets.php:1471
 msgid "An error has occurred, which probably means the feed is down. Try again later."
-msgstr "Ein Fehler ist aufgetreten – der Feed funktioniert zur Zeit nicht. Versuche es später noch einmal."
+msgstr "Ein Fehler ist aufgetreten – der Feed funktioniert zurzeit nicht. Versuche es später noch einmal."
 
 #: wp-includes/user.php:2152
 msgid "Jabber / Google Talk"
@@ -14663,7 +14662,7 @@ msgstr "Aktion"
 msgid "Letter"
 msgstr "Zeichen"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:136
+#: wp-includes/widgets/class-wp-widget-media-image.php:135
 #: wp-includes/media-template.php:1085
 #: wp-includes/js/dist/block-library.js:10392
 msgid "Link Rel"
@@ -14709,8 +14708,8 @@ msgstr "Hintergrund"
 msgid "Align"
 msgstr "Ausrichtung"
 
-#: wp-includes/widgets/class-wp-widget-media-audio.php:76
-#: wp-includes/widgets/class-wp-widget-media-video.php:79
+#: wp-includes/widgets/class-wp-widget-media-audio.php:75
+#: wp-includes/widgets/class-wp-widget-media-video.php:78
 #: wp-includes/media-template.php:1172 wp-includes/media-template.php:1263
 #: wp-includes/js/dist/block-library.js:14454
 #: wp-includes/js/dist/block-library.js:15699
@@ -15789,7 +15788,7 @@ msgstr "Plugin:"
 msgid "Default"
 msgstr "Standard"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:83
+#: wp-includes/widgets/class-wp-widget-media-image.php:82
 #: wp-includes/media-template.php:1039 wp-includes/class-wp-editor.php:1222
 #: wp-includes/js/dist/block-library.js:10348
 msgid "Height"
@@ -15843,7 +15842,7 @@ msgstr "Themes"
 msgid "Sites"
 msgstr "Websites"
 
-#: wp-includes/js/dist/block-editor.js:16589
+#: wp-includes/js/dist/block-editor.js:16611
 msgid "Edit Link"
 msgstr "Link bearbeiten"
 
@@ -15881,7 +15880,7 @@ msgstr "<strong>FEHLER</strong>: Diese E-Mail-Adresse wurde bereits registriert,
 msgid "<strong>ERROR</strong>: Please enter a username."
 msgstr "<strong>FEHLER</strong>: Bitte gib einen Benutzernamen ein."
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:77
+#: wp-includes/widgets/class-wp-widget-media-image.php:76
 #: wp-includes/media-template.php:1039 wp-includes/class-wp-editor.php:1223
 #: wp-includes/js/dist/block-library.js:10341
 #: wp-includes/js/dist/format-library.js:706
@@ -15947,7 +15946,7 @@ msgstr "Hilfe"
 #: wp-includes/widgets/class-wp-widget-recent-posts.php:97
 #: wp-includes/blocks/latest-comments.php:31 wp-includes/media.php:3265
 #: wp-includes/js/dist/editor.js:10847
-#: wp-includes/js/dist/block-editor.js:16513
+#: wp-includes/js/dist/block-editor.js:16535
 #: wp-includes/js/dist/edit-post.js:4995
 msgid "(no title)"
 msgstr "(kein Titel)"
@@ -15973,7 +15972,7 @@ msgstr "Auswählen"
 #: wp-includes/class-wp-customize-manager.php:5600
 #: wp-includes/class-wp-editor.php:1077 wp-includes/class-wp-editor.php:1727
 #: wp-includes/js/dist/components.js:30790
-#: wp-includes/js/dist/block-editor.js:16607
+#: wp-includes/js/dist/block-editor.js:16629
 #: wp-includes/js/dist/edit-post.js:3942 wp-includes/js/dist/edit-post.js:4216
 #: wp-includes/js/dist/edit-post.js:4608
 msgid "Close"
@@ -16075,7 +16074,7 @@ msgid "Image URL"
 msgstr "Bild-URL"
 
 #: wp-includes/media.php:4171 wp-includes/class-wp-editor.php:1127
-#: wp-includes/js/dist/block-editor.js:16107
+#: wp-includes/js/dist/block-editor.js:16129
 msgid "Media"
 msgstr "Medien"
 
@@ -16088,7 +16087,7 @@ msgstr "Bild bearbeiten"
 msgid "Link URL"
 msgstr "Web-Adresse"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:90
+#: wp-includes/widgets/class-wp-widget-media-image.php:89
 #: wp-includes/media-template.php:447 wp-includes/media-template.php:639
 #: wp-includes/media-template.php:910 wp-includes/media-template.php:977
 #: wp-includes/class-wp-editor.php:1224
@@ -16099,7 +16098,7 @@ msgstr "Beschriftung"
 msgid "Alignment"
 msgstr "Ausrichtung"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:71
+#: wp-includes/widgets/class-wp-widget-media-image.php:70
 #: wp-includes/media-template.php:743 wp-includes/media-template.php:821
 #: wp-includes/media-template.php:1004
 msgid "Size"
@@ -16259,7 +16258,7 @@ msgstr "Vorschau"
 msgid "RSS"
 msgstr "RSS"
 
-#: wp-includes/js/dist/block-editor.js:16614
+#: wp-includes/js/dist/block-editor.js:16636
 msgid "Submit"
 msgstr "Senden"
 
@@ -16319,7 +16318,7 @@ msgid "Name"
 msgstr "Name"
 
 #: wp-includes/class-wp-editor.php:1113
-#: wp-includes/js/dist/block-editor.js:17266
+#: wp-includes/js/dist/block-editor.js:17288
 msgid "Advanced"
 msgstr "Erweitert"
 
@@ -16384,7 +16383,7 @@ msgstr "Kommentare"
 
 #: wp-includes/class-wp-customize-widgets.php:777 wp-includes/media.php:3678
 #: wp-includes/class-wp-editor.php:1284
-#: wp-includes/js/dist/block-editor.js:15928
+#: wp-includes/js/dist/block-editor.js:15950
 #: wp-includes/js/dist/block-library.js:17530
 #: wp-includes/js/dist/format-library.js:712
 #: wp-includes/js/dist/format-library.js:974
@@ -16427,14 +16426,14 @@ msgctxt "noun"
 msgid "Comment"
 msgstr "Kommentar"
 
-#: wp-includes/widgets/class-wp-widget-media-image.php:112
+#: wp-includes/widgets/class-wp-widget-media-image.php:111
 #: wp-includes/media-template.php:1123 wp-includes/media-template.php:1207
 #: wp-includes/media.php:3635 wp-includes/media.php:4164
 #: wp-includes/customize/class-wp-customize-nav-menu-item-control.php:92
 #: wp-includes/class-wp-editor.php:1159 wp-includes/class-wp-editor.php:1732
 #: wp-includes/class-wp-customize-nav-menus.php:1189
-#: wp-includes/js/dist/block-editor.js:15921
-#: wp-includes/js/dist/block-editor.js:16477
+#: wp-includes/js/dist/block-editor.js:15943
+#: wp-includes/js/dist/block-editor.js:16499
 #: wp-includes/js/dist/block-library.js:11720
 msgid "URL"
 msgstr "URL"

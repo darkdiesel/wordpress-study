@@ -276,8 +276,7 @@ if (!class_exists('BBoss_Global_Search_Helper')):
 				$this->search_results['all']['items'] = $new_items;
 
 				/* _______________________________ */
-				$url = $this->search_page_search_url();
-				$url = esc_url(add_query_arg( array( 'no_frame' => '1' ), $url ));
+				$url = esc_url( $this->search_page_search_url() );
 				$type_mem = "";
 				foreach( $this->search_results['all']['items'] as $item_id=>$item ){
 					$new_row = array( 'value'=>$item['html'] );
@@ -455,6 +454,8 @@ if (!class_exists('BBoss_Global_Search_Helper')):
 				40 | posts | 1 | 2014-10-26 13:52:06
 				4 | groups | 0 | 2014-10-21 15:15:36
 				*/
+				$results = apply_filters( 'bboss_global_search_query_results', $results, $this );
+
 				if( !empty( $results ) ){
 					$this->search_results['all'] = array( 'total_match_count' => 0, 'items' => array(), 'items_title'=> array() );
 					//segregate items of a type together and pass it to corresponsing search handler, so that an aggregate query can be done
@@ -562,6 +563,8 @@ if (!class_exists('BBoss_Global_Search_Helper')):
 				40 | posts | 1 | 2014-10-26 13:52:06
 				4 | groups | 0 | 2014-10-21 15:15:36
 				*/
+				$results = apply_filters( 'bboss_global_search_query_results', $results, $this );
+
 				if( !empty( $results ) ){
 					$obj = $this->search_helpers[$args['search_subset']];
 					$this->search_results[$args['search_subset']] = array( 'total_match_count' => 0, 'items' => array() );

@@ -1,5 +1,5 @@
 <div class="bboss_ajax_search_item bboss_ajax_search_item_post">
-	<a href="<?php echo esc_url(add_query_arg( array( 'no_frame' => '1' ), get_permalink() ));?>">
+	<a href="<?php echo esc_url( get_permalink() );?>">
 		<div class="item">
 			<div class="item-title"><?php the_title();?></div>
 			<?php  

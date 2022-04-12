@@ -226,7 +226,7 @@ if (!class_exists('BBoss_Global_Search_Members')):
 
 			//now we have all the posts
 			//lets do a groups loop
-			if( bp_has_members( array( 'search_terms' => '', 'include'=>$group_ids, 'per_page'=>count($group_ids) ) ) ){
+			if( bp_has_members( array( 'type' => 'alphabetical', 'search_terms' => '', 'include'=>implode(',', $group_ids), 'per_page'=>count($group_ids) ) ) ){
 				while ( bp_members() ){
 					bp_the_member();
 

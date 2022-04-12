@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BuddyPress Global Search v1.0.1\n"
 "Report-Msgid-Bugs-To: https://www.buddyboss.com/contact/\n"
-"POT-Creation-Date: 2018-05-24 05:55:51+00:00\n"
+"POT-Creation-Date: 2019-07-17 07:15:31+00:00\n"
 "PO-Revision-Date: 2015-01-18 20:50-0500\n"
 "Last-Translator: BuddyBoss <support@buddyboss.com>\n"
 "Language-Team: BuddyBoss <support@buddyboss.com>\n"
@@ -103,16 +103,16 @@ msgid "Cheatin&#8217; huh?"
 msgstr ""
 
 # @ buddypress-global-search
-#: includes/class.BBoss_Global_Search_Helper.php:307
+#: includes/class.BBoss_Global_Search_Helper.php:306
 msgid "View all results for '%s'"
 msgstr "Zeige alle Ergebnisse für '%s' an"
 
 # @ buddypress-global-search
-#: includes/class.BBoss_Global_Search_Helper.php:315
+#: includes/class.BBoss_Global_Search_Helper.php:314
 msgid "Nothing found for '%s'"
 msgstr "Es wurden für '%s' keine Ergebnisse gefunden."
 
-#: includes/class.BBoss_Global_Search_Helper.php:719
+#: includes/class.BBoss_Global_Search_Helper.php:722
 msgid "All"
 msgstr ""
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - BuddyPress - Stable (latest release) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-05-16 13:27:11+0000\n"
+"PO-Revision-Date: 2019-07-16 11:09:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -103,12 +103,21 @@ msgid_plural "%s <span class=\"screen-reader-text\">Comments</span>"
 msgstr[0] "%s <span class=\"screen-reader-text\">Kommentar</span>"
 msgstr[1] "%s <span class=\"screen-reader-text\">Kommentare</span>"
 
+#: bp-templates/bp-legacy/buddypress-functions.php:1555
+msgid "Error accepting invitation"
+msgstr "Fehler bei der Einladungsbestätigung"
+
 #. Translators: Url to the Gravatar site, you can use the one for your country
 #. eg: https://fr.gravatar.com for French translation
 #: bp-templates/bp-nouveau/buddypress/members/single/profile/change-avatar.php:23
 #: bp-templates/bp-nouveau/buddypress/members/single/profile/change-avatar.php:89
 msgid "https://gravatar.com"
 msgstr "https://gravatar.com"
+
+#. Translators: %s is used to output the link to the Gravatar site
+#: bp-templates/bp-nouveau/buddypress/members/single/profile/change-avatar.php:21
+msgid "Your profile photo will be used on your profile and throughout the site. If there is a %s associated with your account email we will use that, or you can upload an image from your computer."
+msgstr "Das Profilbild wird im Mitgliederprofil und auf der gesamten Website verwendet. Wenn mit der E-Mailadresse ein %s verknüpft ist, verwenden wir dieses Profilbild oder es kann ein Bild vom Computer hochgeladen werden."
 
 #. translators: Link to Delete Account Settings page
 #: bp-templates/bp-nouveau/buddypress/members/single/settings/data.php:66
@@ -145,6 +154,11 @@ msgstr "Um eine Anfrage zu stellen, bitte unten auf den Button klicken:  "
 #: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:49
 msgid "You can request an export of your personal data, containing the following items if applicable:"
 msgstr "Du kannst einen Export deiner personenbezogenen Daten anfordern, der folgende Elemente enthält (sofern vorhanden):"
+
+#: bp-templates/bp-nouveau/buddypress/members/single/settings/data.php:43
+#: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:43
+msgid "You will receive a link to download your export via email once we are able to fulfill your request."
+msgstr "Der Link zum Herunterladen des Exports wird per E-Mail gesendet, sobald wir die Anfrage ausführen können. "
 
 #: bp-templates/bp-nouveau/buddypress/members/single/settings/data.php:42
 #: bp-templates/bp-legacy/buddypress/members/single/settings/data.php:42
@@ -293,13 +307,29 @@ msgctxt "screen heading"
 msgid "Your feedback"
 msgstr "Dein Feedback"
 
+#: bp-core/classes/class-bp-admin.php:659
+msgid "With every BuddyPress version, we strive to make internal improvements to performance and code quality in addition to introducing new features and fixes. In BuddyPress 4.0, we've improved PHP compatibility both in our codebase and in our automated testing tools; we've reworked some automated tests for faster performance; we've ensured compatibility with upcoming changes in WordPress; and we've fixed a number of bugs in the formatting and sending of emails."
+msgstr "Mit jeder neuen BuddyPress-Version bemühen wir uns neben der Einführung neuer Funktionen und Korrekturen auch um Verbesserungen der Leistung und der Codequalität. In BuddyPress 4.0 haben wir die PHP-Kompatibilität sowohl in unserer Codebase als auch in unseren automatisierten Testwerkzeugen verbessert. Wir haben einige automatisierte Tests für eine schnellere Leistung überarbeitet und haben die Kompatibilität mit den anstehenden Änderungen in WordPress sichergestellt. Zudem wurde eine Reihe von Fehlern beim Formatieren und Versenden von E-Mails behoben."
+
 #: bp-core/classes/class-bp-admin.php:658
 msgid "BuddyPress: leaner, faster, stronger"
 msgstr "BuddyPress: schlanker, schneller, stärker"
 
+#: bp-core/classes/class-bp-admin.php:656
+msgid "BuddyPress 3.0 introduced a new set of default templates, which we call \"Nouveau\". In 4.0, we've fixed bugs and smoothed the edges in these templates, including more accessible markup and improved appearance on mobile devices."
+msgstr "Mit BuddyPress 3.0 wurde ein neues Template eingeführt, das wir \"Nouveau\" nennen. In 4.0 haben wir Fehler im Template behoben und die Kanten in der Vorlagen geglättet, einschließlich besser zugänglicher Markierungen und verbessertem Erscheinungsbild auf mobilen Geräten."
+
 #: bp-core/classes/class-bp-admin.php:655
 msgid "Nouveau template improvements"
 msgstr "Verbesserungen am Nouveau Template"
+
+#: bp-core/classes/class-bp-admin.php:653
+msgid "BuddyPress 4.0 also integrates with WordPress 4.9.8's Privacy Policy tools. When you create or update your Privacy Policy, BP will suggest text that's specifically tailored to the kinds of social data generated on a BuddyPress site. And will prompt registering users to agree to the Privacy Policy, if your theme supports it."
+msgstr "BuddyPress 4.0 integriert sich auch in die Tools zum Datenschutz von WordPress 4.9.8. Wenn eine Datenschutzerklärung erstellt oder aktualisiert wird, schlägt BP einen Text vor, der auf die Verarbeitung personenbezogener Daten zugeschnitten ist, die auf einer BuddyPress-Site generiert werden. Außerdem Benutzer während der Registrierung aufgefordert, der Datenschutzerklärung zuzustimmen, sofern das Design dies unterstützt."
+
+#: bp-core/classes/class-bp-admin.php:651
+msgid "The new \"Export Data\" Settings panel lets users request an export of all BuddyPress data they've created. BuddyPress integrates seamlessly with the data export functionality introduced in WordPress 4.9.8, and BP data is included in exports that are initiated either from the Export Data panel or via WP's Tools > Export Personal Data interface."
+msgstr "Über die neue Funktion \"Daten exportieren\" können Benutzer alle von ihr erstellten BuddyPress-Daten exportieren. BuddyPress lässt sich nahtlos in die in WordPress 4.9.8 eingeführte Datenexportfunktionalität integrieren. BP-Daten werden in Exporte eingeschlossen, die entweder über das Bedienfeld „Daten exportieren“ oder über die Schnittstelle \"Werkzeuge > Personenbezogene Daten exportieren“ von WP initiiert werden."
 
 #: bp-core/classes/class-bp-admin.php:647
 msgid "Improved user control over data exports"
@@ -308,6 +338,10 @@ msgstr "Verbesserte Benutzerkontrolle beim Export von Daten"
 #: bp-core/classes/class-bp-admin.php:645
 msgid "Screenshot of Export Data settings panel"
 msgstr "Screenshot der Datenexport-Einstellungen"
+
+#: bp-core/classes/class-bp-admin.php:641
+msgid "BuddyPress boasts a proud history of letting community members and managers control their data, independent of third-party, commercial entities. In this spirit, as well as the spirit of recent regulations like the EU's General Data Protection Regulation (GDPR), BuddyPress 4.0 introduces a suite of tools allowing users and site admins to manage member data and privacy."
+msgstr "BuddyPress ist stolz darauf, dass Community-Mitglieder und Manager ihre Daten unabhängig von kommerziellen Drittanbietern kontrollieren können. BuddyPress 4.0 führt eine Reihe von Tools ein, mit deren Hilfe Benutzer und Site-Administratoren die Daten und den Datenschutz ihrer Mitglieder verwalten können. Dies gilt auch für die Vorschriften wie die EU-DSGVO (Europäische Datenschutzgrundverordnung) der EU."
 
 #: bp-core/classes/class-bp-admin.php:639
 msgid "New tools for data control and privacy"
@@ -318,9 +352,49 @@ msgctxt "section heading"
 msgid "New in BuddyPress"
 msgstr "Neu in BuddyPress"
 
+#: bp-core/classes/class-bp-admin.php:597
+msgid "When a logged-in user creates a new group, we use a number of cookies to keep track of the group creation process. These cookies contain no personal data, and are deleted either upon the successful creation of the group or after 24 hours."
+msgstr "Wenn ein angemeldeter Benutzer eine neue Gruppe erstellt, verwenden wir eine Reihe von Cookies, um den Gruppenerstellungsprozess zu verfolgen. Diese Cookies enthalten keine personenbezogenen Daten und werden entweder bei erfolgreicher Gründung der Gruppe oder nach 24 Stunden gelöscht."
+
+#: bp-core/classes/class-bp-admin.php:594
+msgid "We use cookies on group, member, and activity directories to keep track of a user's browsing preferences. These preferences include the last-selected values of the sort and filter dropdowns, as well as pagination information. These cookies contain no personal data, and are deleted after 24 hours."
+msgstr "Wir verwenden Cookies für Gruppen-, Mitglieder- und Aktivitätsverzeichnisse, um die Browsereinstellungen eines Benutzers zu verfolgen. Zu diesen Einstellungen gehören die zuletzt ausgewählten Werte der Dropdown-Listen für Sortierung und Filter, sowie Informationen zur Paginierung. Diese Cookies enthalten keine personenbezogenen Daten und werden nach 24 Stunden gelöscht."
+
+#: bp-core/classes/class-bp-admin.php:592
+msgid "We use a cookie to show success and failure messages to logged-in users, in response to certain actions, like joining a group. These cookies contain no personal data, and are deleted immediately after the next page load."
+msgstr "Wir verwenden ein Cookie, um als Reaktion auf bestimmte Aktionen, z. B. dem Beitritt zu einer Gruppe, angemeldeten Benutzern entsprechende Erfolgs- und Fehlermeldungen anzuzeigen. Diese Cookies enthalten keine personenbezogenen Daten und werden unmittelbar nach dem Laden der nächsten Seite gelöscht."
+
+#: bp-core/classes/class-bp-admin.php:590
+msgid "In this section you should describe the BuddyPress-specific cookies that your site collects. The suggested text describes the default cookies."
+msgstr "In diesem Abschnitt sollte man die BuddyPress-spezifischen Cookies benennen, die von der Website ausgelesen werden. Der vorgeschlagene Text beschreibt die Standard-Cookies."
+
+#: bp-core/classes/class-bp-admin.php:586
+msgid "The content of private messages is visible only to the sender and the recipients of the message. With the exception of site administrators, who can read all private messages, private message content is never visible to other users or site visitors. Site administrators may delete the content of any message."
+msgstr "Der Inhalt privater Nachrichten ist nur für den Absender und die Empfänger der Nachricht sichtbar. Mit Ausnahme von Websiteadministratoren, die alle privaten Nachrichten einsehen können, ist der Inhalt privater Nachrichten für andere Benutzer oder Websitebesucher niemals sichtbar. Websiteadministratoren können den Inhalt einer Nachricht löschen."
+
 #: bp-core/classes/class-bp-admin.php:584
 msgid "In this section you should describe any personal data related to private messages."
 msgstr "In diesem Abschnitt sollten alle persönlichen Daten beschrieben werden, die sich auf private Nachrichten beziehen."
+
+#: bp-core/classes/class-bp-admin.php:579
+msgid "Activity items may be deleted at any time by users who created them. Site administrators can edit all activity items."
+msgstr "Aktivitätselemente können jederzeit von den Benutzern gelöscht werden, die sie erstellt haben. Site-Administratoren können alle Aktivitätselemente bearbeiten."
+
+#: bp-core/classes/class-bp-admin.php:578
+msgid "The content of activity items obey the same privacy rules as the contexts in which the activity items are created. For example, activity updates created in a user's profile is publicly visible, while activity items generated in a private group are visible only to members of that group. Site administrators can view all activity items, regardless of context."
+msgstr "Der Inhalt der Aktivitätselemente entspricht den gleichen Datenschutzbedingungen wie die Kontexte, in denen die Aktivitätselemente erstellt werden. Beispielsweise sind in einem Benutzerprofil erstellte Aktivitätsupdates öffentlich sichtbar, während in einer privaten Gruppe erstellte Aktivitätselemente nur für Mitglieder dieser Gruppe sichtbar sind. Site-Administratoren können alle Aktivitätselemente unabhängig vom Kontext einsehen."
+
+#: bp-core/classes/class-bp-admin.php:577
+msgid "This site records certain user actions, in the form of \"activity\" data. Activity includes updates and comments posted directly to activity streams, as well as descriptions of other actions performed while using the site, such as new friendships, newly joined groups, and profile updates."
+msgstr "Diese Site zeichnet bestimmte Benutzeraktionen in Form von \"Aktivitätsdaten\" auf. Zu den aufgezeichneten Daten gehören Aktualisierungen und Kommentare, die direkt als Aktivität gepostet werden, sowie Beschreibungen anderer Aktionen, die während der Verwendung der Website ausgeführt werden, z. B. neue Freundschaften, neu hinzugefügte Gruppen und Profilaktualisierungen."
+
+#: bp-core/classes/class-bp-admin.php:575
+msgid "In this section you should describe the kinds of information collected in the activity stream, how and whether it can be edited or deleted, and to whom the activity is visible."
+msgstr "In diesem Abschnitt sollte man beschreiben, welche Arten von Informationen im Aktivitätsverlauf erfasst werden, wie und ob sie bearbeitet oder gelöscht werden können und für wen die Aktivität sichtbar ist."
+
+#: bp-core/classes/class-bp-admin.php:570
+msgid "User information provided during account registration can be modified or removed on the Profile > Edit panel. In most cases, users also have control over who is able to view a particular piece of profile content, limiting visibility on a field-by-field basis to friends, logged-in users, or administrators only. Site administrators can read and edit all profile data for all users."
+msgstr "Benutzerinformationen, die während der Kontoregistrierung angegeben werden, können im Bereich Profil > Bearbeiten geändert oder entfernt werden. In den meisten Fällen haben Benutzer auch die Kontrolle darüber, wer einen bestimmten Profilinhalt ansehen kann und die Sichtbarkeit von Feld zu Feld für Freunde, angemeldete Benutzer oder Administratoren beschränken. Site-Administratoren können alle Profildaten für alle Benutzer lesen und bearbeiten."
 
 #: bp-core/classes/class-bp-admin.php:566
 msgid "Profile Data"
@@ -333,6 +407,37 @@ msgstr "Welche personenbezogenen Daten wir erheben und weshalb diese gesammelt w
 #: bp-core/classes/class-bp-admin.php:557
 msgid "Suggested text:"
 msgstr "Vorgeschlagener Text: "
+
+#. translators: do not remove {} brackets or translate its contents.
+#: bp-core/bp-core-functions.php:3441
+msgid ""
+"Thanks for registering!\n"
+"\n"
+"To complete the activation of your account, go to the following link and click on the 'Activate' button: {{{activate.url}}}\n"
+"\n"
+"If the 'Activation Key' field is empty, copy and paste the following into the field - {{key}}"
+msgstr ""
+"Danke für deine Registrierung!\n"
+"\n"
+"Um die Aktivierung deines Kontos abzuschliessen folge bitte folgendem Link und klicke auf den 'Aktivieren'-Button: {{{activate.url}}}\n"
+"\n"
+"Wenn das 'Aktivierungsschlüssel'-Feld leer ist, dann kopiere folgenden Schlüssel und füge ihn ins Feld ein - {{key}}"
+
+#. translators: do not remove {} brackets or translate its contents.
+#: bp-core/bp-core-functions.php:3439
+msgid ""
+"Thanks for registering!\n"
+"\n"
+"To complete the activation of your account, go to the following link and click on the <strong>Activate</strong> button:\n"
+"<a href=\"{{{activate.url}}}\">{{{activate.url}}}</a>\n"
+"\n"
+"If the 'Activation Key' field is empty, copy and paste the following into the field - {{key}}"
+msgstr ""
+"Danke für deine Registrierung!\n"
+"\n"
+"Um die Aktivierung deines Kontos abzuschliessen folge bitte folgendem Link und klicke auf den <strong>Aktivieren</strong>-Button: <a href=\"{{{activate.url}}}\">{{{activate.url}}}</a>\n"
+"\n"
+"Wenn das 'Aktivierungsschlüssel'-Feld leer ist, dann kopiere folgenden Schlüssel und füge ihn ins Feld ein - {{key}}"
 
 #: bp-core/bp-core-functions.php:3276
 msgctxt "email"
@@ -8911,7 +9016,7 @@ msgstr "Januar"
 
 #: bp-xprofile/classes/class-bp-xprofile-field.php:1558
 msgid "Disabled"
-msgstr "Deaktiviert."
+msgstr "Deaktiviert"
 
 #: bp-themes/bp-default/forums/forums-loop.php:41
 msgid "Freshness"
@@ -9845,7 +9950,7 @@ msgstr[1] "Wartungs-Updates"
 #: bp-core/classes/class-bp-admin.php:743
 #: bp-core/admin/bp-core-admin-functions.php:434
 msgid "Credits"
-msgstr "Mitwirkende"
+msgstr "Danksagungen"
 
 #: bp-core/classes/class-bp-admin.php:864
 msgid "Contributors to BuddyPress %s"

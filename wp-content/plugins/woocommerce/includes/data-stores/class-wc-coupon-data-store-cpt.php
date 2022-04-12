@@ -86,7 +86,7 @@ class WC_Coupon_Data_Store_CPT extends WC_Data_Store_WP implements WC_Coupon_Dat
 			$coupon->save_meta_data();
 			$coupon->apply_changes();
 			delete_transient( 'rest_api_coupons_type_count' );
-			do_action( 'woocommerce_new_coupon', $coupon_id );
+			do_action( 'woocommerce_new_coupon', $coupon_id, $coupon );
 		}
 	}
 
@@ -179,7 +179,7 @@ class WC_Coupon_Data_Store_CPT extends WC_Data_Store_WP implements WC_Coupon_Dat
 		$this->update_post_meta( $coupon );
 		$coupon->apply_changes();
 		delete_transient( 'rest_api_coupons_type_count' );
-		do_action( 'woocommerce_update_coupon', $coupon->get_id() );
+		do_action( 'woocommerce_update_coupon', $coupon->get_id(), $coupon );
 	}
 
 	/**
@@ -366,6 +366,19 @@ class WC_Coupon_Data_Store_CPT extends WC_Data_Store_WP implements WC_Coupon_Dat
 	public function get_usage_by_user_id( &$coupon, $user_id ) {
 		global $wpdb;
 		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( meta_id ) FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = '_used_by' AND meta_value = %d;", $coupon->get_id(), $user_id ) );
+	}
+
+	/**
+	 * Get the number of uses for a coupon by email address
+	 *
+	 * @since 3.6.4
+	 * @param WC_Coupon $coupon Coupon object.
+	 * @param string    $email Email address.
+	 * @return int
+	 */
+	public function get_usage_by_email( &$coupon, $email ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( meta_id ) FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = '_used_by' AND meta_value = %s;", $coupon->get_id(), $email ) );
 	}
 
 	/**

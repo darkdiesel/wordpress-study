@@ -1,0 +1,160 @@
+.ipa-meta-box-container{
+    margin-bottom: 10px;
+}
+
+.ipa-meta-box-title{
+    margin-bottom:10px;
+    font-weight: bold;
+}
+
+.ipa-meta-box-description{
+    color:#918686;
+}
+
+.ipa-meta-box-textarea{
+
+}
+
+.ipa-meta-box-textarea textarea{
+    display: block;
+    width: 100%;
+}
+
+.ipa-meta-box-slider{
+
+}
+
+.ipa-meta-box-slider-items-container{
+    margin: 10px 0;
+}
+
+.ipa-meta-box-slider-items{
+    list-style: none;
+}
+
+.ipa-meta-box-slider-item{
+    border: 1px solid #cccccc;
+    display: inline-block;
+    height: 150px;
+    width: 150px;
+    margin: 5px 10px;
+    padding: 4px;
+    vertical-align: top;
+
+    overflow: hidden;
+}
+
+.ipa-meta-box-slider-item > div{
+    position: relative;
+    height: 100%;
+}
+
+.ipa-meta-box-slide-image-thumbnail{
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translate(50%, 50%);
+    width: 100%;
+}
+
+.ipa-meta-box-slide-image-thumbnail img{
+    transform: translate(-50%, -50%);
+}
+
+.ipa-meta-box-slide-edit-btn,
+.ipa-meta-box-slide-delete-btn{
+    position: absolute;
+    text-decoration: none;
+    border: 1px solid #9C9C9C;
+    background-color: #cccccc;
+}
+
+.ipa-meta-box-slide-edit-btn:hover,
+.ipa-meta-box-slide-delete-btn:hover{
+    background-color: #FFFFFF;
+}
+
+.ipa-meta-box-slide-edit-btn{
+    color:#000;
+    bottom: 2px;
+    left: 2px;
+}
+
+.ipa-meta-box-slide-delete-btn{
+    color:#DE1301;
+    bottom: 2px;
+    right: 2px;
+}
+
+.ipa-meta-box-slide-options {
+    display: none;
+}
+
+.ipa-meta-box-slide-dialog-label{
+    display: block;
+    margin-top: 15px;
+}
+
+.ipa-meta-box-divider-wrapper{
+    margin: 15px 0;
+}
+
+/* Upload */
+.ipa-meta-box-upload-thumbnail-image{
+    position: relative;
+    height: 150px;
+    width: 150px;
+    display: inline-block;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 4px;
+    vertical-align: top;
+    border: 1px solid #cccccc;
+    overflow: hidden;
+}
+
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-thumbnail-image-wrapper{
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translate(50%, 50%);
+    width: 100%;
+}
+
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-thumbnail-image-wrapper img{
+    transform: translate(-50%, -50%);
+}
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-edit-btn,
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-delete-btn{
+    position: absolute;
+    text-decoration: none;
+    border: 1px solid #9C9C9C;
+    background-color: #cccccc;
+}
+
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-edit-btn{
+    color:#000;
+    bottom: 6px;
+    left: 6px;
+}
+
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-delete-btn{
+    color:#DE1301;
+    bottom: 6px;
+    right: 6px;
+}
+
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-edit-btn:hover,
+.ipa-meta-box-upload-thumbnail-image .ipa-meta-box-upload-delete-btn:hover {
+    background-color: #FFFFFF;
+}
+
+.ipa-meta-box-upload-wrapper .ipa-meta-box-upload-dialog{
+    display: none;
+}
+
+.ipa-meta-box-upload-dialog .ipa-meta-box-upload-dialog-label{
+    display: block;
+}
