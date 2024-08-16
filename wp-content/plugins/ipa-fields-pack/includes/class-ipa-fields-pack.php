@@ -34,7 +34,7 @@ class IPA_Fields_Pack {
 
 
 	/**
-	 * LetterboxThumbnails constructor.
+	 * IPA_Fields_Pack constructor.
 	 */
 	function __construct() {
 		if ( defined( 'IPA_FIELDS_PACK_VERSION' ) ) {
@@ -164,14 +164,14 @@ class IPA_Fields_Pack {
 	}
 
 	static function plugin_action_links( $links ) {
-		array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=ipa-fields-pack-settings' ), __( 'Settings', LetterboxThumbnails()->plugin->get_txt_domain() ) ) );
+		array_unshift( $links, sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=ipa-fields-pack-settings' ), __( 'Settings', IPA_Fields_Pack()->plugin->get_txt_domain() ) ) );
 
 		return $links;
 	}
 
 	static function plugin_row_meta( $links, $file ) {
 		if ( plugin_basename( __FILE__ ) === $file ) {
-			$links[] = sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( 'http://www.donationalerts.ru/r/dark_diesel' ), __( 'Donate', LetterboxThumbnails()->plugin->get_txt_domain() ) );
+			$links[] = sprintf( '<a target="_blank" href="%s">%s</a>', esc_url( 'http://www.donationalerts.ru/r/dark_diesel' ), __( 'Donate', IPA_Fields_Pack()->plugin->get_txt_domain() ) );
 		}
 
 		return $links;

@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class LetterboxThumbnails_Plugin
+ * Class IPA_Fields_Pack_Plugin
  */
 class IPA_Fields_Pack_Plugin {
 	public $plugin_settings_option = 'ipa-fields-pack-settings';

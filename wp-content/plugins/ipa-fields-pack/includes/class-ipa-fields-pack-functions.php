@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class LetterboxThumbnails_Functions\
+ * Class IPA_Fields_Pack_Functions\
  */
 class IPA_Fields_Pack_Functions {
 	/**

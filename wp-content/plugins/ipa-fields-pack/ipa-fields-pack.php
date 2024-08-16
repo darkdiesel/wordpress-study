@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-// Define LETTERBOX_THUMBNAILS_PLUGIN_FILE.
+// Define IPA_FIELDS_PACK_PLUGIN_FILE.
 if ( ! defined( 'IPA_FIELDS_PACK_PLUGIN_FILE' ) ) {
 	define( 'IPA_FIELDS_PACK_PLUGIN_FILE', __FILE__ );
 }
