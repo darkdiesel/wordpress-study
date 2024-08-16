@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class LetterboxThumbnails_Admin_Settings_Handler
+ * Class IPA_Fields_Pack_Admin_Settings_Handler
  */
 class IPA_Fields_Pack_Admin_Settings_Handler {
 	static $nonce_action_settings = 'ipa_fields_pack_settings';

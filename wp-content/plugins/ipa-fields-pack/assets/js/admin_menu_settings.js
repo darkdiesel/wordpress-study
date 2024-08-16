@@ -38,7 +38,7 @@
             },
         });
 
-        $('form#letterbox-thumbnails-settings-form').on('submit', function (e) {
+        $('form#ipa-fields-pack-settings-form').on('submit', function (e) {
             e.preventDefault();
 
             var form = $(this);
@@ -46,8 +46,8 @@
             form.find('.ajax-process').show();
 
             var params = {
-                action: 'letterbox_thumbnails_settings_save',
-                wpnonce: letterbox_thumbnails_menu_settings_vars.wpnonce_settings,
+                action: 'ipa_fields_pack_settings_save',
+                wpnonce: ipa_fields_pack_menu_settings_vars.wpnonce_settings,
                 form: form.serializeArray()
             };
 
