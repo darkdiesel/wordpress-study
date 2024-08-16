@@ -41,6 +41,8 @@ class VueSettings {
 		'showUpgradeBar'  => true,
 		'showSetupWizard' => true,
 		'toggledCards'    => [
+			'dashboardOverview'            => true,
+			'dashboardSeoSetup'            => true,
 			'dashboardSeoSiteScore'        => true,
 			'dashboardNotifications'       => true,
 			'dashboardSupport'             => true,
@@ -83,6 +85,7 @@ class VueSettings {
 			'searchSchema'                 => true,
 			'searchMediaAttachments'       => true,
 			'searchAdvanced'               => true,
+			'searchAdvancedCrawlCleanup'   => true,
 			'authorArchives'               => true,
 			'dateArchives'                 => true,
 			'searchArchives'               => true,
@@ -110,19 +113,42 @@ class VueSettings {
 			'htmlSitemap'                  => true,
 			'htmlSitemapSettings'          => true,
 			'htmlSitemapAdvancedSettings'  => true,
-			'linkAssistantSettings'        => true
+			'linkAssistantSettings'        => true,
+			'domainActivations'            => true,
+			'404Settings'                  => true,
+			'userProfiles'                 => true,
+			'queryArgLogs'                 => true,
 		],
 		'toggledRadio'    => [
-			'locationsShowOnWebsite'        => 'widget',
-			'breadcrumbsShowOnWebsite'      => 'shortcode',
 			'breadcrumbsShowMoreSeparators' => false,
-			'searchShowMoreSeparators'      => false
+			'searchShowMoreSeparators'      => false,
+			'overviewPostType'              => 'post',
+		],
+		'dismissedAlerts' => [
+			'searchStatisticsContentRankings' => false,
+			'searchConsoleNotConnected'       => false,
+			'searchConsoleSitemapErrors'      => false
 		],
 		'internalTabs'    => [
 			'authorArchives'    => 'title-description',
 			'dateArchives'      => 'title-description',
 			'searchArchives'    => 'title-description',
 			'seoAuditChecklist' => 'all-items'
+		],
+		'tablePagination' => [
+			'networkDomains'                     => 20,
+			'redirects'                          => 20,
+			'redirectLogs'                       => 20,
+			'redirect404Logs'                    => 20,
+			'sitemapAdditionalPages'             => 20,
+			'linkAssistantLinksReport'           => 20,
+			'linkAssistantPostsReport'           => 20,
+			'linkAssistantDomainsReport'         => 20,
+			'searchStatisticsSeoStatistics'      => 20,
+			'searchStatisticsKeywordRankings'    => 20,
+			'searchStatisticsContentRankings'    => 20,
+			'searchStatisticsPostDetailKeywords' => 20,
+			'queryArgs'                          => 20
 		]
 	];
 
@@ -137,8 +163,10 @@ class VueSettings {
 		$this->addDynamicDefaults();
 
 		$this->settingsName = $settings;
-		$this->settings     = get_user_meta( get_current_user_id(), $settings, true )
-			? array_replace_recursive( $this->defaults, get_user_meta( get_current_user_id(), $settings, true ) )
+
+		$dbSettings     = get_user_meta( get_current_user_id(), $settings, true );
+		$this->settings = $dbSettings
+			? array_replace_recursive( $this->defaults, $dbSettings )
 			: $this->defaults;
 	}
 
@@ -166,6 +194,12 @@ class VueSettings {
 		foreach ( $postTypes as $postType ) {
 			$this->defaults['toggledCards'][ $postType['name'] . 'ArchiveArchives' ] = true;
 			$this->defaults['internalTabs'][ $postType['name'] . 'ArchiveArchives' ] = 'title-description';
+		}
+
+		// Check any addons for defaults.
+		$addonsDefaults = array_filter( aioseo()->addons->doAddonFunction( 'vueSettings', 'addDynamicDefaults' ) );
+		foreach ( $addonsDefaults as $addonDefaults ) {
+			$this->defaults = array_merge_recursive( $this->defaults, $addonDefaults );
 		}
 	}
 
@@ -255,12 +289,12 @@ class VueSettings {
 	}
 
 	/**
-	 * Gets the default value for an settings.
+	 * Gets the default value for a setting.
 	 *
 	 * @since 4.0.0
 	 *
 	 * @param  string $name The settings name.
-	 * @return void
+	 * @return mixed        The default value.
 	 */
 	public function getDefault( $name ) {
 		return isset( $this->defaults[ $name ] ) ? $this->defaults[ $name ] : null;

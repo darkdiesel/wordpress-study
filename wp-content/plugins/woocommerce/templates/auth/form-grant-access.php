@@ -10,9 +10,9 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates/Auth
- * @version 2.4.0
+ * @see https://woocommerce.com/document/template-structure/
+ * @package WooCommerce\Templates\Auth
+ * @version 8.8.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -42,6 +42,13 @@ defined( 'ABSPATH' ) || exit;
 	<?php endforeach; ?>
 </ul>
 
+<p>
+	<?php
+	/* Translators: %s Domain name from the callback URL. */
+	printf( esc_html__( 'Approving will share credentials with %s. Do not proceed if this looks suspicious in any way.', 'woocommerce' ), '<strong>' . esc_html( wp_parse_url( $callback_url, PHP_URL_HOST ) ) . '</strong>' );
+	?>
+</p>
+
 <div class="wc-auth-logged-in-as">
 	<?php echo get_avatar( $user->ID, 70 ); ?>
 	<p>
@@ -50,6 +57,7 @@ defined( 'ABSPATH' ) || exit;
 		printf( esc_html__( 'Logged in as %s', 'woocommerce' ), esc_html( $user->display_name ) );
 		?>
 		<a href="<?php echo esc_url( $logout_url ); ?>" class="wc-auth-logout"><?php esc_html_e( 'Logout', 'woocommerce' ); ?></a>
+	</p>
 </div>
 
 <p class="wc-auth-actions">

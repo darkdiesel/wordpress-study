@@ -90,10 +90,18 @@ if (!class_exists('HTCC_Admin')) :
                     '',
                     ''
                 );
+		            add_submenu_page(
+			            'wp-chatbot',
+			            'Chatbot Settings',
+			            '<span data-tab="tab-4">Chatbot Settings</span>',
+			            'manage_options',
+			            '',
+			            ''
+		            );
                 add_submenu_page(
                     'wp-chatbot',
                     'Your Subscription',
-                    '<span data-tab="tab-4">Your Subscription</span>',
+                    '<span data-tab="tab-5">Your Subscription</span>',
                     'manage_options',
                     '',
                     ''
@@ -205,29 +213,47 @@ if (!class_exists('HTCC_Admin')) :
 			require_once('settings_page.php');
 		}
 
-		public function get_tab_done(){
-			$response= array('done'=>true);
-			$tab = get_transient( 'done-tab' );
-			$response = $tab;
-			wp_send_json_success ($response);
-        }
+	  public function get_tab_done() {
+	    check_ajax_referer('htcc_nonce');
+	    if(!current_user_can('manage_options')) {
+		    wp_die('Unauthorized', 403);
+	    }
 
-        public function notice_lead_off()
-        {
-            $response= array('done'=>true);
-           set_transient( 'lead_notice_off', true, WEEK_IN_SECONDS*2);
-            wp_send_json_success ($response);
-        }
+	    $response = array( 'done' => true );
+		  $tab      = get_transient( 'done-tab' );
+		  $response = $tab;
+		  wp_send_json_success( $response );
+	  }
 
-		public function notice_promo_off()
-		{
-			$response= array('done'=>true);
-			set_transient( 'promo_notice_off', true);
-			wp_send_json_success ($response);
-		}
+	  public function notice_lead_off() {
+		  check_ajax_referer( 'htcc_nonce' );
+		  if ( ! current_user_can( 'manage_options' ) ) {
+			  wp_die( 'Unauthorized', 403 );
+		  }
+
+		  $response = array( 'done' => true );
+		  set_transient( 'lead_notice_off', true, WEEK_IN_SECONDS * 2 );
+		  wp_send_json_success( $response );
+	  }
+
+	  public function notice_promo_off() {
+		  check_ajax_referer( 'htcc_nonce' );
+		  if ( ! current_user_can( 'manage_options' ) ) {
+			  wp_die( 'Unauthorized', 403 );
+		  }
+
+		  $response = array( 'done' => true );
+		  set_transient( 'promo_notice_off', true );
+		  wp_send_json_success( $response );
+	  }
 		public function ht_cc_admin_sidebar__hide_mobile_app_banner()
 		{
-			$response= array('done'=>true);
+      check_ajax_referer('htcc_nonce');
+      if(!current_user_can('manage_options')) {
+        wp_die('Unauthorized', 403);
+      }
+
+      $response= array('done'=>true);
 			set_transient( 'ht_cc_admin_sidebar__hide_mobile_app_banner', true);
 			wp_send_json_success ($response);
 		}
@@ -246,22 +272,32 @@ if (!class_exists('HTCC_Admin')) :
 			wp_send_json_success ( $response);
 		}
 
-		public function set_current_tab(){
-			set_transient( 'current-tab', preg_replace('/[^0-9]/', '', $_POST['current']),YEAR_IN_SECONDS );
-			wp_send_json_success ();
-        }
+	  public function set_current_tab() {
+	    check_ajax_referer('htcc_nonce');
+	    if(!current_user_can('manage_options')) {
+		    wp_die('Unauthorized', 403);
+	    }
 
-        public function banner_off(){
-		    $response= array('done'=>true);
-            set_transient( 'banner_notice_off', true, WEEK_IN_SECONDS*2);
-            wp_send_json_success ($response);
-        }
+	    set_transient( 'current-tab', preg_replace( '/[^0-9]/', '', $_POST['current'] ), YEAR_IN_SECONDS );
+		  wp_send_json_success();
+	  }
 
-        public function cg_off(){
-            $response= array('done'=>true);
-            set_transient( 'cg_notice_off', true, WEEK_IN_SECONDS*2);
-            wp_send_json_success ($response);
-        }
+	  public function banner_off() {
+	    check_ajax_referer('htcc_nonce');
+	    if(!current_user_can('manage_options')) {
+		    wp_die('Unauthorized', 403);
+	    }
+
+	    $response = array( 'done' => true );
+		  set_transient( 'banner_notice_off', true, WEEK_IN_SECONDS * 2 );
+		  wp_send_json_success( $response );
+	  }
+
+	  public function cg_off() {
+		  $response = array( 'done' => true );
+		  set_transient( 'cg_notice_off', true, WEEK_IN_SECONDS * 2 );
+		  wp_send_json_success( $response );
+	  }
 
 
 		/**
@@ -601,7 +637,11 @@ if (!class_exists('HTCC_Admin')) :
             }
 		}
 		public function email_section(){
-			$htcc_fb_email_trans = get_option('htcc_as_options');
+		check_ajax_referer('htcc_nonce');
+		if(!current_user_can('manage_options')) {
+			wp_die('Unauthorized', 403);
+		}
+		$htcc_fb_email_trans = get_option('htcc_as_options');
             if ($htcc_fb_email_trans['answering_service_mm_only_mode']==false) {
                 $html = '';
                 $email = isset($htcc_fb_email_trans['email']) ? $htcc_fb_email_trans['email'] : '';
@@ -1255,7 +1295,7 @@ if (!class_exists('HTCC_Admin')) :
 				wp_die('not allowed to modify - please contact admin ');
 			}
 			if ($input){
-			    if (!empty($as_mm)&&$as_mm['answering_service_mm_only_mode']==false){
+			    if (!empty($as_mm)&&($as_mm['answering_service_mm_only_mode'] ?? false)==false){
                     $new_input = array();
                     if(isset($_REQUEST['action']) && $_REQUEST['action']== 'update') {
                         $tab = get_transient( 'done-tab' );

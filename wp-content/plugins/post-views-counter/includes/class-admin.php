@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Admin class.
- * 
+ *
  * @class Post_Views_Counter_Admin
  */
 class Post_Views_Counter_Admin {
@@ -18,6 +18,16 @@ class Post_Views_Counter_Admin {
 	public function __construct() {
 		// actions
 		add_action( 'plugins_loaded', [ $this, 'init_block_editor' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'register_chartjs' ], 9 );
+	}
+
+	/**
+	 * Register Chart.js.
+	 *
+	 * @return void
+	 */
+	public function register_chartjs() {
+		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], '4.4.0', true );
 	}
 
 	/**
@@ -78,6 +88,9 @@ class Post_Views_Counter_Admin {
 	 * @return string|int
 	 */
 	public function block_editor_update_callback( $data ) {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// cast post ID
 		$post_id = ! empty( $data['id'] ) ? (int) $data['id'] : 0;
 
@@ -85,7 +98,7 @@ class Post_Views_Counter_Admin {
 		$post_views = ! empty( $data['post_views'] ) ? (int) $data['post_views'] : 0;
 
 		// get countable post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// check if post exists
 		$post = get_post( $post_id );
@@ -99,7 +112,7 @@ class Post_Views_Counter_Admin {
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// break if views editing is restricted
-		if ( (bool) Post_Views_Counter()->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
+		if ( (bool) $pvc->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			return wp_send_json_error( __( 'You are not allowed to edit this item.', 'post-views-counter' ) );
 
 		// update post views
@@ -113,37 +126,42 @@ class Post_Views_Counter_Admin {
 	/**
 	 * Enqueue frontend and editor JavaScript and CSS.
 	 *
+	 * @global string $pagenow
+	 * @global string $wp_version
+	 *
 	 * @return void
 	 */
 	public function block_editor_enqueue_scripts() {
 		global $pagenow, $wp_version;
+
+		// get main instance
+		$pvc = Post_Views_Counter();
 
 		// skip widgets and customizer pages
 		if ( $pagenow === 'widgets.php' || $pagenow === 'customize.php' )
 			return;
 
 		// enqueue the bundled block JS file
-		wp_enqueue_script( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/js/block-editor.min.js', [ 'wp-element', 'wp-components', 'wp-edit-post', 'wp-data', 'wp-plugins' ], Post_Views_Counter()->defaults['version'] );
+		wp_enqueue_script( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/js/block-editor.min.js', [ 'wp-element', 'wp-components', 'wp-edit-post', 'wp-data', 'wp-plugins' ], $pvc->defaults['version'] );
 
 		// restrict editing
-		$restrict = (bool) Post_Views_Counter()->options['general']['restrict_edit_views'];
+		$restrict = (bool) $pvc->options['general']['restrict_edit_views'];
 
-		wp_localize_script(
-			'pvc-block-editor',
-			'pvcEditorArgs',
-			[
-				'postID'		=> get_the_ID(),
-				'postViews'		=> pvc_get_post_views( get_the_ID() ),
-				'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
-				'nonce'			=> wp_create_nonce( 'wp_rest' ),
-				'wpGreater53'	=> version_compare( $wp_version, '5.3', '>=' ),
-				'textPostViews'	=> __( 'Post Views', 'post-views-counter' ),
-				'textHelp'		=> __( 'Adjust the views count for this post.', 'post-views-counter' ),
-				'textCancel'	=> __( 'Cancel', 'post-views-counter' )
-			]
-		);
+		// prepare script data
+		$script_data = [
+			'postID'		=> get_the_ID(),
+			'postViews'		=> pvc_get_post_views( get_the_ID() ),
+			'canEdit'		=> ( $restrict === false || ( $restrict === true && current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) ) ),
+			'nonce'			=> wp_create_nonce( 'wp_rest' ),
+			'wpGreater53'	=> version_compare( $wp_version, '5.3', '>=' ),
+			'textPostViews'	=> esc_html__( 'Post Views', 'post-views-counter' ),
+			'textHelp'		=> esc_html__( 'Adjust the views count for this post.', 'post-views-counter' ),
+			'textCancel'	=> esc_html__( 'Cancel', 'post-views-counter' )
+		];
+
+		wp_add_inline_script( 'pvc-block-editor', 'var pvcEditorArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 
 		// enqueue frontend and editor block styles
-		wp_enqueue_style( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/css/block-editor.min.css', '', Post_Views_Counter()->defaults['version'] );
+		wp_enqueue_style( 'pvc-block-editor', POST_VIEWS_COUNTER_URL . '/css/block-editor.min.css', '', $pvc->defaults['version'] );
 	}
 }

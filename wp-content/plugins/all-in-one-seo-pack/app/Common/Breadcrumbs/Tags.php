@@ -46,7 +46,8 @@ class Tags {
 			$tagId   = aioseo()->tags->denotationChar . $tag['id'];
 			$pattern = "/$tagId(?![a-zA-Z0-9_])/im";
 			if ( preg_match( $pattern, $string ) ) {
-				$string = preg_replace( $pattern, $this->getTagValue( $tag, $item ), $string );
+				$tagValue = str_replace( '$', '\$', $this->getTagValue( $tag, $item ) );
+				$string   = preg_replace( $pattern, $tagValue, $string );
 			}
 		}
 
@@ -71,6 +72,7 @@ class Tags {
 	 * @return string       The value of the tag.
 	 */
 	public function getTagValue( $tag, $item ) {
+		$product = false;
 		if ( 0 === stripos( $tag['id'], 'breadcrumb_wc_product_' ) ) {
 			$product = wc_get_product( $item['reference'] );
 			if ( ! $product ) {
@@ -84,11 +86,11 @@ class Tags {
 			case 'breadcrumb_separator':
 				return aioseo()->breadcrumbs->frontend->getSeparator();
 			case 'breadcrumb_wc_product_price':
-				return wc_price( $product->get_price() );
+				return $product ? wc_price( $product->get_price() ) : '';
 			case 'breadcrumb_wc_product_sku':
-				return $product->get_sku();
+				return $product ? $product->get_sku() : '';
 			case 'breadcrumb_wc_product_brand':
-				return aioseo()->helpers->getWooCommerceBrand( $product->get_id() );
+				return $product ? aioseo()->helpers->getWooCommerceBrand( $product->get_id() ) : '';
 			case 'breadcrumb_author_first_name':
 				return $item['reference']->first_name;
 			case 'breadcrumb_author_last_name':

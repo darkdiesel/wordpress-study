@@ -4,7 +4,7 @@
  *
  * @author   WooThemes
  * @category Admin
- * @package  WooCommerce/Admin
+ * @package  WooCommerce\Admin
  * @version  2.4.0
  */
 
@@ -37,7 +37,8 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 		 */
 		public function get_customer_meta_fields() {
 			$show_fields = apply_filters(
-				'woocommerce_customer_meta_fields', array(
+				'woocommerce_customer_meta_fields',
+				array(
 					'billing'  => array(
 						'title'  => __( 'Customer billing address', 'woocommerce' ),
 						'fields' => array(
@@ -70,11 +71,11 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 								'description' => '',
 							),
 							'billing_country'    => array(
-								'label'       => __( 'Country', 'woocommerce' ),
+								'label'       => __( 'Country / Region', 'woocommerce' ),
 								'description' => '',
 								'class'       => 'js_field-country',
 								'type'        => 'select',
-								'options'     => array( '' => __( 'Select a country&hellip;', 'woocommerce' ) ) + WC()->countries->get_allowed_countries(),
+								'options'     => array( '' => __( 'Select a country / region&hellip;', 'woocommerce' ) ) + WC()->countries->get_allowed_countries(),
 							),
 							'billing_state'      => array(
 								'label'       => __( 'State / County', 'woocommerce' ),
@@ -130,16 +131,20 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 								'description' => '',
 							),
 							'shipping_country'    => array(
-								'label'       => __( 'Country', 'woocommerce' ),
+								'label'       => __( 'Country / Region', 'woocommerce' ),
 								'description' => '',
 								'class'       => 'js_field-country',
 								'type'        => 'select',
-								'options'     => array( '' => __( 'Select a country&hellip;', 'woocommerce' ) ) + WC()->countries->get_allowed_countries(),
+								'options'     => array( '' => __( 'Select a country / region&hellip;', 'woocommerce' ) ) + WC()->countries->get_allowed_countries(),
 							),
 							'shipping_state'      => array(
 								'label'       => __( 'State / County', 'woocommerce' ),
 								'description' => __( 'State / County or state code', 'woocommerce' ),
 								'class'       => 'js_field-state',
+							),
+							'shipping_phone'      => array(
+								'label'       => __( 'Phone', 'woocommerce' ),
+								'description' => '',
 							),
 						),
 					),
@@ -176,7 +181,7 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 											$selected = esc_attr( get_user_meta( $user->ID, $key, true ) );
 										foreach ( $field['options'] as $option_key => $option_value ) :
 											?>
-											<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( $selected, $option_key, true ); ?>><?php echo esc_attr( $option_value ); ?></option>
+											<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( $selected, $option_key, true ); ?>><?php echo esc_html( $option_value ); ?></option>
 										<?php endforeach; ?>
 									</select>
 								<?php elseif ( ! empty( $field['type'] ) && 'checkbox' === $field['type'] ) : ?>
@@ -207,7 +212,7 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 
 			$save_fields = $this->get_customer_meta_fields();
 
-			foreach ( $save_fields as $fieldset ) {
+			foreach ( $save_fields as $fieldset_type => $fieldset ) {
 
 				foreach ( $fieldset['fields'] as $key => $field ) {
 
@@ -217,6 +222,25 @@ if ( ! class_exists( 'WC_Admin_Profile', false ) ) :
 						update_user_meta( $user_id, $key, wc_clean( $_POST[ $key ] ) );
 					}
 				}
+
+				// Skip firing the action for any non-internal fieldset types.
+				if ( ! in_array( $fieldset_type, array( 'billing', 'shipping' ), true ) ) {
+					continue;
+				}
+
+				// Fieldset type is an internal address type.
+				$address_type = $fieldset_type;
+
+				/**
+				 * Hook: woocommerce_customer_save_address.
+				 *
+				 * Fires after a customer address has been saved on the user profile admin screen.
+				 *
+				 * @since 8.5.0
+				 * @param int    $user_id User ID being saved.
+				 * @param string $address_type Type of address; 'billing' or 'shipping'.
+				 */
+				do_action( 'woocommerce_customer_save_address', $user_id, $address_type );
 			}
 		}
 

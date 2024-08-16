@@ -2,10 +2,12 @@
 /**
  * Order Line Item (shipping)
  *
- * @package WooCommerce/Classes
+ * @package WooCommerce\Classes
  * @version 3.0.0
  * @since   3.0.0
  */
+
+use Automattic\WooCommerce\Utilities\NumberUtil;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -144,9 +146,9 @@ class WC_Order_Item_Shipping extends WC_Order_Item {
 		$this->set_prop( 'taxes', $tax_data );
 
 		if ( 'yes' === get_option( 'woocommerce_tax_round_at_subtotal' ) ) {
-			$this->set_total_tax( array_sum( $tax_data['total'] ) );
+			$this->set_total_tax( NumberUtil::array_sum( $tax_data['total'] ) );
 		} else {
-			$this->set_total_tax( array_sum( array_map( 'wc_round_tax_total', $tax_data['total'] ) ) );
+			$this->set_total_tax( NumberUtil::array_sum( array_map( 'wc_round_tax_total', $tax_data['total'] ) ) );
 		}
 	}
 
@@ -276,10 +278,10 @@ class WC_Order_Item_Shipping extends WC_Order_Item {
 	/**
 	 * Offset get: for ArrayAccess/Backwards compatibility.
 	 *
-	 * @deprecated Add deprecation notices in future release.
 	 * @param string $offset Key.
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		if ( 'cost' === $offset ) {
 			$offset = 'total';
@@ -290,11 +292,13 @@ class WC_Order_Item_Shipping extends WC_Order_Item {
 	/**
 	 * Offset set: for ArrayAccess/Backwards compatibility.
 	 *
-	 * @deprecated Add deprecation notices in future release.
+	 * @deprecated 4.4.0
 	 * @param string $offset Key.
 	 * @param mixed  $value Value to set.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ) {
+		wc_deprecated_function( 'WC_Order_Item_Shipping::offsetSet', '4.4.0', '' );
 		if ( 'cost' === $offset ) {
 			$offset = 'total';
 		}
@@ -307,6 +311,7 @@ class WC_Order_Item_Shipping extends WC_Order_Item {
 	 * @param string $offset Key.
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 		if ( in_array( $offset, array( 'cost' ), true ) ) {
 			return true;

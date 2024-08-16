@@ -96,32 +96,6 @@ function wcs_can_user_renew_early( $subscription, $user_id = 0 ) {
 }
 
 /**
- * Check if a given order is a subscription renewal order.
- *
- * @param WC_Order|int $order The WC_Order object or ID of a WC_Order order.
- * @since 2.3.0
- * @return bool True if the order contains an early renewal, otherwise false.
- */
-function wcs_order_contains_early_renewal( $order ) {
-
-	if ( ! is_object( $order ) ) {
-		$order = wc_get_order( $order );
-	}
-
-	$subscription_id  = absint( wcs_get_objects_property( $order, 'subscription_renewal_early' ) );
-	$is_early_renewal = wcs_is_order( $order ) && $subscription_id > 0;
-
-	/**
-	 * Allow third-parties to filter whether this order contains the early renewal flag.
-	 *
-	 * @since 2.3.0
-	 * @param bool     $is_renewal True if early renewal meta was found on the order, otherwise false.
-	 * @param WC_Order $order The WC_Order object.
-	 */
-	return apply_filters( 'woocommerce_subscriptions_is_early_renewal_order', $is_early_renewal, $order );
-}
-
-/**
  * Returns a URL for early renewal of a subscription.
  *
  * @param  int|WC_Subscription $subscription WC_Subscription ID, or instance of a WC_Subscription object.
@@ -143,5 +117,33 @@ function wcs_get_early_renewal_url( $subscription ) {
 	 * @param string $url The early renewal URL.
 	 * @param int    $subscription_id The ID of the subscription to renew to.
 	 */
-	return apply_filters( 'woocommerce_subscriptions_get_early_renewal_url', $url, $subscription_id );
+	return apply_filters( 'woocommerce_subscriptions_get_early_renewal_url', $url, $subscription_id ); // nosemgrep: audit.php.wp.security.xss.query-arg -- False positive. $url is escaped in the template and escaping URLs should be done at the point of output or usage.
+}
+
+/**
+ * Update the subscription dates after processing an early renewal.
+ *
+ * @since 2.6.0
+ *
+ * @param WC_Subscription $subscription The subscription to update.
+ * @param WC_Order $early_renewal       The early renewal.
+ */
+function wcs_update_dates_after_early_renewal( $subscription, $early_renewal ) {
+	$dates_to_update = WCS_Early_Renewal_Manager::get_dates_to_update( $subscription );
+
+	if ( ! empty( $dates_to_update ) ) {
+		// translators: %s: order ID.
+		$order_number = sprintf( _x( '#%s', 'hash before order number', 'woocommerce-subscriptions' ), $early_renewal->get_order_number() );
+		$order_link   = sprintf( '<a href="%s">%s</a>', esc_url( wcs_get_edit_post_link( $early_renewal->get_id() ) ), $order_number );
+
+		try {
+			$subscription->update_dates( $dates_to_update );
+
+			// translators: placeholder contains a link to the order's edit screen.
+			$subscription->add_order_note( sprintf( __( 'Customer successfully renewed early with order %s.', 'woocommerce-subscriptions' ), $order_link ) );
+		} catch ( Exception $e ) {
+			// translators: placeholder contains a link to the order's edit screen.
+			$subscription->add_order_note( sprintf( __( 'Failed to update subscription dates after customer renewed early with order %s.', 'woocommerce-subscriptions' ), $order_link ) );
+		}
+	}
 }

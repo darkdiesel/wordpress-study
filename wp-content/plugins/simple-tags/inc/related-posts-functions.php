@@ -147,7 +147,9 @@ function taxopress_create_default_related_post()
     $default                                           = [];
     $default['taxopress_related_post']['title']        = 'Related Posts';
     $default['taxopress_related_post']['title_header'] = 'h4';
-    $default['taxopress_related_post']['post_type']    = 'post';
+    $default['taxopress_related_post']['before']       = '';
+    $default['taxopress_related_post']['after']        = '';
+    $default['taxopress_related_post']['post_types']   = ['post'];
     $default['taxopress_related_post']['taxonomy']     = 'post_tag';
     $default['taxopress_related_post']['number']       = 5;
     $default['taxopress_related_post']['limit_days']   = 0;
@@ -172,14 +174,23 @@ function taxopress_create_default_related_post()
  */
 function taxopress_update_relatedpost($data = [])
 {
+    $sanitized_data = [];
     foreach ($data as $key => $value) {
-
-        if (is_string($value)) {
-            $data[$key] = sanitize_text_field($value);
+        if (!is_array($value)) {
+            $sanitized_data[$key] = taxopress_sanitize_text_field($value);
         } else {
-            array_map('sanitize_text_field', $data[$key]);
+            $new_value = [];
+            foreach ($data[$key] as $option_key => $option_value) {
+                if ($option_key === 'xformat') {
+                    $new_value[$option_key] = taxopress_sanitize_text_field($option_value);
+                } else {
+                    $new_value[$option_key] = taxopress_sanitize_text_field($option_value);
+                }
+            }
+            $sanitized_data[$key] = $new_value;
         }
     }
+    $data = $sanitized_data;
 
     $relatedposts = taxopress_get_relatedpost_data();
 
@@ -192,6 +203,7 @@ function taxopress_update_relatedpost($data = [])
     $xformat                                    = $data['taxopress_related_post']['xformat'];
     $data['taxopress_related_post']['xformat']  = stripslashes_deep($xformat);
     $data['taxopress_related_post']['embedded'] = isset($data['embedded']) ? $data['embedded'] : [];
+    $data['taxopress_related_post']['post_types'] = isset($data['post_types']) ? $data['post_types'] : [];
 
 
     if (isset($data['edited_relatedpost'])) {
@@ -376,4 +388,3 @@ function taxopress_relatedposts_the_content($content = '')
 
     return $content;
 }
-?>

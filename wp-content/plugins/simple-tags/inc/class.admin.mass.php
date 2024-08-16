@@ -27,7 +27,7 @@ class SimpleTags_Admin_Mass {
 	public static function admin_menu() {
 		add_submenu_page(
 			self::MENU_SLUG,
-			esc_html__( 'TaxoPress: Mass Edit Terms', 'simple-tags' ),
+			esc_html__( 'Mass Edit Terms', 'simple-tags' ),
 			esc_html__( 'Mass Edit Terms', 'simple-tags' ),
 			'simple_tags',
 			'st_mass_terms',
@@ -104,9 +104,8 @@ class SimpleTags_Admin_Mass {
 		// Display message
 		settings_errors( __CLASS__ );
 		?>
+		<div class="taxopress-block-wrap">
 		<div class="wrap st_wrap tagcloudui st_mass_terms-page admin-settings">
-			<?php SimpleTags_Admin::boxSelectorTaxonomy( 'st_mass_terms' ); ?>
-
 			<form id="posts-filter" action="" method="get">
 				<input type="hidden" name="page" value="st_mass_terms"/>
 				<input type="hidden" name="taxo" value="<?php echo esc_attr( SimpleTags_Admin::$taxonomy ); ?>"/>
@@ -149,7 +148,13 @@ class SimpleTags_Admin_Mass {
 					<input type="hidden" name="post_status" value="<?php echo esc_attr( sanitize_text_field($_GET['post_status']) ) ?>"/>
 				<?php endif; ?>
 
-				<div class="tablenav">
+
+				<p class="search-box">
+						<input type="text" id="post-search-input" name="s" value="<?php the_search_query(); ?>"/>
+						<input type="submit" value="<?php _e( 'Search', 'simple-tags' ); ?>" class="button"/>
+				</p>
+
+				<div class="tablenav custom-nav">
 					<?php
 					$posts_per_page = ( isset( $_GET['posts_per_page'] ) ) ? (int) $_GET['posts_per_page'] : 0;
 					if ( (int) $posts_per_page == 0 ) {
@@ -225,19 +230,13 @@ class SimpleTags_Admin_Mass {
 							<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'simple-tags' ); ?>"
 							       class="button-secondary"/>
 						<?php } ?>
+						<?php SimpleTags_Admin::boxSelectorTaxonomy( 'st_mass_terms' ); ?>
 					</div>
-
-
-					<p class="search-box">
-						<input type="text" id="post-search-input" name="s" value="<?php the_search_query(); ?>"/>
-						<input type="submit" value="<?php _e( 'Search', 'simple-tags' ); ?>" class="button"/>
-					</p>
-
 					<br style="clear:both;"/>
 				</div>
 			</form>
 
-			<br style="clear:both;"/>
+			<div style="clear:both;margin-bottom: 6px;"></div>
 
 			<?php if ( have_posts() ) :
 				add_filter( 'the_title', 'esc_html' );
@@ -292,6 +291,8 @@ class SimpleTags_Admin_Mass {
 
 		<div class="taxopress-right-sidebar admin-settings-sidebar">
 			<?php do_action('taxopress_admin_after_sidebar'); ?>
+		</div>
+		
 		</div>
 
 		<?php

@@ -30,7 +30,7 @@ class SimpleTags_Client {
 		if ( (int) SimpleTags_Plugin::get_option_value( 'active_related_posts_new' ) === 1 ) {
             require_once STAGS_DIR . '/inc/related-posts-action.php';
         }
-		if ( (int) SimpleTags_Plugin::get_option_value( 'active_related_posts' ) === 1 || (int) SimpleTags_Plugin::get_option_value( 'active_related_posts_new' ) === 1 ) {
+		if ( (int) SimpleTags_Plugin::get_option_value( 'active_related_posts_new' ) === 1 ) {
 			require( STAGS_DIR . '/inc/class.client.related_posts.php' );
 			new SimpleTags_Client_RelatedPosts();
 		}
@@ -65,6 +65,27 @@ class SimpleTags_Client {
 
 
 	/**
+	 * Retrieves the currently queried object.
+	 *
+	 * Wrapper for WP_Query::get_queried_object().
+	 *
+	 * @since 3.1.0
+	 *
+	 * @global WP_Query $wp_query WordPress Query object.
+	 *
+	 * @return WP_Term|WP_Post_Type|WP_Post|WP_User|null The queried object.
+	 */
+	public static function taxopress_get_queried_object() {
+		global $wp_query;
+
+		if (!is_object($wp_query)) {
+			return null;
+		}
+		
+		return $wp_query->get_queried_object();
+	}
+
+	/**
 	 * Add cpt to taxonomy during the query
 	 *
 	 * @param WP_Query $query
@@ -84,7 +105,7 @@ class SimpleTags_Client {
             return $query;
         }
         if ( $query->is_category == true || $query->is_tag == true || $query->is_tax == true ) {
-            $get_queried_object = @get_queried_object();
+            $get_queried_object = self::taxopress_get_queried_object();
             if(is_object($get_queried_object)){
 				if(!isset($get_queried_object->taxonomy)){
                     return $query;
@@ -124,51 +145,51 @@ class SimpleTags_Client {
 	 */
 	public function simple_tags_register_media_tag() {
 
-    if((int)get_option('taxopress_media_tag_deleted') === 0){
-	$labels = [
-		"name" => __( "Media Tags", "simple-tags" ),
-		"singular_name" => __( "Media Tag", "simple-tags" ),
-		"menu_name" => __( "Media Tags", "simple-tags" ),
-		"all_items" => __( "All Media Tags", "simple-tags" ),
-		"edit_item" => __( "Edit Media Tag", "simple-tags" ),
-		"view_item" => __( "View Media Tag", "simple-tags" ),
-		"update_item" => __( "Update Media Tag name", "simple-tags" ),
-		"add_new_item" => __( "Add new Media Tag", "simple-tags" ),
-		"new_item_name" => __( "New Media Tag name", "simple-tags" ),
-		"parent_item" => __( "Parent Media Tag", "simple-tags" ),
-		"parent_item_colon" => __( "Parent Media Tag:", "simple-tags" ),
-		"search_items" => __( "Search Media Tags", "simple-tags" ),
-		"popular_items" => __( "Popular Media Tags", "simple-tags" ),
-		"separate_items_with_commas" => __( "Separate Media Tags with commas", "simple-tags" ),
-		"add_or_remove_items" => __( "Add or remove Media Tags", "simple-tags" ),
-		"choose_from_most_used" => __( "Choose from the most used Media Tags", "simple-tags" ),
-		"not_found" => __( "No Media Tags found", "simple-tags" ),
-		"no_terms" => __( "No Media Tags", "simple-tags" ),
-		"items_list_navigation" => __( "Media Tags list navigation", "simple-tags" ),
-		"items_list" => __( "Media Tags list", "simple-tags" ),
-		"back_to_items" => __( "Back to Media Tags", "simple-tags" ),
-	];
+    	if((int)get_option('taxopress_media_tag_deleted') === 0){
+			$labels = [
+				"name" => __( "Media Tags", "simple-tags" ),
+				"singular_name" => __( "Media Tag", "simple-tags" ),
+				"menu_name" => __( "Media Tags", "simple-tags" ),
+				"all_items" => __( "All Media Tags", "simple-tags" ),
+				"edit_item" => __( "Edit Media Tag", "simple-tags" ),
+				"view_item" => __( "View Media Tag", "simple-tags" ),
+				"update_item" => __( "Update Media Tag name", "simple-tags" ),
+				"add_new_item" => __( "Add new Media Tag", "simple-tags" ),
+				"new_item_name" => __( "New Media Tag name", "simple-tags" ),
+				"parent_item" => __( "Parent Media Tag", "simple-tags" ),
+				"parent_item_colon" => __( "Parent Media Tag:", "simple-tags" ),
+				"search_items" => __( "Search Media Tags", "simple-tags" ),
+				"popular_items" => __( "Popular Media Tags", "simple-tags" ),
+				"separate_items_with_commas" => __( "Separate Media Tags with commas", "simple-tags" ),
+				"add_or_remove_items" => __( "Add or remove Media Tags", "simple-tags" ),
+				"choose_from_most_used" => __( "Choose from the most used Media Tags", "simple-tags" ),
+				"not_found" => __( "No Media Tags found", "simple-tags" ),
+				"no_terms" => __( "No Media Tags", "simple-tags" ),
+				"items_list_navigation" => __( "Media Tags list navigation", "simple-tags" ),
+				"items_list" => __( "Media Tags list", "simple-tags" ),
+				"back_to_items" => __( "Back to Media Tags", "simple-tags" ),
+			];
 
-	$args = [
-		"label" => __( "Media Tags", "simple-tags" ),
-		"labels" => $labels,
-		"public" => true,
-		"publicly_queryable" => true,
-		"hierarchical" => false,
-		"show_ui" => true,
-		"show_in_menu" => true,
-		"show_in_nav_menus" => true,
-		"query_var" => true,
-		"update_count_callback" => '_update_generic_term_count',
-		"rewrite" => [ 'slug' => 'media_tag', 'with_front' => true, ],
-		"show_admin_column" => false,
-		"show_in_rest" => true,
-		"rest_base" => "media_tag",
-		"rest_controller_class" => "WP_REST_Terms_Controller",
-		"show_in_quick_edit" => false,
-	];
-	register_taxonomy( "media_tag", [ "attachment" ], $args );
-    }
+			$args = [
+				"label" => __( "Media Tags", "simple-tags" ),
+				"labels" => $labels,
+				"public" => true,
+				"publicly_queryable" => true,
+				"hierarchical" => false,
+				"show_ui" => true,
+				"show_in_menu" => true,
+				"show_in_nav_menus" => true,
+				"query_var" => true,
+				"update_count_callback" => '_update_generic_term_count',
+				"rewrite" => [ 'slug' => 'media_tag', 'with_front' => true, ],
+				"show_admin_column" => false,
+				"show_in_rest" => true,
+				"rest_base" => "media_tag",
+				"rest_controller_class" => "WP_REST_Terms_Controller",
+				"show_in_quick_edit" => false,
+			];
+			register_taxonomy( "media_tag", [ "attachment" ], $args );
+		}
     }
 
 	/**
@@ -260,13 +281,13 @@ class SimpleTags_Client {
 	 * @param string $html_class
 	 * @param string $format
 	 * @param string $title
-	 * @param string $content
+	 * @param string|array $content
 	 * @param boolean $copyright
 	 * @param string $separator
 	 *
 	 * @return string|array
 	 */
-	public static function output_content( $html_class = '', $format = 'list', $title = '', $content = '', $copyright = true, $separator = '', $div_class = '', $a_class = '' ) {
+	public static function output_content( $html_class = '', $format = 'list', $title = '', $content = '', $copyright = true, $separator = '', $div_class = '', $a_class = '', $before = '', $after = '') {
 		if ( empty( $content ) ) {
 			return ''; // return nothing
 		}
@@ -278,10 +299,13 @@ class SimpleTags_Client {
 		if ( is_array( $content ) ) {
 			switch ( $format ) {
 				case 'list' :
-					$output = '<ul class="' . $html_class . '">' . "\n\t" . '<li>' . implode( "</li>\n\t<li>", $content ) . "</li>\n</ul>\n";
+					$output = ''. $before .' <ul class="' . $html_class . '">' . "\n\t" . '<li>' . implode( "</li>\n\t<li>", $content ) . "</li>\n</ul> {$after}\n";
+					break;
+				case 'ol' :
+					$output = ''. $before .' <ol class="' . $html_class . '">' . "\n\t" . '<li>' . implode( "</li>\n\t<li>", $content ) . "</li>\n</ol> {$after}\n";
 					break;
 				default :
-					$output = '<div class="' . $html_class . '">' . "\n\t" . implode( "{$separator}\n", $content ) . "</div>\n";
+					$output = '<div class="' . $html_class . '">'. $before .' ' . "\n\t" . implode( "{$separator}\n", $content ) . " {$after}</div>\n";
 					break;
 			}
 		} else {
@@ -291,10 +315,10 @@ class SimpleTags_Client {
 					$output = $content;
 					break;
 				case 'list' :
-					$output = '<ul class="' . $html_class . '">' . "\n\t" . '<li>' . $content . "</li>\n\t" . "</ul>\n";
+					$output = ''. $before .' <ul class="' . $html_class . '">' . "\n\t" . '<li>' . $content . "</li>\n\t" . "</ul> {$after}\n";
 					break;
 				default :
-					$output = '<div class="' . $html_class . '">' . "\n\t" . $content . "</div>\n";
+					$output = '<div class="' . $html_class . '">'. $before .' ' . "\n\t" . $content . " {$after} </div>\n";
 					break;
 			}
 		}
@@ -304,8 +328,8 @@ class SimpleTags_Client {
 			$wrap_div_class_open = '<div class="'.taxopress_format_class($div_class).'">';
 			$wrap_div_class_close = '</div>';
 		}else{
-			$wrap_div_class_open = '';
-			$wrap_div_class_close = '';
+			$wrap_div_class_open = '<div class="taxopress-output-wrapper"> ';
+			$wrap_div_class_close = '</div>';
 		}
 		// Replace false by empty
 		$title = trim( $title );
@@ -344,7 +368,8 @@ class SimpleTags_Client {
 	 */
 	public static function format_internal_tag( $element_loop = '', $term = null, $rel = '', $scale_result = 0, $scale_max = null, $scale_min = 0, $largest = 0, $smallest = 0, $unit = '', $maxcolor = '', $mincolor = '' ) {
 		// Need term object
-		$element_loop = str_replace( '%tag_link%', esc_url( get_term_link( $term, $term->taxonomy ) ), $element_loop );
+		$tag_link = get_term_link( $term, $term->taxonomy );
+		$element_loop = str_replace( '%tag_link%', esc_url( $tag_link ), $element_loop );
 		$element_loop = str_replace( '%tag_feed%', esc_url( get_term_feed_link( $term->term_id, $term->taxonomy, '' ) ), $element_loop );
 
 		$element_loop = str_replace( '%tag_name%', esc_html( $term->name ), $element_loop );

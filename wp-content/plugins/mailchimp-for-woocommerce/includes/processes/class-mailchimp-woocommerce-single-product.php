@@ -8,6 +8,7 @@
  * Date: 7/15/16
  * Time: 11:42 AM
  */
+
 class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
 {
     public $id;
@@ -18,10 +19,12 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
     protected $mode = 'update_or_create';
     protected $order_item = null;
 
-    /**
-     * MailChimp_WooCommerce_Single_product constructor.
-     * @param null|int $id
-     */
+	/**
+	 * MailChimp_WooCommerce_Single_Product constructor.
+	 *
+	 * @param null $id
+	 * @param null $fallback_title
+	 */
     public function __construct($id = null, $fallback_title = null)
     {
         $this->setId($id);
@@ -35,8 +38,14 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
     public function setId($id)
     {
         if (!empty($id)) {
-            $this->id = $id instanceof WP_Post ? $id->ID : $id;
+            // when we pass in a wc product or an object that has a method called get_id we can use it.
+            if ($id instanceof WC_Product || (is_object($id) && method_exists($id, 'get_id'))) {
+                $this->id = $id->get_id();
+            } else {
+                $this->id = $id instanceof WP_Post ? $id->ID : $id;
+            }
         }
+        return $this;
     }
 
     /**
@@ -89,9 +98,12 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
         return $this;
     }
 
-    /**
-     * @return bool
-     */
+	/**
+	 * @return false
+	 * @throws MailChimp_WooCommerce_Error
+	 * @throws MailChimp_WooCommerce_RateLimitError
+	 * @throws MailChimp_WooCommerce_ServerError
+	 */
     public function handle()
     {
         $this->process();
@@ -99,9 +111,12 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
         return false;
     }
 
-    /**
-     * @return bool|MailChimp_WooCommerce_Product
-     */
+	/**
+	 * @return bool|MailChimp_WooCommerce_Product
+	 * @throws MailChimp_WooCommerce_Error
+	 * @throws MailChimp_WooCommerce_RateLimitError
+	 * @throws MailChimp_WooCommerce_ServerError
+	 */
     public function process()
     {
         if (empty($this->id)) {
@@ -117,14 +132,17 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
 
         try {
 
-            if (!($product_post = get_post($this->id))) {
+            if( !($product_post = MailChimp_WooCommerce_HPOS::get_product($this->id)) ){
                 return false;
             }
+            /*if (!($product_post = get_post($this->id))) {
+                return false;
+            }*/
 
             try {
                 // pull the product from Mailchimp first to see what method we need to call next.
                 $mailchimp_product = $this->api()->getStoreProduct($this->store_id, $this->id, true);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($e instanceof MailChimp_WooCommerce_RateLimitError) {
                     throw $e;
                 }
@@ -187,17 +205,11 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
             mailchimp_log('product_submit.error', mailchimp_error_trace($e, "{$method} :: #{$this->id}"));
             throw $e;
         }
-        catch (\Error $e) {
-            mailchimp_log('product_submit.error', mailchimp_error_trace($e, "{$method} :: #{$this->id}"));
-            throw $e;
-        }
-
-        return false;
     }
 
-    /**
-     * @return MailChimp_WooCommerce_MailChimpApi
-     */
+	/**
+	 * @return MailChimp_WooCommerce_MailChimpApi
+	 */
     public function api()
     {
         if (is_null($this->api)) {
@@ -209,7 +221,7 @@ class MailChimp_WooCommerce_Single_Product extends Mailchimp_Woocommerce_Job
                 return $this->api = new MailChimp_WooCommerce_MailChimpApi($options['mailchimp_api_key']);
             }
 
-            throw new \RuntimeException('The MailChimp API is not currently configured!');
+            throw new RuntimeException('The MailChimp API is not currently configured!');
         }
 
         return $this->api;

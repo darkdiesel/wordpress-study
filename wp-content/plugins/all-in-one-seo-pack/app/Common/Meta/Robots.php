@@ -95,13 +95,20 @@ class Robots {
 	 * @return mixed The robots meta tag value or false.
 	 */
 	public function meta() {
+		// We need this check to happen first as spammers can attempt to make the page appear like a post or term by using URL params e.g. "cat=".
+		if ( is_search() ) {
+			$this->globalValues( [ 'archives', 'search' ] );
+
+			return $this->metaHelper();
+		}
+
 		if ( is_category() || is_tag() || is_tax() ) {
 			$this->term();
 
 			return $this->metaHelper();
 		}
 
-		if ( is_home() && 'posts' === get_option( 'show_on_front' ) ) {
+		if ( is_home() && 'page' !== get_option( 'show_on_front' ) ) {
 			$this->globalValues();
 
 			return $this->metaHelper();
@@ -122,12 +129,6 @@ class Robots {
 
 		if ( is_date() ) {
 			$this->globalValues( [ 'archives', 'date' ] );
-
-			return $this->metaHelper();
-		}
-
-		if ( is_search() ) {
-			$this->globalValues( [ 'archives', 'search' ] );
 
 			return $this->metaHelper();
 		}
@@ -155,7 +156,7 @@ class Robots {
 	 */
 	public function metaHelper( $array = false ) {
 		$pageNumber = aioseo()->helpers->getPageNumber();
-		if ( 1 < $pageNumber || 0 < (int) get_query_var( 'cpage', 0 ) ) {
+		if ( 1 < $pageNumber || aioseo()->helpers->getCommentPageNumber() ) {
 			if (
 				aioseo()->options->searchAppearance->advanced->globalRobotsMeta->default ||
 				aioseo()->options->searchAppearance->advanced->globalRobotsMeta->noindexPaginated
@@ -182,7 +183,7 @@ class Robots {
 			$this->attributes['nofollow'] = 'nofollow';
 		}
 
-		$this->attributes = array_filter( apply_filters( 'aioseo_robots_meta', $this->attributes ) );
+		$this->attributes = array_filter( (array) apply_filters( 'aioseo_robots_meta', $this->attributes ) );
 
 		return $array ? $this->attributes : implode( ', ', $this->attributes );
 	}
@@ -242,8 +243,7 @@ class Robots {
 	private function archives() {
 		$dynamicOptions = aioseo()->dynamicOptions->noConflict();
 		$postType       = get_queried_object();
-
-		if ( $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
+		if ( ! empty( $postType->name ) && $dynamicOptions->searchAppearance->archives->has( $postType->name ) ) {
 			$this->globalValues( [ 'archives', $postType->name ], true );
 		}
 	}
@@ -260,11 +260,14 @@ class Robots {
 	protected function globalValues( $optionOrder = [], $isDynamicOption = false ) {
 		$robotsMeta = [];
 		if ( count( $optionOrder ) ) {
-			$options = $isDynamicOption ? aioseo()->dynamicOptions->noConflict()->searchAppearance : aioseo()->options->noConflict()->searchAppearance;
+			$options = $isDynamicOption
+				? aioseo()->dynamicOptions->noConflict( true )->searchAppearance
+				: aioseo()->options->noConflict()->searchAppearance;
+
 			foreach ( $optionOrder as $option ) {
 				if ( ! $options->has( $option, false ) ) {
 					return;
-				};
+				}
 				$options = $options->$option;
 			}
 
@@ -316,7 +319,7 @@ class Robots {
 			$this->attributes['max-image-preview'] = "max-image-preview:$maxImagePreview";
 		}
 		$maxVideoPreview = $robotsMeta['maxVideoPreview'];
-		if ( $maxVideoPreview && intval( $maxVideoPreview ) ) {
+		if ( isset( $maxVideoPreview ) && is_numeric( $maxVideoPreview ) ) {
 			$this->attributes['max-video-preview'] = "max-video-preview:$maxVideoPreview";
 		}
 
@@ -332,7 +335,7 @@ class Robots {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  array $metaData The post/term meta data.
+	 * @param  \AIOSEO\Plugin\Common\Models\Post|\AIOSEO\Plugin\Pro\Models\Term $metaData The post/term meta data.
 	 * @return void
 	 */
 	protected function metaValues( $metaData ) {
@@ -360,7 +363,7 @@ class Robots {
 		if ( ! $metaData->robots_noimageindex && $metaData->robots_max_imagepreview && in_array( $metaData->robots_max_imagepreview, [ 'none', 'standard', 'large' ], true ) ) {
 			$this->attributes['max-image-preview'] = "max-image-preview:$metaData->robots_max_imagepreview";
 		}
-		if ( $metaData->robots_max_videopreview && intval( $metaData->robots_max_videopreview ) ) {
+		if ( isset( $metaData->robots_max_videopreview ) && is_numeric( $metaData->robots_max_videopreview ) ) {
 			$this->attributes['max-video-preview'] = "max-video-preview:$metaData->robots_max_videopreview";
 		}
 

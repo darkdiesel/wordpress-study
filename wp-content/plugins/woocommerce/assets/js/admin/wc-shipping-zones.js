@@ -81,6 +81,10 @@
 					$( window ).on( 'beforeunload', { view: this }, this.unloadConfirmation );
 					$( document.body ).on( 'click', '.wc-shipping-zone-add', { view: this }, this.onAddNewRow );
 				},
+				onAddNewRow: function() {
+					var $link = $( this );
+					window.location.href = $link.attr( 'href' );
+				},
 				block: function() {
 					$( this.el ).block({
 						message: null,
@@ -132,11 +136,14 @@
 					$tr.find( '.wc-shipping-zone-delete' ).on( 'click', { view: this }, this.onDeleteRow );
 				},
 				initRows: function() {
+					const isEven = 0 !== ( $( 'tbody.wc-shipping-zone-rows tr' ).length % 2 );
+					const tfoot = $( 'tfoot.wc-shipping-zone-rows-tfoot' );
+
 					// Stripe
-					if ( 0 === ( $( 'tbody.wc-shipping-zone-rows tr' ).length % 2 ) ) {
-						$table.find( 'tbody.wc-shipping-zone-rows' ).next( 'tbody' ).find( 'tr' ).addClass( 'odd' );
+					if ( isEven ) {
+						tfoot.find( 'tr' ).addClass( 'even' );
 					} else {
-						$table.find( 'tbody.wc-shipping-zone-rows' ).next( 'tbody' ).find( 'tr' ).removeClass( 'odd' );
+						tfoot.find( 'tr' ).removeClass( 'even' );
 					}
 					// Tooltips
 					$( '#tiptip_holder' ).removeAttr( 'style' );
@@ -161,7 +168,9 @@
 								class_name = 'method_enabled';
 							}
 
-							$method_list.append( '<li class="wc-shipping-zone-method ' + class_name + '">' + shipping_method.title + '</li>' );
+							$method_list.append(
+								'<li class="wc-shipping-zone-method ' + class_name + '">' + shipping_method.title + '</li>'
+							);
 						} );
 					} else {
 						$method_list.append( '<li class="wc-shipping-zone-method">' + data.strings.no_shipping_methods_offered + '</li>' );

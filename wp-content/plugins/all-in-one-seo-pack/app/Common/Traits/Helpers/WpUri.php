@@ -47,10 +47,10 @@ trait WpUri {
 	public function getUrl( $canonical = false ) {
 		$url = '';
 		if ( is_singular() ) {
-			$objectId = get_queried_object_id();
+			$objectId = aioseo()->helpers->getPostId();
 
 			if ( $canonical ) {
-				$url = wp_get_canonical_url( $objectId );
+				$url = aioseo()->helpers->wpGetCanonicalUrl( $objectId );
 			}
 
 			if ( ! $url ) {
@@ -64,17 +64,13 @@ trait WpUri {
 			return $url;
 		}
 
-		// NOTE: network_home_url() will fall back to home_url() if the site isn't a multisite.
-		global $wp;
-		if ( $wp->did_permalink ) {
-			$url = user_trailingslashit( network_home_url( $wp->request ) );
-		} else {
-			$url = user_trailingslashit( network_home_url( $_SERVER['REQUEST_URI'] ) );
-		}
+		global $wp, $wp_rewrite;
+		// Permalink url without the query string.
+		$url = user_trailingslashit( home_url( $wp->request ) );
 
-		$permalinkStructure = get_option( 'permalink_structure' );
-		if ( $canonical && $permalinkStructure ) {
-			$url = explode( '?', $url )[0];
+		// If permalinks are not being used we need to append the query string to the home url.
+		if ( ! $wp_rewrite->using_permalinks() ) {
+			$url = home_url( ! empty( $wp->query_string ) ? '?' . $wp->query_string : '' );
 		}
 
 		return $url;
@@ -88,13 +84,18 @@ trait WpUri {
 	 * @return string $url The canonical URL.
 	 */
 	public function canonicalUrl() {
-		static $canonicalUrl = '';
-		if ( $canonicalUrl ) {
-			return $canonicalUrl;
+		$queriedObject = get_queried_object();
+		$hash          = md5( wp_json_encode( $queriedObject ?? [] ) );
+
+		static $url = [];
+		if ( isset( $url[ $hash ] ) ) {
+			return $url[ $hash ];
 		}
 
-		if ( is_404() ) {
-			return apply_filters( 'aioseo_canonical_url', '' );
+		if ( is_404() || is_search() ) {
+			$url[ $hash ] = apply_filters( 'aioseo_canonical_url', '' );
+
+			return $url[ $hash ];
 		}
 
 		$metaData = [];
@@ -104,34 +105,56 @@ trait WpUri {
 		}
 
 		if ( is_category() || is_tag() || is_tax() ) {
-			$metaData = aioseo()->meta->metaData->getMetaData( get_queried_object() );
+			$metaData     = aioseo()->meta->metaData->getMetaData( $queriedObject );
+			$url[ $hash ] = get_term_link( $queriedObject, $queriedObject->taxonomy ?? '' );
 		}
 
 		if ( $metaData && ! empty( $metaData->canonical_url ) ) {
-			return apply_filters( 'aioseo_canonical_url', $this->makeUrlAbsolute( $metaData->canonical_url ) );
+			$url[ $hash ] = apply_filters( 'aioseo_canonical_url', $this->makeUrlAbsolute( $metaData->canonical_url ) );
+
+			return $url[ $hash ];
 		}
 
-		$url                      = $this->getUrl( true );
-		$noPaginationForCanonical = aioseo()->options->searchAppearance->advanced->noPaginationForCanonical;
-		$pageNumber               = $this->getPageNumber();
-		if ( $noPaginationForCanonical && 1 < $pageNumber ) {
-			$url = preg_replace( '/(\d+|(?<=\/)page\/\d+\/|(?<=\/)comment-page-\d+\/*(#comments)*)$/', '', $url );
+		if ( empty( $url[ $hash ] ) || is_wp_error( $url[ $hash ] ) ) {
+			$url[ $hash ] = $this->getUrl( true );
 		}
 
-		$url = $this->maybeRemoveTrailingSlash( $url );
+		$pageNumber = $this->getPageNumber();
+		if (
+			in_array( 'noPaginationForCanonical', aioseo()->internalOptions->deprecatedOptions, true ) &&
+			aioseo()->options->deprecated->searchAppearance->advanced->noPaginationForCanonical
+		) {
+			global $wp_rewrite;
+			if ( 1 < $pageNumber ) {
+				if ( $wp_rewrite->using_permalinks() ) {
+					// Replace /page/3 and /page/3/.
+					$url[ $hash ] = preg_replace( "@(?<=/)page/$pageNumber(/|)$@", '', $url[ $hash ] );
+					// Replace /3 and /3/.
+					$url[ $hash ] = preg_replace( "@(?<=/)$pageNumber(/|)$@", '', $url[ $hash ] );
+				} else {
+					// Replace /?page_id=457&paged=1 and /?page_id=457&page=1.
+					$url[ $hash ] = aioseo()->helpers->urlRemoveQueryParameter( $url[ $hash ], [ 'page', 'paged' ] );
+				}
+			}
+
+			// Comment pages.
+			$url[ $hash ] = preg_replace( '/(?<=\/)comment-page-\d+\/*(#comments)*$/', '', $url[ $hash ] );
+		}
+
+		$url[ $hash ] = $this->maybeRemoveTrailingSlash( $url[ $hash ] );
 
 		// Get rid of /amp at the end of the URL.
-		if ( ! apply_filters( 'aioseo_disable_canonical_url_amp', false ) ) {
-			$url = preg_replace( '/\/amp$/', '', $url );
-			$url = preg_replace( '/\/amp\/$/', '/', $url );
+		if (
+			aioseo()->helpers->isAmpPage() &&
+			! apply_filters( 'aioseo_disable_canonical_url_amp', false )
+		) {
+			$url[ $hash ] = preg_replace( '/\/amp$/', '', $url[ $hash ] );
+			$url[ $hash ] = preg_replace( '/\/amp\/$/', '/', $url[ $hash ] );
 		}
 
-		$searchTerm = get_query_var( 's' );
-		if ( is_search() && ! empty( $searchTerm ) ) {
-			$url = add_query_arg( 's', $searchTerm, $url );
-		}
+		$url[ $hash ] = apply_filters( 'aioseo_canonical_url', $url[ $hash ] );
 
-		return apply_filters( 'aioseo_canonical_url', $url );
+		return $url[ $hash ];
 	}
 
 	/**
@@ -210,7 +233,7 @@ trait WpUri {
 	 * @return string      The formatted image URL.
 	 */
 	public function removeImageDimensions( $url ) {
-		return $this->isValidAttachment( $url ) ? preg_replace( '#(-[0-9]*x[0-9]*)#', '', $url ) : $url;
+		return $this->isValidAttachment( $url ) ? preg_replace( '#(-[0-9]*x[0-9]*|-scaled)#', '', $url ) : $url;
 	}
 
 	/**
@@ -227,32 +250,6 @@ trait WpUri {
 	}
 
 	/**
-	 * Checks whether the given path is unique or not.
-	 *
-	 * @since 4.1.4
-	 *
-	 * @param  string  $path The path.
-	 * @return boolean       Whether the path exists.
-	 */
-	public function pathExists( $path ) {
-		$url = $this->isUrl( $path )
-			? $path
-			: trailingslashit( home_url() ) . trim( $path, '/' );
-
-		$status = wp_remote_retrieve_response_code( wp_remote_get( $url ) );
-		if ( ! $status ) {
-			// If there is no status code, we might be in a local environment with CURL misconfigured.
-			// In that case we can still check if a post exists for the path by quering the DB.
-			// TODO: Add support for terms here.
-			$post = $this->getPostbyPath( $path, OBJECT, $this->getPublicPostTypes( true ) );
-
-			return is_object( $post );
-		}
-
-		return 200 === $status;
-	}
-
-	/**
 	* Retrieves a post by its given path.
 	* Based on the built-in get_page_by_path() function, but only checks ancestry if the post type is actually hierarchical.
 	*
@@ -261,7 +258,7 @@ trait WpUri {
 	* @param  string       $path     The path.
 	* @param  string       $output   The output type. OBJECT, ARRAY_A, or ARRAY_N.
 	* @param  string|array $postType The post type(s) to check against.
-	* @return Object|false           The post or false on failure.
+	* @return object|false           The post or false on failure.
 	*/
 	public function getPostByPath( $path, $output = OBJECT, $postType = 'page' ) {
 		$lastChanged = wp_cache_get_last_changed( 'aioseo_posts_by_path' );
@@ -377,7 +374,7 @@ trait WpUri {
 
 	/**
 	 * Returns the path from a permalink.
-	 * This function will help get the correct path from WP instalations in subfolders.
+	 * This function will help get the correct path from WP installations in subfolders.
 	 *
 	 * @since 4.1.8
 	 *
@@ -385,6 +382,144 @@ trait WpUri {
 	 * @return string            The path without the home_url().
 	 */
 	public function getPermalinkPath( $permalink ) {
-		return  str_replace( get_home_url(), '', $permalink );
+		return $this->leadingSlashIt( str_replace( get_home_url(), '', $permalink ) );
+	}
+
+	/**
+	 * Changed if permalinks are different and the before wasn't
+	 * the site url (we don't want to redirect the site URL).
+	 *
+	 * @since 4.2.3
+	 *
+	 * @param  string  $before The URL before the change.
+	 * @param  string  $after  The URL after the change.
+	 * @return boolean         True if the permalink has changed.
+	 */
+	public function hasPermalinkChanged( $before, $after ) {
+		// Check it's not redirecting from the root.
+		if ( $this->getHomePath() === $before || '/' === $before ) {
+			return false;
+		}
+
+		// Are the URLs the same?
+		return ( $before !== $after );
+	}
+
+	/**
+	 * Retrieve the home path.
+	 *
+	 * @since 4.2.3
+	 *
+	 * @return string The home path.
+	 */
+	public function getHomePath() {
+		$path = wp_parse_url( get_home_url(), PHP_URL_PATH );
+
+		return $path ? trailingslashit( $path ) : '/';
+	}
+
+	/**
+	 * Checks if the given URL is an internal URL for the current site.
+	 *
+	 * @since 4.2.6
+	 *
+	 * @param  string $urlToCheck The URL to check.
+	 * @return bool               Whether the given URL is an internal one.
+	 */
+	public function isInternalUrl( $urlToCheck ) {
+		$parsedHomeUrl    = wp_parse_url( home_url() );
+		$parsedUrlToCheck = wp_parse_url( $urlToCheck );
+
+		return ! empty( $parsedHomeUrl['host'] ) && ! empty( $parsedUrlToCheck['host'] )
+			? $parsedHomeUrl['host'] === $parsedUrlToCheck['host']
+			: false;
+	}
+
+	/**
+	 * Helper for the rest url.
+	 *
+	 * @since 4.4.9
+	 *
+	 * @return string
+	 */
+	public function getRestUrl() {
+		$restUrl = get_rest_url();
+
+		if ( aioseo()->helpers->isWpmlActive() ) {
+			global $sitepress;
+
+			// Replace the rest url 'all' language prefix so our rest calls don't fail.
+			if (
+				is_object( $sitepress ) &&
+				method_exists( $sitepress, 'get_current_language' ) &&
+				method_exists( $sitepress, 'get_default_language' ) &&
+				'all' === $sitepress->get_current_language()
+			) {
+				$restUrl = str_replace(
+					get_home_url( null, '/all/' ),
+					get_home_url( null, '/' . $sitepress->get_default_language() . '/' ),
+					$restUrl
+				);
+			}
+		}
+
+		return $restUrl;
+	}
+
+	/**
+	 * Exclude the home path from a full path.
+	 *
+	 * @since   1.2.3 Moved from aioseo-redirects.
+	 * @version 4.5.8
+	 *
+	 * @param  string $path The original path.
+	 * @return string       The path without WP's home path.
+	 */
+	public function excludeHomePath( $path ) {
+		return preg_replace( '@^' . $this->getHomePath() . '@', '/', $path );
+	}
+
+	/**
+	 * Get the canonical URL for a post.
+	 * This is a duplicate of wp_get_canonical_url() with a fix for issue #6372 where
+	 * posts with paginated comment pages return the wrong canonical URL due to how WordPress sets the cpage var.
+	 * We can remove this once trac ticket 60806 is resolved.
+	 *
+	 * @since 4.6.9
+	 *
+	 * @param  \WP_Post|int|null $post The post object or ID.
+	 * @return string|false            The post's canonical URL, or false if the post is not published.
+	 */
+	public function wpGetCanonicalUrl( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! $post ) {
+			return false;
+		}
+
+		if ( 'publish' !== $post->post_status ) {
+			return false;
+		}
+
+		$canonical_url = get_permalink( $post );
+
+		// If a canonical is being generated for the current page, make sure it has pagination if needed.
+		if ( get_queried_object_id() === $post->ID ) {
+			$page = get_query_var( 'page', 0 );
+			if ( $page >= 2 ) {
+				if ( ! get_option( 'permalink_structure' ) ) {
+					$canonical_url = add_query_arg( 'page', $page, $canonical_url );
+				} else {
+					$canonical_url = trailingslashit( $canonical_url ) . user_trailingslashit( $page, 'single_paged' );
+				}
+			}
+
+			$cpage = aioseo()->helpers->getCommentPageNumber(); // We're calling our own function here to get the correct cpage number.
+			if ( $cpage ) {
+				$canonical_url = get_comments_pagenum_link( $cpage );
+			}
+		}
+
+		return apply_filters( 'get_canonical_url', $canonical_url, $post );
 	}
 }

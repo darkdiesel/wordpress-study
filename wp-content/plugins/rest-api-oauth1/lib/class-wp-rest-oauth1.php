@@ -6,21 +6,35 @@
  * @subpackage JSON API
  */
 
+/**
+ * Page post type handlers.
+ */
 class WP_REST_OAuth1 {
+	/**
+	 * Token key length.
+	 */
 	const TOKEN_KEY_LENGTH = 24;
+	/**
+	 * Token secret length.
+	 */
 	const TOKEN_SECRET_LENGTH = 48;
+	/**
+	 * Verifier length.
+	 */
 	const VERIFIER_LENGTH = 24;
 
 	/**
 	 * Authentication type
 	 *
 	 * (e.g. oauth1, oauth2, basic, etc)
+	 *
 	 * @var string
 	 */
 	protected $type = 'oauth1';
 
 	/**
 	 * Errors that occurred during authentication
+	 *
 	 * @var WP_Error|null|boolean True if succeeded, WP_Error if errored, null if not OAuth
 	 */
 	protected $auth_status = null;
@@ -29,6 +43,7 @@ class WP_REST_OAuth1 {
 	 * Should we attempt to run?
 	 *
 	 * Stops infinite recursion in certain circumstances.
+	 *
 	 * @var boolean
 	 */
 	protected $should_attempt = true;
@@ -36,7 +51,7 @@ class WP_REST_OAuth1 {
 	/**
 	 * Parse the Authorization header into parameters
 	 *
-	 * @param string $header Authorization header value (not including "Authorization: " prefix)
+	 * @param string $header Authorization header value (not including "Authorization: " prefix).
 	 * @return array|boolean Map of parameter values, false if not an OAuth header
 	 */
 	public function parse_header( $header ) {
@@ -44,18 +59,17 @@ class WP_REST_OAuth1 {
 			return false;
 		}
 
-		// From OAuth PHP library, used under MIT license
+		// From OAuth PHP library, used under MIT license.
 		$params = array();
 		if ( preg_match_all( '/(oauth_[a-z_-]*)=(:?"([^"]*)"|([^,]*))/', $header, $matches ) ) {
-			foreach ($matches[1] as $i => $h) {
-				$params[$h] = urldecode( empty($matches[3][$i]) ? $matches[4][$i] : $matches[3][$i] );
+			foreach ( $matches[1] as $i => $h ) {
+				$params[ $h ] = urldecode( empty( $matches[3][ $i ] ) ? $matches[4][ $i ] : $matches[3][ $i ] );
 			}
-			if (isset($params['realm'])) {
-				unset($params['realm']);
+			if ( isset( $params['realm'] ) ) {
+				unset( $params['realm'] );
 			}
 		}
 		return $params;
-
 	}
 
 	/**
@@ -76,7 +90,7 @@ class WP_REST_OAuth1 {
 		if ( function_exists( 'getallheaders' ) ) {
 			$headers = getallheaders();
 
-			// Check for the authoization header case-insensitively
+			// Check for the authoization header case-insensitively.
 			foreach ( $headers as $key => $value ) {
 				if ( strtolower( $key ) === 'authorization' ) {
 					return $value;
@@ -87,6 +101,13 @@ class WP_REST_OAuth1 {
 		return null;
 	}
 
+	/**
+	 * Get request parameters.
+
+	 * @param boolean $require_token Request token, true / false.
+	 * @param array   $extra Extra parameters.
+	 * @return array|WP_Error|null
+	 */
 	public function get_parameters( $require_token = true, $extra = array() ) {
 		$params = array_merge( $_GET, $_POST );
 		$params = wp_unslash( $params );
@@ -94,7 +115,7 @@ class WP_REST_OAuth1 {
 		$header = $this->get_authorization_header();
 
 		if ( ! empty( $header ) ) {
-			// Trim leading spaces
+			// Trim leading spaces.
 			$header = trim( $header );
 
 			$header_params = $this->parse_header( $header );
@@ -108,7 +129,7 @@ class WP_REST_OAuth1 {
 			'oauth_timestamp',
 			'oauth_nonce',
 			'oauth_signature',
-			'oauth_signature_method'
+			'oauth_signature_method',
 		);
 
 		if ( $require_token ) {
@@ -119,32 +140,35 @@ class WP_REST_OAuth1 {
 			$param_names = array_merge( $param_names, (array) $extra );
 		}
 
-		$errors = array();
+		$errors   = array();
 		$have_one = false;
 
-		// check for required OAuth parameters
+		// check for required OAuth parameters.
 		foreach ( $param_names as $param_name ) {
-			if ( empty( $params[ $param_name ] ) )
+			if ( empty( $params[ $param_name ] ) ) {
 				$errors[] = $param_name;
-			else
+			} else {
 				$have_one = true;
+			}
 		}
 
-		// All keys are missing, so we're probably not even trying to use OAuth
+		// All keys are missing, so we're probably not even trying to use OAuth.
 		if ( ! $have_one ) {
 			return null;
 		}
 
 		// If we have at least one supplied piece of data, and we have an error,
-		// then it's a failed authentication
+		// then it's a failed authentication.
 		if ( ! empty( $errors ) ) {
 			$message = sprintf(
+				/* translators: %s: list of errors **/
 				_n(
-					__( 'Missing OAuth parameter %s', 'rest_oauth1' ),
-					__( 'Missing OAuth parameters %s', 'rest_oauth1' ),
-					count( $errors )
+					'Missing OAuth parameter %s',
+					'Missing OAuth parameters %s',
+					count( $errors ),
+					'rest_oauth1'
 				),
-				implode(', ', $errors )
+				implode( ', ', $errors )
 			);
 			return new WP_Error( 'json_oauth1_missing_parameter', $message, array( 'status' => 401 ) );
 		}
@@ -160,7 +184,7 @@ class WP_REST_OAuth1 {
 	 *
 	 * @link http://tools.ietf.org/html/rfc5849 OAuth 1.0a Specification
 	 *
-	 * @param WP_User|null Already authenticated user (will be passed through), or null to perform OAuth authentication
+	 * @param WP_User|null $user Already authenticated user (will be passed through), or null to perform OAuth authentication.
 	 * @return WP_User|null|WP_Error Authenticated user on success, null if no OAuth data supplied, error otherwise
 	 */
 	public function authenticate( $user ) {
@@ -168,7 +192,7 @@ class WP_REST_OAuth1 {
 			return $user;
 		}
 
-		// Skip authentication for OAuth meta requests
+		// Skip authentication for OAuth meta requests.
 		if ( get_query_var( 'json_oauth_route' ) ) {
 			return null;
 		}
@@ -179,10 +203,11 @@ class WP_REST_OAuth1 {
 			return null;
 		}
 
-		// Fetch user by token key
+		// Fetch user by token key.
 		$token = $this->get_access_token( $params['oauth_token'] );
-		if ( is_wp_error( $token ) ) {
-			$this->auth_status = $token;
+		if ( empty( $token ) ) {
+			$this->auth_status = new WP_Error( 'json_oauth1_invalid_token', __( 'Access token does not exist', 'rest_oauth1' ), array( 'status' => 401 ) );
+
 			return null;
 		}
 
@@ -193,7 +218,7 @@ class WP_REST_OAuth1 {
 		}
 		list( $consumer, $user ) = $result;
 
-		// Perform OAuth validation
+		// Perform OAuth validation.
 		$error = $this->check_oauth_signature( $consumer, $params, $token );
 		if ( is_wp_error( $error ) ) {
 			$this->auth_status = $error;
@@ -211,13 +236,13 @@ class WP_REST_OAuth1 {
 	}
 
 	/**
-	 * Report authentication errors to the JSON API
+	 * Report authentication errors to the JSON API.
 	 *
-	 * @param WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
+	 * @param WP_Error|mixed $value Error from another authentication handler, null if we should handle it, or another value if not.
 	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
 	 */
 	public function get_authentication_errors( $value ) {
-		if ( $value !== null ) {
+		if ( null !== $value ) {
 			return $value;
 		}
 
@@ -225,22 +250,18 @@ class WP_REST_OAuth1 {
 	}
 
 	/**
-	 * Serve an OAuth request
+	 * Serve an OAuth request.
 	 *
 	 * Either returns data to be served, or redirects and exits. Non-reentrant
 	 * for the `authorize` route.
 	 *
-	 * @param string $route Type of request; `authorize`, `request` or `access`
+	 * @param string $route Type of request; `authorize`, `request` or `access`.
 	 * @return mixed Response data (typically WP_Error or an array). May exit.
 	 */
 	public function dispatch( $route ) {
-		// if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-		// 	return new WP_Error( 'oauth1_invalid_method', __( 'Invalid request method for OAuth endpoint' ), array( 'status' => 405 ) );
-		// }
-
 		switch ( $route ) {
 			case 'authorize':
-				$url = site_url( 'wp-login.php?action=oauth1_authorize', 'login_post' );
+				$url  = site_url( 'wp-login.php?action=oauth1_authorize', 'login_post' );
 				$url .= '&' . $_SERVER['QUERY_STRING'];
 				wp_safe_redirect( $url );
 				exit;
@@ -275,15 +296,15 @@ class WP_REST_OAuth1 {
 	}
 
 	/**
-	 * Check a token against the database
+	 * Check a token against the database.
 	 *
-	 * @param string $token Token object
-	 * @param string $consumer_key Consumer ID
-	 * @return array Array of consumer object, user object
+	 * @param array  $token Token object.
+	 * @param string $consumer_key Consumer ID.
+	 * @return array|WP_Error Array of consumer object, user object or WP_Error on error.
 	 */
 	public function check_token( $token, $consumer_key ) {
 		$this->should_attempt = false;
-		$consumer = WP_REST_OAuth1_Client::get_by_key( $consumer_key );
+		$consumer             = WP_REST_OAuth1_Client::get_by_key( $consumer_key );
 		$this->should_attempt = true;
 
 		if ( is_wp_error( $consumer ) ) {
@@ -298,9 +319,9 @@ class WP_REST_OAuth1 {
 	}
 
 	/**
-	 * Retrieve a request token's data
+	 * Retrieve a request token's data.
 	 *
-	 * @param string $key Token ID
+	 * @param string $key Token ID.
 	 * @return array|WP_Error Request token data on success, error otherwise
 	 */
 	public function get_request_token( $key ) {
@@ -310,7 +331,7 @@ class WP_REST_OAuth1 {
 			return new WP_Error( 'json_oauth1_invalid_token', __( 'Invalid token', 'rest_oauth1' ), array( 'status' => 400 ) );
 		}
 
-		// Check expiration
+		// Check expiration.
 		if ( $data['expiration'] < time() ) {
 			$this->remove_request_token( $key );
 			return new WP_Error( 'json_oauth1_expired_token', __( 'OAuth request token has expired', 'rest_oauth1' ), array( 'status' => 401 ) );
@@ -322,7 +343,7 @@ class WP_REST_OAuth1 {
 	/**
 	 * Generate a new request token
 	 *
-	 * @param array $params Request parameters, from {@see get_parameters}
+	 * @param array $params Request parameters, from {@see get_parameters}.
 	 * @return array|WP_Error Array of token data on success, error otherwise
 	 */
 	public function generate_request_token( $params ) {
@@ -331,7 +352,7 @@ class WP_REST_OAuth1 {
 			return $consumer;
 		}
 
-		// Check the OAuth request signature against the current request
+		// Check the OAuth request signature against the current request.
 		$result = $this->check_oauth_signature( $consumer, $params );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -342,35 +363,42 @@ class WP_REST_OAuth1 {
 			return $error;
 		}
 
-		// Generate token
-		$key = apply_filters( 'json_oauth1_request_token_key', wp_generate_password( self::TOKEN_KEY_LENGTH, false ) );
-		$data = array(
+		// Generate token.
+		$key      = apply_filters( 'json_oauth1_request_token_key', wp_generate_password( self::TOKEN_KEY_LENGTH, false ) );
+		$callback = ! empty( $params['oauth_callback'] ) ? $params['oauth_callback'] : null;
+		$data     = array(
 			'key'        => $key,
 			'secret'     => wp_generate_password( self::TOKEN_SECRET_LENGTH, false ),
 			'consumer'   => $consumer->ID,
 			'authorized' => false,
 			'expiration' => time() + 24 * HOUR_IN_SECONDS,
-			'callback'   => null,
+			'callback'   => $callback,
 			'verifier'   => null,
 			'user'       => null,
 		);
-		$data = apply_filters( 'json_oauth1_request_token_data', $data );
+		$data     = apply_filters( 'json_oauth1_request_token_data', $data );
 		add_option( 'oauth1_request_' . $key, $data, null, 'no' );
-		if ( ! empty( $params['oauth_callback'] ) ) {
-			$error = $this->set_request_token_callback( $key, $params['oauth_callback'] );
+		if ( ! empty( $callback ) ) {
+			$error = $this->set_request_token_callback( $key, $callback );
 			if ( $error ) {
 				return $error;
 			}
 		}
 
-		$data = array(
-			'oauth_token' => self::urlencode_rfc3986($key),
-			'oauth_token_secret' => self::urlencode_rfc3986($data['secret']),
+		return array(
+			'oauth_token'              => self::urlencode_rfc3986( $key ),
+			'oauth_token_secret'       => self::urlencode_rfc3986( $data['secret'] ),
 			'oauth_callback_confirmed' => 'true',
 		);
-		return $data;
 	}
 
+	/**
+	 * Set request token callback.
+
+	 * @param string   $key Token ID.
+	 * @param callable $callback Callback.
+	 * @return array|mixed|WP_Error
+	 */
 	public function set_request_token_callback( $key, $callback ) {
 		$token = $this->get_request_token( $key );
 		if ( is_wp_error( $token ) ) {
@@ -403,14 +431,17 @@ class WP_REST_OAuth1 {
 		}
 
 		$parsed_url = wp_parse_url( $url );
-		if ( ! $parsed_url || empty( $parsed_url['host'] ) )
+		if ( ! $parsed_url || empty( $parsed_url['host'] ) ) {
 			return false;
+		}
 
-		if ( isset( $parsed_url['user'] ) || isset( $parsed_url['pass'] ) )
+		if ( isset( $parsed_url['user'] ) || isset( $parsed_url['pass'] ) ) {
 			return false;
+		}
 
-		if ( false !== strpbrk( $parsed_url['host'], ':#?[]' ) )
+		if ( false !== strpbrk( $parsed_url['host'], ':#?[]' ) ) {
 			return false;
+		}
 
 		return true;
 	}
@@ -418,13 +449,13 @@ class WP_REST_OAuth1 {
 	/**
 	 * Check whether a callback is valid for a given consumer.
 	 *
-	 * @param string $url Supplied callback.
+	 * @param string      $url Supplied callback.
 	 * @param int|WP_Post $consumer_id Consumer post ID or object.
 	 * @return bool True if valid, false otherwise.
 	 */
 	public function check_callback( $url, $consumer_id ) {
 		$consumer = get_post( $consumer_id );
-		if ( empty( $consumer ) || $consumer->post_type !== 'json_consumer' || $consumer->type !== $this->type ) {
+		if ( empty( $consumer ) || 'json_consumer' !== $consumer->post_type || $consumer->type !== $this->type ) {
 			return false;
 		}
 
@@ -433,21 +464,21 @@ class WP_REST_OAuth1 {
 			return false;
 		}
 
-		// Out-of-band isn't a URL, but is still valid
-		if ( $registered === 'oob' || $url === 'oob' ) {
-			// Ensure both the registered URL and requested are 'oob'
+		// Out-of-band isn't a URL, but is still valid.
+		if ( 'oob' === $registered || 'oob' === $url ) {
+			// Ensure both the registered URL and requested are 'oob'.
 			return ( $registered === $url );
 		}
 
-		// Validate the supplied URL
+		// Validate the supplied URL.
 		if ( ! $this->validate_callback( $url ) ) {
 			return false;
 		}
 
 		$registered = wp_parse_url( $registered );
-		$supplied = wp_parse_url( $url );
+		$supplied   = wp_parse_url( $url );
 
-		// Check all components except query and fragment
+		// Check all components except query and fragment.
 		$parts = array( 'scheme', 'host', 'port', 'user', 'pass', 'path' );
 		$valid = true;
 		foreach ( $parts as $part ) {
@@ -481,14 +512,16 @@ class WP_REST_OAuth1 {
 		 * @param string $url Supplied callback URL.
 		 * @param WP_Post $consumer Consumer post; stored callback saved as `consumer` meta value.
 		 */
-		return apply_filters( 'rest_oauth.check_callback', $valid, $url, $consumer );
+		return apply_filters( 'rest_oauth.check_callback', $valid, $url, $consumer ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 	}
 
 	/**
 	 * Authorize a request token
 	 *
 	 * Enables the request token to be used to generate an access token
-	 * @param string $key Token ID
+	 *
+	 * @param string  $key Token ID.
+	 * @param WP_User $user Current user.
 	 * @return string|WP_Error Verification code on success, error otherwise
 	 */
 	public function authorize_request_token( $key, $user = null ) {
@@ -499,8 +532,7 @@ class WP_REST_OAuth1 {
 
 		if ( empty( $user ) ) {
 			$user = get_current_user_id();
-		}
-		elseif ( is_a( $user, 'WP_User' ) ) {
+		} elseif ( $user instanceof WP_User ) {
 			$user = $user->ID;
 		}
 
@@ -509,9 +541,9 @@ class WP_REST_OAuth1 {
 		}
 
 		$token['authorized'] = true;
-		$token['verifier'] = wp_generate_password( self::VERIFIER_LENGTH, false );
-		$token['user'] = $user;
-		$token = apply_filters( 'oauth_request_token_authorized_data', $token );
+		$token['verifier']   = wp_generate_password( self::VERIFIER_LENGTH, false );
+		$token['user']       = $user;
+		$token               = apply_filters( 'oauth_request_token_authorized_data', $token );
 		update_option( 'oauth1_request_' . $key, $token );
 		return $token['verifier'];
 	}
@@ -519,7 +551,7 @@ class WP_REST_OAuth1 {
 	/**
 	 * Delete a request token
 	 *
-	 * @param string $key Token ID
+	 * @param string $key Token ID.
 	 */
 	public function remove_request_token( $key ) {
 		delete_option( 'oauth1_request_' . $key );
@@ -528,7 +560,7 @@ class WP_REST_OAuth1 {
 	/**
 	 * Retrieve an access token's data
 	 *
-	 * @param string $oauth_token Token ID
+	 * @param string $oauth_token Token ID.
 	 * @return array|null Token data on success, null otherwise
 	 */
 	public function get_access_token( $oauth_token ) {
@@ -543,8 +575,7 @@ class WP_REST_OAuth1 {
 	/**
 	 * Generate a new access token
 	 *
-	 * @param string $oauth_consumer_key Consumer key
-	 * @param string $oauth_token Request token key
+	 * @param  array $params Array of query parameters.
 	 * @return WP_Error|array OAuth token data on success, error otherwise
 	 */
 	public function generate_access_token( $params ) {
@@ -558,7 +589,7 @@ class WP_REST_OAuth1 {
 			return $token;
 		}
 
-		// Check the OAuth request signature against the current request
+		// Check the OAuth request signature against the current request.
 		$result = $this->check_oauth_signature( $consumer, $params, $token );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -569,8 +600,8 @@ class WP_REST_OAuth1 {
 			return $error;
 		}
 
-		// Check verification
-		if ( $token['authorized'] !== true ) {
+		// Check verification.
+		if ( true !== $token['authorized'] ) {
 			return new WP_Error( 'json_oauth1_unauthorized_token', __( 'OAuth token has not been authorized', 'rest_oauth1' ), array( 'status' => 401 ) );
 		}
 
@@ -579,39 +610,38 @@ class WP_REST_OAuth1 {
 		}
 
 		$this->should_attempt = false;
-		$consumer = WP_REST_OAuth1_Client::get_by_key( $params['oauth_consumer_key'] );
+		$consumer             = WP_REST_OAuth1_Client::get_by_key( $params['oauth_consumer_key'] );
 		$this->should_attempt = true;
 
 		if ( is_wp_error( $consumer ) ) {
 			return $consumer;
 		}
 
-		// Issue access token
-		$key = apply_filters( 'json_oauth1_access_token_key', wp_generate_password( self::TOKEN_KEY_LENGTH, false ) );
+		// Issue access token.
+		$key  = apply_filters( 'json_oauth1_access_token_key', wp_generate_password( self::TOKEN_KEY_LENGTH, false ) );
 		$data = array(
-			'key' => $key,
-			'secret' => wp_generate_password( self::TOKEN_SECRET_LENGTH, false ),
+			'key'      => $key,
+			'secret'   => wp_generate_password( self::TOKEN_SECRET_LENGTH, false ),
 			'consumer' => $consumer->ID,
-			'user' => $token['user'],
+			'user'     => $token['user'],
 		);
 		$data = apply_filters( 'json_oauth1_access_token_data', $data );
 		add_option( 'oauth1_access_' . $key, $data, null, 'no' );
 
-		// Delete the request token
+		// Delete the request token.
 		$this->remove_request_token( $params['oauth_token'] );
 
-		// Return the new token's data
-		$data = array(
-			'oauth_token' => self::urlencode_rfc3986( $key ),
+		// Return the new token's data.
+		return array(
+			'oauth_token'        => self::urlencode_rfc3986( $key ),
 			'oauth_token_secret' => self::urlencode_rfc3986( $data['secret'] ),
 		);
-		return $data;
 	}
 
 	/**
-	 * Revoke an access token
+	 * Revoke an access token.
 	 *
-	 * @param string $key Access token identifier
+	 * @param string $key Access token identifier.
 	 * @return WP_Error|boolean True on success, error otherwise
 	 */
 	public function revoke_access_token( $key ) {
@@ -628,10 +658,11 @@ class WP_REST_OAuth1 {
 
 	/**
 	 * Verify that the consumer-provided request signature matches our generated signature, this ensures the consumer
-	 * has a valid key/secret
+	 * has a valid key/secret.
 	 *
-	 * @param WP_User $user
-	 * @param array $params the request parameters
+	 * @param WP_Post $consumer REST Client.
+	 * @param array   $oauth_params the request parameters.
+	 * @param array   $token Token.
 	 * @return boolean|WP_Error True on success, error otherwise
 	 */
 	public function check_oauth_signature( $consumer, $oauth_params, $token = null ) {
@@ -647,45 +678,53 @@ class WP_REST_OAuth1 {
 
 			case 'POST':
 			case 'PUT':
+			case 'PATCH':
 				$params = wp_unslash( $_POST );
 				break;
 			default:
-				return new WP_Error( 'rest_oauth1_unknown_http_method',
-					sprintf( __( 'Unknown http method: %s', 'rest_oauth1' ), $http_method ),
-					array( 'status' => 401 ) );
+				return new WP_Error(
+					'rest_oauth1_unknown_http_method',
+					sprintf(
+						/* translators: %s: http_method **/
+						__( 'Unknown http method: %s', 'rest_oauth1' ),
+						$http_method
+					),
+					array( 'status' => 401 )
+				);
 		}
 
 		$params = array_merge( $params, $oauth_params );
 
-		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-		$wp_base = get_home_url( null, '/', 'relative' );
+		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+		$wp_base      = get_home_url( null, '/', 'relative' );
 		if ( substr( $request_path, 0, strlen( $wp_base ) ) === $wp_base ) {
 			$request_path = substr( $request_path, strlen( $wp_base ) );
 		}
 		$base_request_uri = self::urlencode_rfc3986( get_home_url( null, $request_path ) );
 
-		// get the signature provided by the consumer and remove it from the parameters prior to checking the signature
+		// get the signature provided by the consumer and remove it from the parameters prior to checking the signature.
 		$consumer_signature = rawurldecode( $params['oauth_signature'] );
 		unset( $params['oauth_signature'] );
 
-		// normalize parameter key/values
-		array_walk_recursive( $params, array( $this, 'normalize_parameters' ) );
+		// normalize parameter key/values.
+		$params = $this->normalize_parameter( $params );
 
-		// sort parameters
-		if ( ! uksort( $params, 'strcmp' ) )
+		// sort parameters.
+		if ( ! uksort( $params, 'strcmp' ) ) {
 			return new WP_Error( 'json_oauth1_failed_parameter_sort', __( 'Invalid Signature - failed to sort parameters', 'rest_oauth1' ), array( 'status' => 401 ) );
+		}
 
 		$query_string = $this->create_signature_string( $params );
 
-		$token = (array) $token;
+		$token          = (array) $token;
 		$string_to_sign = $http_method . '&' . $base_request_uri . '&' . $query_string;
-		$key_parts = array(
+		$key_parts      = array(
 			$consumer->secret,
-			( $token ? $token['secret'] : '' )
+			( $token ? $token['secret'] : '' ),
 		);
-		$key = implode( '&', $key_parts );
+		$key            = implode( '&', $key_parts );
 
-		switch ($params['oauth_signature_method']) {
+		switch ( $params['oauth_signature_method'] ) {
 			case 'HMAC-SHA1':
 				$hash_algorithm = 'sha1';
 				break;
@@ -708,14 +747,14 @@ class WP_REST_OAuth1 {
 	}
 
 	/**
-	 * Creates a signature string from all query parameters
+	 * Creates a signature string from all query parameters.
 	 *
 	 * @since  0.1
-	 * @param  array  $params Array of query parameters
+	 * @param  array $params Array of query parameters.
 	 * @return string         Signature string
 	 */
 	public function create_signature_string( $params ) {
-		return implode( '%26', $this->join_with_equals_sign( $params ) ); // join with ampersand
+		return implode( '%26', $this->join_with_equals_sign( $params ) ); // join with ampersand.
 	}
 
 	/**
@@ -724,19 +763,19 @@ class WP_REST_OAuth1 {
 	 * @since  0.1.0
 	 * @param  array  $params       Array of parameters to convert.
 	 * @param  array  $query_params Array to extend.
-	 * @param  string $key          Optional Array key to append
+	 * @param  string $key          Optional Array key to append.
 	 * @return string               Array of urlencoded strings
 	 */
 	public function join_with_equals_sign( $params, $query_params = array(), $key = '' ) {
 		foreach ( $params as $param_key => $param_value ) {
+			if ( $key ) {
+				$param_key = $key . '%5B' . $param_key . '%5D'; // Handle multi-dimensional array.
+			}
 			if ( is_array( $param_value ) ) {
 				$query_params = $this->join_with_equals_sign( $param_value, $query_params, $param_key );
 			} else {
-				if ( $key ) {
-					$param_key = $key . '%5B' . $param_key . '%5D'; // Handle multi-dimensional array
-				}
-				$string = $param_key . '=' . $param_value; // join with equals sign
-				$query_params[] = self::urlencode_rfc3986($string );
+				$string         = $param_key . '=' . $param_value; // join with equals sign.
+				$query_params[] = self::urlencode_rfc3986( $string );
 			}
 		}
 		return $query_params;
@@ -746,13 +785,38 @@ class WP_REST_OAuth1 {
 	 * Normalize each parameter by assuming each parameter may have already been encoded, so attempt to decode, and then
 	 * re-encode according to RFC 3986
 	 *
+	 * @since 0.4.0
+	 *
+	 * @see rawurlencode()
+	 * @param array $params Parameters to normalize.
+	 */
+	protected function normalize_parameter( array $params ) {
+		$new_params = array();
+		foreach ( $params as $key => $value ) {
+			$new_key = self::urlencode_rfc3986( rawurldecode( $key ) );
+			if ( is_array( $value ) ) {
+				$new_value = $this->normalize_parameter( $value );
+			} else {
+				$new_value = self::urlencode_rfc3986( rawurldecode( $value ) );
+			}
+			$new_params[ $new_key ] = $new_value;
+		}
+
+		return $new_params;
+	}
+
+	/**
+	 * Normalize each parameter by assuming each parameter may have already been encoded, so attempt to decode, and then
+	 * re-encode according to RFC 3986
+	 *
 	 * @since 2.1
 	 * @see rawurlencode()
-	 * @param string $key
-	 * @param string $value
+	 * @param string $key Key, passed by reference.
+	 * @param string $value Value, passed by reference.
 	 */
 	protected function normalize_parameters( &$key, &$value ) {
-		$key = self::urlencode_rfc3986( rawurldecode( $key ) );
+		_deprecated_function( __METHOD__, '0.4.0', 'WP_REST_OAuth1::normalize_parameter()' );
+		$key   = self::urlencode_rfc3986( rawurldecode( $key ) );
 		$value = self::urlencode_rfc3986( rawurldecode( $value ) );
 	}
 
@@ -763,36 +827,40 @@ class WP_REST_OAuth1 {
 	 * valid within 15 minutes of the current time, and a nonce is valid if it
 	 * has not been used within the last 15 minutes.
 	 *
-	 * @param WP_User $consumer
-	 * @param int $timestamp the unix timestamp for when the request was made
-	 * @param string $nonce a unique (for the given user) 32 alphanumeric string, consumer-generated
+	 * @param WP_Post $consumer Post client.
+	 * @param int     $timestamp the unix timestamp for when the request was made.
+	 * @param string  $nonce a unique (for the given user) 32 alphanumeric string, consumer-generated.
 	 * @return boolean|WP_Error True on success, error otherwise
 	 */
 	public function check_oauth_timestamp_and_nonce( $consumer, $timestamp, $nonce ) {
 		$valid_window = apply_filters( 'json_oauth1_timestamp_window', 15 * MINUTE_IN_SECONDS );
 
-		if ( ( $timestamp < time() - $valid_window ) ||  ( $timestamp > time() + $valid_window ) )
+		if ( ( $timestamp < time() - $valid_window ) || ( $timestamp > time() + $valid_window ) ) {
 			return new WP_Error( 'json_oauth1_invalid_timestamp', __( 'Invalid timestamp', 'rest_oauth1' ), array( 'status' => 401 ) );
+		}
 
 		$used_nonces = $consumer->nonces;
 
-		if ( empty( $used_nonces ) )
+		if ( empty( $used_nonces ) ) {
 			$used_nonces = array();
+		}
 
-		if ( in_array( $nonce, $used_nonces ) )
+		if ( in_array( $nonce, $used_nonces, true ) ) {
 			return new WP_Error( 'json_oauth1_nonce_already_used', __( 'Invalid nonce - nonce has already been used', 'rest_oauth1' ), array( 'status' => 401 ) );
+		}
 
 		$used_nonces[ $timestamp ] = $nonce;
-		
-		// Get the current time
+
+		// Get the current time.
 		$current_time = time();
-		
-		// Remove expired nonces
+
+		// Remove expired nonces.
 		foreach ( $used_nonces as $nonce_timestamp => $nonce ) {
-			
-			// If the nonce timestamp is expired
-			if ( $nonce_timestamp < $current_time - $valid_window )
+
+			// If the nonce timestamp is expired.
+			if ( $nonce_timestamp < $current_time - $valid_window ) {
 				unset( $used_nonces[ $nonce_timestamp ] );
+			}
 		}
 
 		update_user_meta( $consumer->ID, 'nonces', $used_nonces );
@@ -800,6 +868,13 @@ class WP_REST_OAuth1 {
 		return true;
 	}
 
+	/**
+	 * Util method to handle url encoding.
+	 *
+	 * @param string $value URL to encode.
+	 *
+	 * @return array|string|string[]
+	 */
 	protected static function urlencode_rfc3986( $value ) {
 		return str_replace( array( '+', '%7E' ), array( ' ', '~' ), rawurlencode( $value ) );
 	}

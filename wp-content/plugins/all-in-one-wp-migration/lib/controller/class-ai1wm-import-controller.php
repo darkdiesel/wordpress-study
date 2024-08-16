@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2014-2020 ServMask Inc.
+ * Copyright (C) 2014-2023 ServMask Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ class Ai1wm_Import_Controller {
 	}
 
 	public static function import( $params = array() ) {
+		global $ai1wm_params;
 		ai1wm_setup_environment();
 
 		// Set params
@@ -59,6 +60,8 @@ class Ai1wm_Import_Controller {
 			exit;
 		}
 
+		$ai1wm_params = $params;
+
 		// Loop over filters
 		if ( ( $filters = ai1wm_get_filters( 'ai1wm_import' ) ) ) {
 			while ( $hooks = current( $filters ) ) {
@@ -70,30 +73,36 @@ class Ai1wm_Import_Controller {
 							$params = call_user_func_array( $hook['function'], array( $params ) );
 
 						} catch ( Ai1wm_Import_Retry_Exception $e ) {
+							do_action( 'ai1wm_status_import_error', $params, $e );
+
 							if ( defined( 'WP_CLI' ) ) {
 								WP_CLI::error( sprintf( __( 'Unable to import. Error code: %s. %s', AI1WM_PLUGIN_NAME ), $e->getCode(), $e->getMessage() ) );
-							} else {
-								status_header( $e->getCode() );
-								echo json_encode( array( 'errors' => array( array( 'code' => $e->getCode(), 'message' => $e->getMessage() ) ) ) );
 							}
+
+							status_header( $e->getCode() );
+							ai1wm_json_response( array( 'errors' => array( array( 'code' => $e->getCode(), 'message' => $e->getMessage() ) ) ) );
 							exit;
 						} catch ( Ai1wm_Database_Exception $e ) {
+							do_action( 'ai1wm_status_import_error', $params, $e );
+
 							if ( defined( 'WP_CLI' ) ) {
 								WP_CLI::error( sprintf( __( 'Unable to import. Error code: %s. %s', AI1WM_PLUGIN_NAME ), $e->getCode(), $e->getMessage() ) );
-							} else {
-								status_header( $e->getCode() );
-								echo json_encode( array( 'errors' => array( array( 'code' => $e->getCode(), 'message' => $e->getMessage() ) ) ) );
 							}
-							Ai1wm_Directory::delete( ai1wm_storage_path( $params ) );
+
+							status_header( $e->getCode() );
+							ai1wm_json_response( array( 'errors' => array( array( 'code' => $e->getCode(), 'message' => $e->getMessage() ) ) ) );
+
 							exit;
 						} catch ( Exception $e ) {
+							do_action( 'ai1wm_status_import_error', $params, $e );
+
 							if ( defined( 'WP_CLI' ) ) {
 								WP_CLI::error( sprintf( __( 'Unable to import: %s', AI1WM_PLUGIN_NAME ), $e->getMessage() ) );
-							} else {
-								Ai1wm_Status::error( __( 'Unable to import', AI1WM_PLUGIN_NAME ), $e->getMessage() );
-								Ai1wm_Notification::error( __( 'Unable to import', AI1WM_PLUGIN_NAME ), $e->getMessage() );
 							}
-							Ai1wm_Directory::delete( ai1wm_storage_path( $params ) );
+
+							Ai1wm_Status::error( __( 'Unable to import', AI1WM_PLUGIN_NAME ), $e->getMessage() );
+							Ai1wm_Notification::error( __( 'Unable to import', AI1WM_PLUGIN_NAME ), $e->getMessage() );
+
 							exit;
 						}
 					}
@@ -113,7 +122,7 @@ class Ai1wm_Import_Controller {
 						}
 
 						if ( isset( $params['ai1wm_manual_import'] ) || isset( $params['ai1wm_manual_restore'] ) ) {
-							echo json_encode( $params );
+							ai1wm_json_response( $params );
 							exit;
 						}
 
@@ -267,16 +276,6 @@ class Ai1wm_Import_Controller {
 
 	public static function pro() {
 		return Ai1wm_Template::get_content( 'import/pro' );
-	}
-
-	public static function http_import_headers( $headers = array() ) {
-		if ( ( $user = get_option( AI1WM_AUTH_USER ) ) && ( $password = get_option( AI1WM_AUTH_PASSWORD ) ) ) {
-			if ( ( $hash = base64_encode( sprintf( '%s:%s', $user, $password ) ) ) ) {
-				$headers['Authorization'] = sprintf( 'Basic %s', $hash );
-			}
-		}
-
-		return $headers;
 	}
 
 	public static function max_chunk_size() {

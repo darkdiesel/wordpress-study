@@ -5,6 +5,8 @@
  * @package WooCommerce\Log Handlers
  */
 
+use Automattic\Jetpack\Constants;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -14,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @class          WC_Log_Handler_DB
  * @version        1.0.0
- * @package        WooCommerce/Classes/Log_Handlers
+ * @package        WooCommerce\Classes\Log_Handlers
  */
 class WC_Log_Handler_DB extends WC_Log_Handler {
 
@@ -75,8 +77,13 @@ class WC_Log_Handler_DB extends WC_Log_Handler {
 			'%s', // possible serialized context.
 		);
 
+		unset( $context['source'] );
 		if ( ! empty( $context ) ) {
-			$insert['context'] = serialize( $context ); // @codingStandardsIgnoreLine.
+			if ( isset( $context['backtrace'] ) && true === filter_var( $context['backtrace'], FILTER_VALIDATE_BOOLEAN ) ) {
+				$context['backtrace'] = self::get_backtrace();
+			}
+
+			$insert['context'] = wp_json_encode( $context, JSON_PRETTY_PRINT );
 		}
 
 		return false !== $wpdb->insert( "{$wpdb->prefix}woocommerce_log", $insert, $format );
@@ -165,7 +172,7 @@ class WC_Log_Handler_DB extends WC_Log_Handler {
 		 *
 		 * @see http://php.net/manual/en/function.debug-backtrace.php#refsect1-function.debug-backtrace-parameters
 		 */
-		if ( defined( 'DEBUG_BACKTRACE_IGNORE_ARGS' ) ) {
+		if ( Constants::is_defined( 'DEBUG_BACKTRACE_IGNORE_ARGS' ) ) {
 			$debug_backtrace_arg = DEBUG_BACKTRACE_IGNORE_ARGS; // phpcs:ignore PHPCompatibility.Constants.NewConstants.debug_backtrace_ignore_argsFound
 		} else {
 			$debug_backtrace_arg = false;

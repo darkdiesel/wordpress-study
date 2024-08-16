@@ -18,6 +18,8 @@ require_once('class-htcc-lang.php');
 
 require_once('class-htcc-countries.php');
 
+require_once('class-htcc-states.php');
+
 require_once('class-htcc-admin.php');
 
 
@@ -87,6 +89,10 @@ function htcc_admin_notice(){
 add_action( 'wp_ajax_ht_cc_service_content', 'ht_cc_service_content_ajax' );
 
 function ht_cc_service_content_ajax() {
+	check_ajax_referer('htcc_nonce');
+	if(!current_user_can('manage_options')) {
+		wp_die('Unauthorized', 403);
+	}
 
     $service_content = get_option( 'ht_cc_service_content' );
 
@@ -103,6 +109,10 @@ function ht_cc_service_content_ajax() {
 add_action( 'wp_ajax_ht_cc_service_content_hide', 'ht_cc_service_content_hide_ajax' );
 
 function ht_cc_service_content_hide_ajax() {
+	check_ajax_referer('htcc_nonce');
+	if(!current_user_can('manage_options')) {
+		wp_die('Unauthorized', 403);
+	}
 
     $service_content = get_option( 'ht_cc_service_content' );
 

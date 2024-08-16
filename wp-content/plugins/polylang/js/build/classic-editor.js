@@ -9,7 +9,7 @@ var __webpack_exports__ = {};
 const languagesList = jQuery( '.post_lang_choice' );
 
 // Dialog box for alerting the user about a risky changing.
-const initializeConfimationModal = () => {
+const initializeConfirmationModal = () => {
 	// We can't use underscore or lodash in this common code because it depends of the context classic or block editor.
 	// Classic editor underscore is loaded, Block editor lodash is loaded.
 	const { __ } = wp.i18n;
@@ -54,7 +54,7 @@ const initializeConfimationModal = () => {
 				title: __( 'Change language', 'polylang' ),
 				minWidth: 600,
 				maxWidth: '100%',
-				open: function( event, ui ) {
+				open: function ( event, ui ) {
 					// Change dialog box position for rtl language
 					if ( jQuery( 'body' ).hasClass( 'rtl' ) ) {
 						jQuery( this ).parent().css(
@@ -65,20 +65,20 @@ const initializeConfimationModal = () => {
 						);
 					}
 				},
-				close: function( event, ui ) {
+				close: function ( event, ui ) {
 					// When we're closing the dialog box we need to cancel the language change as we click on Cancel button.
 					confirmDialog( 'no' );
 				},
 				buttons: [
 					{
 						text: __( 'OK', 'polylang' ),
-						click: function( event ) {
+						click: function ( event ) {
 							confirmDialog( 'yes' );
 						}
 					},
 					{
 						text: __( 'Cancel', 'polylang' ),
-						click: function( event ) {
+						click: function ( event ) {
 							confirmDialog( 'no' );
 						}
 					}
@@ -102,6 +102,49 @@ const initializeLanguageOldValue = () => {
 	languagesList.attr( 'data-old-value', languagesList.children( ':selected' ).first().val() );
 };
 
+;// CONCATENATED MODULE: ./js/src/lib/metabox-autocomplete.js
+/**
+ * @package Polylang
+ */
+
+// Translations autocomplete input box.
+function initMetaboxAutoComplete() {
+	jQuery('.tr_lang').each(
+		function () {
+			var tr_lang = jQuery(this).attr('id').substring(8);
+			var td = jQuery(this).parent().parent().siblings('.pll-edit-column');
+
+			jQuery(this).autocomplete(
+				{
+					minLength: 0,
+					source: ajaxurl + '?action=pll_posts_not_translated' +
+						'&post_language=' + jQuery('.post_lang_choice').val() +
+						'&translation_language=' + tr_lang +
+						'&post_type=' + jQuery('#post_type').val() +
+						'&_pll_nonce=' + jQuery('#_pll_nonce').val(),
+					select: function (event, ui) {
+						jQuery('#htr_lang_' + tr_lang).val(ui.item.id);
+						// ui.item.link is built and come from server side and is well escaped when necessary
+						td.html(ui.item.link); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
+					},
+				}
+			);
+
+			// when the input box is emptied
+			jQuery(this).on(
+				'blur',
+				function () {
+					if ( ! jQuery(this).val()  ) {
+						jQuery('#htr_lang_' + tr_lang).val(0);
+						// Value is retrieved from HTML already generated server side
+						td.html(td.siblings('.hidden').children().clone()); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
+					}
+				}
+			);
+		}
+	);
+}
+
 ;// CONCATENATED MODULE: ./js/src/classic-editor.js
 /**
  * @package Polylang
@@ -109,11 +152,13 @@ const initializeLanguageOldValue = () => {
 
 
 
+
+
 // tag suggest in metabox
 jQuery(
-	function( $ ) {
+	function ( $ ) {
 		$.ajaxPrefilter(
-			function( options, originalOptions, jqXHR ) {
+			function ( options, originalOptions, jqXHR ) {
 				var lang = $( '.post_lang_choice' ).val();
 				if ( 'string' === typeof options.data && -1 !== options.url.indexOf( 'action=ajax-tag-search' ) && lang ) {
 					options.data = 'lang=' + lang + '&' + options.data;
@@ -125,9 +170,9 @@ jQuery(
 
 // overrides tagBox.get
 jQuery(
-	function( $ ) {
+	function ( $ ) {
 		// overrides function to add the language
-		tagBox.get = function( id ) {
+		tagBox.get = function ( id ) {
 			var tax = id.substr( id.indexOf( '-' ) + 1 );
 
 			// add the language in the $_POST variable
@@ -140,7 +185,7 @@ jQuery(
 			$.post(
 				ajaxurl,
 				data,
-				function( r, stat ) {
+				function ( r, stat ) {
 					if ( 0 == r || 'success' != stat ) {
 						r = wpAjax.broken;
 					}
@@ -150,14 +195,14 @@ jQuery(
 					r = $( '<div />' ).addClass( 'the-tagcloud' ).attr( 'id', 'tagcloud-' + tax ).html( r ); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
 					$( 'a', r ).on(
 						'click',
-						function(){
+						function () {
 							tagBox.flushTags( $( this ).closest( '.inside' ).children( '.tagsdiv' ), this );
 							return false;
 						}
 					);
 
 					var tagCloud = $( '#tagcloud-' + tax );
-					// add an if else condition to allow modifying the tags outputed when switching the language
+					// add an if else condition to allow modifying the tags outputted when switching the language
 					var v = tagCloud.css( 'display' );
 					if ( v ) {
 						// See the comment above when r variable is created.
@@ -175,11 +220,11 @@ jQuery(
 );
 
 jQuery(
-	function( $ ) {
+	function ( $ ) {
 		// collect taxonomies - code partly copied from WordPress
 		var taxonomies = new Array();
 		$( '.categorydiv' ).each(
-			function(){
+			function () {
 				var this_id = $( this ).attr( 'id' ), taxonomyParts, taxonomy;
 
 				taxonomyParts = this_id.split( '-' );
@@ -205,9 +250,9 @@ jQuery(
 		// ajax for changing the post's language in the languages metabox
 		$( '.post_lang_choice' ).on(
 			'change',
-			function( event ) {
+			function ( event ) {
 				// Initialize the confirmation dialog box.
-				const confirmationModal = initializeConfimationModal();
+				const confirmationModal = initializeConfirmationModal();
 				const { dialogContainer: dialog } = confirmationModal;
 				let { dialogResult } = confirmationModal;
 				// The selected option in the dropdown list.
@@ -237,17 +282,17 @@ jQuery(
 						$.post(
 							ajaxurl,
 							data,
-							function( response ) {
+							function ( response ) {
 								// Target a non existing WP HTML id to avoid a conflict with WP ajax requests.
 								var res = wpAjax.parseAjaxResponse( response, 'pll-ajax-response' );
 								$.each(
 									res.responses,
-									function() {
+									function () {
 										switch ( this.what ) {
 											case 'translations': // translations fields
 												// Data is built and come from server side and is well escaped when necessary
 												$( '.translations' ).html( this.data ); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
-												init_translations();
+												initMetaboxAutoComplete();
 											break;
 											case 'taxonomy': // categories metabox for posts
 												var tax = this.data;
@@ -285,7 +330,7 @@ jQuery(
 								initializeLanguageOldValue();
 								// modifies the language in the tag cloud
 								$( '.tagcloud-link' ).each(
-									function() {
+									function () {
 										var id = $( this ).attr( 'id' );
 										tagBox.get( id );
 									}
@@ -314,45 +359,7 @@ jQuery(
 			}
 		);
 
-		// translations autocomplete input box
-		function init_translations() {
-			$( '.tr_lang' ).each(
-				function(){
-					var tr_lang = $( this ).attr( 'id' ).substring( 8 );
-					var td = $( this ).parent().parent().siblings( '.pll-edit-column' );
-
-					$( this ).autocomplete(
-						{
-							minLength: 0,
-							source: ajaxurl + '?action=pll_posts_not_translated' +
-								'&post_language=' + $( '.post_lang_choice' ).val() +
-								'&translation_language=' + tr_lang +
-								'&post_type=' + $( '#post_type' ).val() +
-								'&_pll_nonce=' + $( '#_pll_nonce' ).val(),
-							select: function( event, ui ) {
-								$( '#htr_lang_' + tr_lang ).val( ui.item.id );
-								// ui.item.link is built and come from server side and is well escaped when necessary
-								td.html( ui.item.link ); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
-							},
-						}
-					);
-
-					// when the input box is emptied
-					$( this ).on(
-						'blur',
-						function() {
-							if ( ! $( this ).val() ) {
-								$( '#htr_lang_' + tr_lang ).val( 0 );
-								// Value is retrieved from HTML already generated server side
-								td.html( td.siblings( '.hidden' ).children().clone() ); // phpcs:ignore WordPressVIPMinimum.JS.HTMLExecutingFunctions.html
-							}
-						}
-					);
-				}
-			);
-		}
-
-		init_translations();
+		initMetaboxAutoComplete();
 	}
 );
 
@@ -393,7 +400,7 @@ var media = _.extend(
 		 * @param {Object} [props]
 		 * @return {wp.media.model.Attachments}
 		 */
-		query: function( props ) {
+		query: function ( props ) {
 			var attachments = pll.media.query.delegate( props );
 
 			pll.media.attachmentsCollections.push( attachments );
@@ -401,14 +408,14 @@ var media = _.extend(
 			return attachments;
 		},
 
-		resetAllAttachmentsCollections: function() {
+		resetAllAttachmentsCollections: function () {
 			this.attachmentsCollections.forEach(
-				function( attachmentsCollection ) {
+				function ( attachmentsCollection ) {
 					/**
 					 * First reset the { @see wp.media.model.Attachments } collection.
 					 * Then, if it is mirroring a { @see wp.media.model.Query } collection,
 					 * refresh this one too, so it will fetch new data from the server,
-					 * and then the wp.media.model.Attachments collection will syncrhonize with the new data.
+					 * and then the wp.media.model.Attachments collection will synchronize with the new data.
 					 */
 					attachmentsCollection.reset();
 					if (attachmentsCollection.mirroring) {

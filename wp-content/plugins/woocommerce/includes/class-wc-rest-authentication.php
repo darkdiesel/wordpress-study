@@ -2,7 +2,7 @@
 /**
  * REST API Authentication
  *
- * @package  WooCommerce/API
+ * @package  WooCommerce\RestApi
  * @since    2.6.0
  */
 
@@ -35,10 +35,27 @@ class WC_REST_Authentication {
 	protected $auth_method = '';
 
 	/**
+	 * Provides access to the global WC_REST_Authentication instance.
+	 *
+	 * @internal
+	 * @return self
+	 */
+	public static function instance(): self {
+		static $instance;
+
+		if ( ! isset( $instance ) ) {
+			$instance = new self();
+		}
+
+		return $instance;
+	}
+
+	/**
 	 * Initialize authentication actions.
 	 */
 	public function __construct() {
 		add_filter( 'determine_current_user', array( $this, 'authenticate' ), 15 );
+		add_filter( 'rest_authentication_errors', array( $this, 'authentication_fallback' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'check_authentication_error' ), 15 );
 		add_filter( 'rest_post_dispatch', array( $this, 'send_unauthorized_headers' ), 50 );
 		add_filter( 'rest_pre_dispatch', array( $this, 'check_user_permissions' ), 10, 3 );
@@ -87,6 +104,33 @@ class WC_REST_Authentication {
 		}
 
 		return $this->perform_oauth_authentication();
+	}
+
+	/**
+	 * Authenticate the user if authentication wasn't performed during the
+	 * determine_current_user action.
+	 *
+	 * Necessary in cases where wp_get_current_user() is called before WooCommerce is loaded.
+	 *
+	 * @see https://github.com/woocommerce/woocommerce/issues/26847
+	 *
+	 * @param WP_Error|null|bool $error Error data.
+	 * @return WP_Error|null|bool
+	 */
+	public function authentication_fallback( $error ) {
+		if ( ! empty( $error ) ) {
+			// Another plugin has already declared a failure.
+			return $error;
+		}
+		if ( empty( $this->error ) && empty( $this->auth_method ) && empty( $this->user ) && 0 === get_current_user_id() ) {
+			// Authentication hasn't occurred during `determine_current_user`, so check auth.
+			$user_id = $this->authenticate( false );
+			if ( $user_id ) {
+				wp_set_current_user( $user_id );
+				return true;
+			}
+		}
+		return $error;
 	}
 
 	/**
@@ -554,10 +598,51 @@ class WC_REST_Authentication {
 	}
 
 	/**
-	 * Updated API Key last access datetime.
+	 * Updates the `last_access` field for the API key associated with the current request.
+	 *
+	 * This method tries to disambiguate 'primary' API requests from any programmatic REST
+	 * API requests made internally.
+	 *
+	 * @param WP_REST_Request $request The request currently being processed.
+	 *
+	 * @return void
 	 */
-	private function update_last_access() {
+	private function update_last_access( $request ) {
+		global $wp;
 		global $wpdb;
+
+		// Lots of (programmatically) created REST API requests may be handled within the same process.
+		// In most cases, however, we do not want to record the last access time for each of these.
+		$do_not_record = true;
+
+		// Try to detect if the REST API request actively being processed matches the current WP request.
+		if ( is_a( $wp, WP::class ) && is_a( $request, WP_REST_Request::class ) ) {
+			$actual_http_request     = trim( $wp->request, '/' );
+			$api_request_in_progress = trim( $request->get_route(), '/' );
+
+			// Remove the REST API route prefix (normally 'wp-json') for easier comparison.
+			$rest_prefix = trailingslashit( rest_get_url_prefix() );
+
+			if ( str_starts_with( $actual_http_request, $rest_prefix ) ) {
+				$actual_http_request = substr( $actual_http_request, strlen( $rest_prefix ) );
+			}
+
+			// Recommend recording the last access time only if the actual WP request and the current
+			// API request being processed are a match.
+			$do_not_record = $actual_http_request !== $api_request_in_progress;
+		}
+		/**
+		 * This filter enables the exclusion of the most recent access time from being logged for REST API calls.
+		 *
+		 * @param bool $result  Default value.
+		 * @param int  $key_id  Key ID associated with REST API request.
+		 * @param int  $user_id User ID associated with REST API request.
+		 *
+		 * @since 7.7.0
+		 */
+		if ( apply_filters( 'woocommerce_disable_rest_api_access_log', $do_not_record, $this->user->key_id, $this->user->user_id ) ) {
+			return;
+		}
 
 		$wpdb->update(
 			$wpdb->prefix . 'woocommerce_api_keys',
@@ -602,11 +687,11 @@ class WC_REST_Authentication {
 			}
 
 			// Register last access.
-			$this->update_last_access();
+			$this->update_last_access( $request );
 		}
 
 		return $result;
 	}
 }
 
-new WC_REST_Authentication();
+WC_REST_Authentication::instance();

@@ -6,6 +6,48 @@
  * @package BuddyPressDocs
  */
 class BP_Docs {
+	/**
+	 * Akismet addon object.
+	 *
+	 * @var BP_Docs_Akismet
+	 */
+	public $akismet;
+
+	/**
+	 * Moderation addon object.
+	 *
+	 * @var BP_Docs_Moderation
+	 */
+	public $moderation;
+
+	/**
+	 * WikiText addon object.
+	 *
+	 * @var BP_Docs_Wikitext
+	 */
+	public $wikitext;
+
+	/**
+	 * History addon object.
+	 *
+	 * @var BP_Docs_History
+	 */
+	public $history;
+
+	/**
+	 * Hierarchy addon object.
+	 *
+	 * @var BP_Docs_Hierarchy
+	 */
+	public $hierarchy;
+
+	/**
+	 * Taxonomy addon object.
+	 *
+	 * @var BP_Docs_Taxonomy
+	 */
+	public $taxonomy;
+
 	var $post_type_name;
 	var $associated_item_tax_name;
 	var $access_tax_name;
@@ -59,6 +101,9 @@ class BP_Docs {
 
 		// Set up doc taxonomy, etc
 		add_action( 'bp_docs_init',     array( $this, 'load_doc_extras' ), 8 );
+
+		// Register AJAX actions.
+		add_action( 'bp_docs_init', array( $this, 'register_ajax_actions' ) );
 
 		// Add rewrite rules
 		add_action( 'generate_rewrite_rules', array( &$this, 'generate_rewrite_rules' ) );
@@ -141,6 +186,9 @@ class BP_Docs {
 
 		// class-wp-widget-recent-docs.php adds a widget to show recently created docs.
 		require( BP_DOCS_INCLUDES_PATH . 'class-wp-widget-recent-docs.php' );
+
+		// class-wp-widget-recent-docs.php adds a widget to show recently created docs.
+		require( BP_DOCS_INCLUDES_PATH . 'shortcode.php' );
 
 		// Dashboard-specific functions
 		if ( is_admin() ) {
@@ -417,6 +465,32 @@ class BP_Docs {
 	}
 
 	/**
+	 * Registers AJAX actions for BP 12+.
+	 *
+	 * @since 2.2.3
+	 *
+	 * @return void
+	 */
+	public function register_ajax_actions() {
+		if ( ! function_exists( 'bp_ajax_register_action' ) ) {
+			return;
+		}
+
+		$ajax_actions = array(
+			'add_edit_lock',
+			'bp_docs_create_dummy_doc',
+			'doc_attachment_item_markup',
+			'refresh_access_settings',
+			'refresh_associated_group',
+			'remove_edit_lock',
+		);
+
+		foreach ( $ajax_actions as $action ) {
+			bp_ajax_register_action( $action );
+		}
+	}
+
+	/**
 	 * Add rewrite tags
 	 *
 	 * @since 1.2
@@ -626,7 +700,7 @@ class BP_Docs {
 			) );
 		} else {
 			bp_core_add_message( __( 'You do not have permission to do that.', 'buddypress-docs' ), 'error' );
-			bp_core_redirect( bp_get_root_domain() );
+			bp_core_redirect( bp_get_root_url() );
 		}
 	}
 

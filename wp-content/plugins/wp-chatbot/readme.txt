@@ -1,9 +1,9 @@
 === WP-Chatbot for Messenger ===
 Requires at least: 4.6
-Tested up to: 5.6
+Tested up to: 6.3.1
 Requires PHP: 5.6
 Contributors: larrykim, yankovski
-Stable tag: 4.6.3
+Stable tag: 4.9
 Tags: free live chat, facebook messenger, chatbot, live support, customer chat, web chat plugin, website chat widget, chat marketing, customer support, artificial intelligence, sms tools, mobilemonkey
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -585,6 +585,17 @@ WP-Chatbot is extremely flexible, versatile, and compatible. Because it works se
 
 
 == Changelog ==
+
+= 4.9 =
+Updated Billing to comply with Can-Spam
+
+= 4.8 =
+Compatibility with latest version of WordPress & PHP
+Security fixes, bug fixes and usability improvements
+
+= 4.7 =
+Compatibility with latest version of WordPress
+Bug fixes and usability improvements
 
 = 4.6.3 =
 Compatibility with latest version of WordPress

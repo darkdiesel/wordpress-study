@@ -2,7 +2,7 @@
 /**
  * Tax settings.
  *
- * @package Settings.
+ * @package WooCommerce\Admin\Settings.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -96,6 +96,9 @@ $settings = array(
 			'excl' => __( 'Excluding tax', 'woocommerce' ),
 		),
 	),
+
+	array( 'type' => 'conflict_error' ), // React mount point for embedded banner slotfill.
+	array( 'type' => 'add_settings_slot' ), // React mount point for settings slotfill.
 
 	array(
 		'title'       => __( 'Price display suffix', 'woocommerce' ),

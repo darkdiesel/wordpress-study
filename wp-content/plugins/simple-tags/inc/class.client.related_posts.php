@@ -8,66 +8,9 @@ class SimpleTags_Client_RelatedPosts {
 	 * @author WebFactory Ltd
 	 */
 	public function __construct() {
-		// Add related posts in post ( all / feedonly / blogonly / homeonly / singularonly / singleonly / pageonly /no )
-		if ( ( 'no' !== SimpleTags_Plugin::get_option_value( 'rp_embedded' ) ) || ( 1 === (int) SimpleTags_Plugin::get_option_value( 'rp_feed' ) ) ) {
-			add_filter( 'the_content', array( __CLASS__, 'the_content' ), 999993 );
-		}
+
 	}
 
-	/**
-	 * Auto add related posts to post content
-	 *
-	 * @param string $content
-	 *
-	 * @return string
-	 */
-	public static function the_content( $content = '' ) {
-		// Hook already executed ? Check if HTML class exists
-		if ( strpos( $content, 'st-related-posts' ) !== false ) {
-			return $content;
-		}
-
-		// Get option
-		$rp_embedded = SimpleTags_Plugin::get_option_value( 'rp_embedded' );
-
-		$marker = false;
-		if ( is_feed() ) {
-			if ( 1 === (int) SimpleTags_Plugin::get_option_value( 'rp_feed' ) ) {
-				$marker = true;
-			}
-		} elseif ( ! empty( $rp_embedded ) ) {
-			switch ( $rp_embedded ) {
-				case 'blogonly':
-					$marker = ( is_feed() ) ? false : true;
-					break;
-				case 'homeonly':
-					$marker = ( is_home() ) ? true : false;
-					break;
-				case 'singularonly':
-					$marker = ( is_singular() ) ? true : false;
-					break;
-				case 'singleonly':
-					$marker = ( is_single() ) ? true : false;
-					break;
-				case 'pageonly':
-					$marker = ( is_page() ) ? true : false;
-					break;
-				case 'all':
-					$marker = true;
-					break;
-				case 'no':
-				default:
-					$marker = false;
-					break;
-			}
-		}
-
-		if ( $marker === true ) {
-			return ( $content . self::get_related_posts( '', false ) );
-		}
-
-		return $content;
-	}
 
 	/**
 	 * Generate related posts
@@ -85,12 +28,12 @@ class SimpleTags_Client_RelatedPosts {
 
 		$defaults = array(
 			'taxonomy'      => 'post_tag',
-			'post_type'     => 'post',
+			'post_type'     => get_post_type($post),// leaving this for legacy purpose
+			'post_types'    => '',
 			'number'        => 5,
 			'order'         => 'count-desc',
 			'format'        => 'list',
 			'separator'     => '',
-			'include_page'  => 'true',
 			'exclude_posts' => '',
 			'exclude_terms' => '',
 			'post_id'       => 0,
@@ -107,6 +50,8 @@ class SimpleTags_Client_RelatedPosts {
 			'title_header'  => '',
 			'wrap_class'  => '',
 			'link_class'  => '',
+			'before'      => '',
+			'after'       => '',
 		);
 
 		// Get values in DB
@@ -140,6 +85,8 @@ class SimpleTags_Client_RelatedPosts {
 		if ( empty( $xformat ) ) {
 			$xformat = $defaults['xformat'];
 		}
+
+		$xformat = taxopress_sanitize_text_field($xformat);
 
 		// Choose post ID
 		$object_id = (int) $post_id;
@@ -240,23 +187,21 @@ class SimpleTags_Client_RelatedPosts {
 			}
 			unset( $limit_days );
 
-            //get post type for current selection
-            if($post_type === 'st_current_posttype'){
-                $post_type = [get_post_type($post)];
-            }
+			if (is_array($post_types) && !empty($post_types)) {
+				$post_type = $post_types;
+			} else {
+				// legacy post type
 
-			// Make array post type
-			if ( is_string( $post_type ) ) {
-				$post_type = explode( ',', $post_type );
+				//get post type for current selection
+				if ($post_type === 'st_current_posttype'){
+					$post_type = [get_post_type($post)];
+				}
+
+				// Make array post type
+				if ( is_string( $post_type ) ) {
+					$post_type = explode( ',', $post_type );
+				}
 			}
-
-
-			// Include_page
-			$include_page = strtolower( $include_page );
-			if ( $include_page == 'true' && (int)$hide_title === 0) {
-				$post_type[] = 'page';
-			}
-			unset( $include_page );
 
 			// Build post type SQL
             if(in_array('st_all_posttype', $post_type)){//if all post type is selected
@@ -350,6 +295,9 @@ class SimpleTags_Client_RelatedPosts {
                 $limit_number
                 ) );
 
+			if (!$cache) {
+				$cache = [];
+			}
 			$cache[ $key ] = $results;
 			wp_cache_set( 'related_posts' . $taxonomy, $cache, 'simple-tags' );
 		}
@@ -384,7 +332,7 @@ class SimpleTags_Client_RelatedPosts {
 			}
 
 			$element_loop = $xformat;
-			$post_title   = apply_filters( 'the_title', $result->post_title );
+			$post_title   = apply_filters( 'the_title', $result->post_title, $result->ID );
 			$element_loop = str_replace( '%post_date%', mysql2date( $dateformat, $result->post_date ), $element_loop );
 			$element_loop = str_replace( '%post_permalink%', get_permalink( $result ), $element_loop );
 			$element_loop = str_replace( '%post_title%', $post_title, $element_loop );
@@ -403,7 +351,8 @@ class SimpleTags_Client_RelatedPosts {
 
 			$output[] = $element_loop;
 		}
-		return SimpleTags_Client::output_content( 'st-related-posts', $format, $title, $output, $copyright, $separator, $wrap_class, $link_class );
+
+		return SimpleTags_Client::output_content( 'st-related-posts', $format, $title, $output, $copyright, $separator, $wrap_class, $link_class, $before, $after );
 	}
 
 	/**

@@ -12,8 +12,8 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see     https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce/Templates
+ * @see     https://woocommerce.com/document/template-structure/
+ * @package WooCommerce\Templates
  * @version 2.6.0
  */
 
@@ -48,7 +48,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			 * The woocommerce_review_meta hook.
 			 *
 			 * @hooked woocommerce_review_display_meta - 10
-			 * @hooked WC_Structured_Data::generate_review_data() - 20
 			 */
 			do_action( 'woocommerce_review_meta', $comment );
 
@@ -61,7 +60,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			 */
 			do_action( 'woocommerce_review_comment_text', $comment );
 
-			do_action( 'woocommerce_review_after_comment_text', $comment ); ?>
+			do_action( 'woocommerce_review_after_comment_text', $comment );
+			?>
 
 		</div>
 	</div>

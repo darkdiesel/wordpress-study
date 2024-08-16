@@ -14,7 +14,7 @@ So, to use the **wp-api-jwt-auth** you need to install and activate [WP REST API
 
 ### PHP
 
-**Minimum PHP version: 5.3.0**
+**Minimum PHP version: 7.4.0**
 
 ### Enable PHP HTTP Authorization Header
 
@@ -319,22 +319,31 @@ $data = array(
 );
 ```
 
+### jwt_auth_algorithm
+The **jwt_auth_algorithm** allows you to modify the signing algorithm.
+
+Default value:
+
+```php
+<?php
+$token = JWT::encode(
+    apply_filters('jwt_auth_token_before_sign', $token, $user),
+    $secret_key,
+    apply_filters('jwt_auth_algorithm', 'HS256')
+);
+
+// ...
+
+$token = JWT::decode(
+    $token,
+    new Key($secret_key, apply_filters('jwt_auth_algorithm', 'HS256'))
+);
+```
+
 ## Testing
+I've created a small app to test the basic functionality of the plugin; you can get the app and read all the details on the [JWT-Client Repo](https://github.com/Tmeister/jwt-client)
 
-Since version **1.1.0** I've added a new test suite to be sure that the basic features of this plugin do what it's expected.
-
-You can run this test using the following command
-
-```
-composer install
-includes/vendor/bin/phpunit tests
-```
-
-![Command Line Output](https://s3.amazonaws.com/f.cl.ly/items/2o0j0a403A0N1a0r1C3H/Image%202016-02-27%20at%208.16.48%20PM.png?v=5fe1c76e)
-
-All the tests can be found at https://github.com/Tmeister/wp-api-jwt-auth/tree/develop/tests/GeneralTest.php
-
-##Credits
+## Credits
 [WP REST API V2](http://v2.wp-api.org/)
 
 [PHP-JWT from firebase](https://github.com/firebase/php-jwt)

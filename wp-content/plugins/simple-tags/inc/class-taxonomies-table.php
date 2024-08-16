@@ -63,6 +63,7 @@ class Taxonomy_List extends WP_List_Table
     function get_columns()
     {
         $columns = [
+            'cb'          => '',
             'name'        => __('Name', 'simple-tags'),
             'registration_key' => __('Registration key', 'simple-tags'),
             'description' => __('Description', 'simple-tags'),
@@ -87,10 +88,23 @@ class Taxonomy_List extends WP_List_Table
         return !empty($item->$column_name) ? $item->$column_name : '&mdash;';
     }
 
+    /**
+     * The checkbox column
+     *
+     * @param object $item
+     *
+     * @return string|void
+     */
+    protected function column_cb($item)
+    {
+    
+        return '';
+    }
+
     /** Text displayed when no stterm data is available */
     public function no_items()
     {
-        _e('No term avaliable.', 'simple-tags');
+        _e('No taxonomies found.', 'simple-tags');
     }
 
     /**
@@ -414,9 +428,10 @@ class Taxonomy_List extends WP_List_Table
             '<a href="%1$s"><strong><span class="row-title">%2$s</span></strong></a>',
             add_query_arg(
                 [
-                    'taxonomy' => $item->name,
+                    'page'     => 'st_terms',
+                    'terms_filter_taxonomy' => $item->name
                 ],
-                taxopress_admin_url('edit-tags.php')
+                taxopress_admin_url('admin.php')
             ),
             count($terms)
         );

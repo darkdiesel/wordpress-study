@@ -7,18 +7,200 @@
    */
 
   $(document).ready(function () {
-
+    
+    
     // -------------------------------------------------------------
-    //   Settings sub tab click
+    //   Expand textarea height based on lines
     // -------------------------------------------------------------
-    $(document).on('click', '.st-legacy-subtab span', function (e) {
-      e.preventDefault();
-      var current_content = $(this).attr('data-content');
-      $('.st-legacy-subtab span').removeClass('active');
-      $('.legacy-tab-content').addClass('st-hide-content');
-      $(this).addClass('active');
-      $(current_content).removeClass('st-hide-content');
+    $(document).on('change keyup input', '.taxopress-expandable-textarea', function (e) {
+      var textArea = $(this);
+      textArea.css('height', 'auto');
+      var newHeight = textArea[0].scrollHeight;
+      textArea.height(newHeight);
     });
+    
+    // -------------------------------------------------------------
+    //   TaxoPress term quick edit save
+    // -------------------------------------------------------------
+    $('.taxopress-save', $('#inline-edit') ).on( 'click', function() {
+			return save_taxopress_qe_term(this);
+    });
+
+    function get_taxopress_term_id(o){
+      var id = o.tagName === 'TR' ? o.id : $(o).parents('tr').attr('id'), parts = id.split('-');
+  
+      return parts[parts.length - 1];
+    }
+    
+      function save_taxopress_qe_term(id) {
+        var params, fields, tax = $('input[name="taxonomy"]').val() || '';
+  
+        // Makes sure we can pass an HTMLElement as the ID.
+        if( typeof(id) === 'object' ) {
+          id = get_taxopress_term_id(id);
+        }
+    
+        $('table.widefat .spinner').addClass('is-active');
+        
+        var rowData = $('#inline_' + id);
+        var original_tax = $('.taxonomy', rowData).text();
+        
+        params = {
+          action: 'taxopress_terms_inline_save_term',
+          tax_ID: id,
+          taxonomy: tax
+        };
+    
+        fields = $('#edit-'+id).find(':input').serialize();
+        params = fields + '&original_tax=' + original_tax + '&' + $.param(params);
+    
+        // Do the Ajax request to save the data to the server.
+        $.post( ajaxurl, params,
+          /**
+           * Handles the response from the server
+           *
+           * Handles the response from the server, replaces the table row with the response
+           * from the server.
+           *
+           * @param {string} r The string with which to replace the table row.
+           */
+          function(r) {
+            var row, new_id, option_value,
+              $errorNotice = $( '#edit-' + id + ' .inline-edit-save .notice-error' ),
+              $error = $errorNotice.find( '.error' );
+    
+            $( 'table.widefat .spinner' ).removeClass( 'is-active' );
+    
+            if (r) {
+              if ( -1 !== r.indexOf( '<tr' ) ) {
+                $(inlineEditTax.what+id).siblings('tr.hidden').addBack().remove();
+                new_id = $(r).attr('id');
+    
+                $('#edit-'+id).before(r).remove();
+    
+                if ( new_id ) {
+                  option_value = new_id.replace( inlineEditTax.type + '-', '' );
+                  row = $( '#' + new_id );
+                } else {
+                  option_value = id;
+                  row = $( inlineEditTax.what + id );
+                }
+    
+                // Update the value in the Parent dropdown.
+                $( '#parent' ).find( 'option[value=' + option_value + ']' ).text( row.find( '.row-title' ).text() );
+    
+                row.hide().fadeIn( 400, function() {
+                  // Move focus back to the Quick Edit button.
+                  row.find( '.editinline' )
+                    .attr( 'aria-expanded', 'false' )
+                    .trigger( 'focus' );
+                  wp.a11y.speak( wp.i18n.__( 'Changes saved.' ) );
+                });
+    
+              } else {
+                $errorNotice.removeClass( 'hidden' );
+                $error.html( r );
+                /*
+                 * Some error strings may contain HTML entities (e.g. `&#8220`), let's use
+                 * the HTML element's text.
+                 */
+                wp.a11y.speak( $error.text() );
+              }
+            } else {
+              $errorNotice.removeClass( 'hidden' );
+              $error.text( wp.i18n.__( 'Error while saving the changes.' ) );
+              wp.a11y.speak( wp.i18n.__( 'Error while saving the changes.' ) );
+            }
+          }
+        );
+    
+        // Prevent submitting the form when pressing Enter on a focused field.
+        return false;
+      }
+      
+      // -------------------------------------------------------------
+      //   Settings sub tab click
+      // -------------------------------------------------------------
+      $(document).on('click', '.st-legacy-subtab span', function (e) {
+        e.preventDefault();
+        var current_content = $(this).attr('data-content');
+        $('.st-legacy-subtab span').removeClass('active');
+        $('.legacy-tab-content').addClass('st-hide-content');
+        $(this).addClass('active');
+        $(current_content).removeClass('st-hide-content');
+      });
+      
+      // -------------------------------------------------------------
+      //   Settings TaxoPress AI sub tab click
+      // -------------------------------------------------------------
+      $(document).on('click', '.st-taxopress-ai-subtab span', function (e) {
+        e.preventDefault();
+        var current_content = $(this).attr('data-content');
+        $('.st-taxopress-ai-subtab span').removeClass('active');
+        $('.taxopress-ai-tab-content').addClass('st-hide-content');
+        $('.taxopress-ai-tab-content-sub').addClass('st-subhide-content');
+        $(this).addClass('active');
+        $(current_content).removeClass('st-hide-content');
+        if ($(current_content).find('input').prop("checked")) {
+          $(current_content + '-sub').removeClass('st-subhide-content');
+        }
+      });
+      
+      // -------------------------------------------------------------
+      //   Settings TaxoPress AI checkbox changed
+      // -------------------------------------------------------------
+      $(document).on('change', '.taxopress-ai-tab-content input', function (e) {
+        var checked_field = $(this).prop("checked");
+        var field_id      = $(this).attr('id');
+        if (checked_field) {
+            $('.' + field_id + '_field').removeClass('st-subhide-content');
+        } else {
+          $('.' + field_id + '_field').addClass('st-subhide-content');
+        }
+      });
+      // Show taxopress ai settings sub fields for enabled settings
+      if ($('.taxopress-ai-post-content').length > 0) {
+        if ($('.taxopress-ai-post-content').find('input').prop("checked")) {
+          $('.taxopress-ai-post-content-sub').removeClass('st-subhide-content');
+        }
+      }
+      
+      // -------------------------------------------------------------
+      //   Settings metabox sub tab click
+      // -------------------------------------------------------------
+      $(document).on('click', '.st-metabox-subtab span', function (e) {
+        e.preventDefault();
+        var current_content = $(this).attr('data-content');
+        $('.st-metabox-subtab span').removeClass('active');
+        $('.metabox-tab-content').addClass('st-hide-content');
+        $('.metabox-tab-content-sub').addClass('st-subhide-content');
+        $(this).addClass('active');
+        $(current_content).removeClass('st-hide-content');
+        if ($(current_content).find('input').prop("checked")) {
+          $(current_content + '-sub').removeClass('st-subhide-content');
+        }
+      });
+      
+      // -------------------------------------------------------------
+      //   Settings metabox checkbox changed
+      // -------------------------------------------------------------
+      /*
+      $(document).on('change', '.metabox-tab-content input', function (e) {
+        var checked_field = $(this).prop("checked");
+        var field_id      = $(this).attr('id');
+
+        if (checked_field) {
+            $('.' + field_id + '_field').removeClass('st-subhide-content');
+        } else {
+          $('.' + field_id + '_field').addClass('st-subhide-content');
+        }
+      });
+      // Show metabox settings sub fields for enabled settings
+      if ($('.metabox-post-content').length > 0) {
+        if ($('.metabox-post-content').find('input').prop("checked")) {
+          $('.metabox-post-content-sub').removeClass('st-subhide-content');
+        }
+      }*/
 
     // -------------------------------------------------------------
     //   Show taxonomy option based on selected CPT
@@ -166,10 +348,6 @@
       $('#addterm_match').val('');
       $('.terms-to-maatch-input').hide();
     });
-    $(document).on('click', '#termcloud_per_page_dummy_apply', function (e) {
-      $('#termcloud_per_page').val($('#termcloud_per_page_dummy').val());
-      $('#screen-options-apply')[0].click();
-    });
 
     // -------------------------------------------------------------
     //   Terms display submit validation
@@ -206,6 +384,11 @@
         field_error_count = 1;
         field_error_message += '<li>' + st_admin_localize.select_valid + ' ' + $('.tag-cloud-max').closest('tr').find('th label').text() + '<span class="required">*</span></li>';
       }
+      
+      if (Number($('input[name="taxopress_tag_cloud[smallest]"]').val()) > Number($('input[name="taxopress_tag_cloud[largest]"]').val())) {
+        field_error_count = 1;
+        field_error_message += '<li>' + $('.pp-terms-display-fontsize-warning').val() + '<span class="required">*</span></li>';
+      }
 
       field_error_message += '</ul>';
 
@@ -235,10 +418,14 @@
       var tab_content = $(this).attr('data-content');
 
       $('.taxopress-tab li').removeClass('active');
+      $('.taxopress-tab li').attr('aria-current', 'false');
       $(this).addClass('active');
+      $(this).attr('aria-current', 'true');
 
       $('.taxopress-tab-content table').hide();
+      $('.tab-table-content').hide();
       $('.taxopress-tab-content table.' + tab_content).show();
+      $('.tab-table-content.' + tab_content + '-tab-table-content').show();
 
       $('.visbile-table').css('display', '');
 
@@ -252,8 +439,14 @@
 
     if ($('.taxopress-tab-content').length > 0) {
       //set tab height
-      if ($('.taxopress-tab-content').height() > $('.taxopress-tab').height()) {
-        $('.taxopress-tab').css('height', $('.taxopress-tab-content').height());
+      var tab_height = $('.taxopress-tab-content').height();
+
+      if (tab_height > 0) {
+        if (tab_height > $('.taxopress-tab').height()) {
+          $('.taxopress-tab').css('height', tab_height);
+        }
+      } else {
+      $('.taxopress-tab').css('min-height', 300);
       }
     }
 
@@ -477,40 +670,58 @@
 
 
     // -------------------------------------------------------------
+    //   Limit auto term source to only one option
+    // -------------------------------------------------------------
+    $(document).on('change', '.autoterm-terms-to-use-field', function (e) {
+        if(!$(this).hasClass('autoterm_useall') && !$(this).hasClass('autoterm_useonly')) {
+          $('.autoterm-terms-to-use-field').not(this).prop('checked', false);
+          autoterm_use_taxonomy_action();
+        }
+    });
+
+
+    // -------------------------------------------------------------
+    //   Auto term close button
+    // -------------------------------------------------------------
+    $(document).on('click', '.auto-term-content-result-title .notice-dismiss', function (e) {
+        e.preventDefault();
+        $('.auto-term-content-result-title').html('');
+    });
+
+
+    // -------------------------------------------------------------
     //   Auto term all content
     // -------------------------------------------------------------
     $(document).on('click', '.taxopress-autoterm-all-content', function (e) {
         e.preventDefault();
         $('.auto-term-content-result').html('');
         $('.auto-term-content-result-title').html('');
-        var auto_term_id = Number($('input[name="edited_autoterm"]').val());
         var button = $(this);
-        auto_terms_all_content(0, auto_term_id, button);
-      });
+        auto_terms_all_content(0, button);
+    });
 
-      function auto_terms_all_content(start_from, auto_term, button){
+      function auto_terms_all_content(start_from, button){
 
           $(".taxopress-spinner").addClass("is-active");
           button.attr('disabled', true);
-          var data = {
-            'action': 'taxopress_autoterms_content_by_ajax',
-            'auto_term_id': auto_term,
-            'start_from': start_from,
-            'security': st_admin_localize.check_nonce,
-          };
+
+          var data = $('#auto_term_content_form').serializeArray();
+          data.push({ name: 'action', value: 'taxopress_autoterms_content_by_ajax' });
+          data.push({ name: 'start_from', value: start_from });
+          data.push({ name: 'security', value: st_admin_localize.check_nonce });
+
           $.post(st_admin_localize.ajaxurl, data, function (response) {
               if(response.status === 'error') {
-                  $('.auto-term-content-result').append('<li><font color="red">'+response.message+'</font></li>');
+                $('.auto-term-content-result-title').html(''+response.message+'');
                 $(".taxopress-spinner").removeClass("is-active");
                 button.attr('disabled', false);
               }else if(response.status === 'progress') {
                 $('.auto-term-content-result-title').html(''+response.percentage+'');
                 $('.auto-term-content-result').prepend(response.content);
                 //send next batch
-                auto_terms_all_content(response.done, auto_term, button);
+                auto_terms_all_content(response.done, button);
               }else if(response.status === 'sucess') {
                 $('.auto-term-content-result-title').html(''+response.percentage+'');
-                $('.auto-term-content-result').prepend('<li><font color="green">'+response.message+'</font></li>');
                 $(".taxopress-spinner").removeClass("is-active");
                 button.attr('disabled', false);
               }
@@ -545,6 +756,12 @@
                   }
                 }
               });
+
+              if ($('.taxopress_suggestterm_taxonomies option:selected').length === 0) {
+                field_label = $('.taxopress_suggestterm_taxonomies').closest('tr').find('label').html();
+                field_error_count = 1;
+                field_error_message += '<li>' + field_label + ' is required <span class="required">*</span></li>';
+              }
 
               field_error_message += '</ul>';
 
@@ -582,6 +799,74 @@
     });
 
     // -------------------------------------------------------------
+    //   terms filter
+    // -------------------------------------------------------------
+    $(document).on('click', '.taxopress-terms-tablenav-filter', function (e) {
+      e.preventDefault();
+      $('input[name="taxonomy_type"]').val($('#terms_filter_select_taxonomy_type :selected').val());
+      $('input[name="terms_filter_post_type"]').val($('#terms_filter_select_post_type :selected').val());
+      $('input[name="terms_filter_taxonomy"]').val($('#terms_filter_select_taxonomy :selected').val());
+      $('input[name="terms_filter_status_message"]').val($('#terms_filter_select_status_message :selected').val());
+      $('input[name="terms_filter_settings"]').val($('#terms_filter_select_settings :selected').val());
+      $('#taxopress-terms-search-submit').trigger('click');
+    });
+
+    $(document).on('change', '.auto-terms-terms-filter-select', function (e) {
+      $('.taxopress-terms-tablenav-filter').trigger('click');
+    });
+
+    // -------------------------------------------------------------
+    //   post filter
+    // -------------------------------------------------------------
+    $(document).on('click', '.taxopress-posts-tablenav-filter', function (e) {
+      e.preventDefault();
+      $('input[name="posts_term_filter"]').val($('.posts-term-filter-select :selected').val());
+      $('input[name="posts_post_type_filter"]').val($('.posts-post-type-filter-select :selected').val());
+      $('#taxopress-posts-search-submit').trigger('click');
+    });
+
+    $(document).on('change', '.posts-term-filter-select, .posts-post-type-filter-select', function (e) {
+      $('.taxopress-posts-tablenav-filter').trigger('click');
+    });
+
+    /**
+     * TaxoPress posts select2
+     */
+    if ($('.taxopress-term-search').length > 0) {
+        taxopressTermSelect2($('.taxopress-term-search'));
+        $('.taxopress-simple-select2').ppma_select2({
+          placeholder: $(this).data("placeholder"),
+          allowClear: true,
+        });
+        function taxopressTermSelect2(selector) {
+          selector.each(function () {
+              var termsSearch = $(this).ppma_select2({
+                  placeholder: $(this).data("placeholder"),
+                  allowClear: true,
+                  ajax: {
+                      url:
+                          window.ajaxurl +
+                          "?action=taxopress_filter_term_search&field=term_id&nonce=" +
+                          $(this).data("nonce"),
+                      dataType: "json",
+                      data: function (params) {
+                          return {
+                              q: params.term
+                          };
+                      }
+                  }
+              });
+          });
+      }
+    }
+
+    if ($('.taxopress-multi-select2').length > 0) {
+        $('.taxopress-multi-select2').ppma_select2({
+          placeholder: $(this).data("placeholder"),
+        });
+    }
+
+    // -------------------------------------------------------------
     //   Auto term limit update filter
     // -------------------------------------------------------------
     $(document).on('click', '.taxopress-logs-limit-update', function (e) {
@@ -593,6 +878,25 @@
     });
 
     // -------------------------------------------------------------
+    //   Terms display enable color
+    // -------------------------------------------------------------
+    $(document).on('click', '.tag-cloud-color-option', function (e) {
+      tag_cloud_color_option_action();
+    });
+    tag_cloud_color_option_action();
+    function tag_cloud_color_option_action() {
+      if ($('.tag-cloud-color-option').length > 0) {
+        if ($('.tag-cloud-color-option').prop("checked")) {
+          $('.tag-cloud-min').closest('tr').removeClass('st-hide-content');
+          $('.tag-cloud-max').closest('tr').removeClass('st-hide-content');
+        } else {
+          $('.tag-cloud-min').closest('tr').addClass('st-hide-content');
+          $('.tag-cloud-max').closest('tr').addClass('st-hide-content');
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
     //   Suggest term use Dandelion check
     // -------------------------------------------------------------
     $(document).on('click', '.suggest_term_use_dandelion', function (e) {
@@ -602,11 +906,9 @@
     function suggest_term_use_dandelion_action() {
       if ($('.suggest_term_use_dandelion').length > 0) {
         if ($('.suggest_term_use_dandelion').prop("checked")) {
-          $('.terms_datatxt_access_token').closest('tr').removeClass('st-hide-content');
-          $('.terms_datatxt_min_confidence').closest('tr').removeClass('st-hide-content');
+          $('.suggest_term_use_dandelion_children').closest('tr').removeClass('st-hide-content');
         } else {
-          $('.terms_datatxt_access_token').closest('tr').addClass('st-hide-content');
-          $('.terms_datatxt_min_confidence').closest('tr').addClass('st-hide-content');
+          $('.suggest_term_use_dandelion_children').closest('tr').addClass('st-hide-content');
         }
       }
     }
@@ -621,9 +923,9 @@
     function suggest_term_use_opencalais_action() {
       if ($('.suggest_term_use_opencalais').length > 0) {
         if ($('.suggest_term_use_opencalais').prop("checked")) {
-          $('.terms_opencalais_key').closest('tr').removeClass('st-hide-content');
+          $('.suggest_term_use_opencalais_children').closest('tr').removeClass('st-hide-content');
         } else {
-          $('.terms_opencalais_key').closest('tr').addClass('st-hide-content');
+          $('.suggest_term_use_opencalais_children').closest('tr').addClass('st-hide-content');
         }
       }
     }
@@ -659,6 +961,65 @@
     function isEmptyOrSpaces(str) {
       return str === null || str.match(/^ *$/) !== null;
     }
+
+    /* Start COPIED FROM PP BLOCKS */
+      $(".taxopress-dashboard-settings-control .slider").bind("click", function (e) {
+        try {
+            e.preventDefault();
+            if ($(this).hasClass("slider--disabled")) {
+                return false;
+            }
+            var checkbox = $(this).parent().find("input");
+            var isChecked = checkbox.is(":checked") ? 1 : 0;
+            var newState = isChecked == 1 ? 0 : 1;
+            var feature = checkbox.data("feature");
+            var option_key = checkbox.data("option_key");
+            var slider = checkbox.parent().find(".slider");
+            $.ajax({
+                url: st_admin_localize.ajaxurl,
+                method: "POST",
+                data: { action: "save_taxopress_dashboard_feature_by_ajax", feature: option_key, new_state: newState, nonce: st_admin_localize.check_nonce },
+                beforeSend: function () {
+                    slider.css("opacity", 0.5);
+                },
+                success: function () {
+                    newState == 1 ? checkbox.prop("checked", true) : checkbox.prop("checked", false);
+                    slider.css("opacity", 1);
+                    taxopressDynamicSubmenu(feature, newState)
+                    taxopressTimerStatus();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(jqXHR.responseText);
+                    taxopressTimerStatus("error");
+                },
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    });
+    function taxopressTimerStatus(type = "success") {
+        setTimeout(function () {
+            var uniqueClass = "taxopress-floating-msg-" + Math.round(new Date().getTime() + Math.random() * 100);
+            var message = type === "success" ? wp.i18n.__("Changes saved!", "capsman-enhanced") : wp.i18n.__(" Error: changes can't be saved.", "capsman-enhanced");
+            var instances = $(".taxopress-floating-status").length;
+            $("#wpbody-content").after('<span class="taxopress-floating-status taxopress-floating-status--' + type + " " + uniqueClass + '">' + message + "</span>");
+            $("." + uniqueClass)
+                .css("bottom", instances * 45)
+                .fadeIn(1e3)
+                .delay(1e4)
+                .fadeOut(1e3, function () {
+                    $(this).remove();
+                });
+        }, 500);
+    }
+    function taxopressDynamicSubmenu(slug, newState) {
+        var pMenu = $("#toplevel_page_st_options");
+        var cSubmenu = $(pMenu).find("li." + slug + "-menu-item");
+        if (cSubmenu.length) {
+            newState == 1 ? cSubmenu.removeClass("taxopress-hide-menu-item").find("a").removeClass("taxopress-hide-menu-item") : cSubmenu.addClass("taxopress-hide-menu-item").find("a").addClass("taxopress-hide-menu-item");
+        }
+    }
+    /* end COPIED FROM PP BLOCKS */
 
   });
 

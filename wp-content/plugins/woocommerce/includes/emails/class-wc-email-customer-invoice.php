@@ -12,13 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 
 	/**
-	 * Customer Invoice.
+	 * Order details email.
 	 *
-	 * An email sent to the customer via admin.
+	 * An email sent to the customer via admin, that summarizes the details of their order. This was
+	 * historically referred to as the 'invoice', and for backwards compatibility reasons that is still
+	 * reflected in the class name (although on a user-level we have moved away from that nomenclature).
 	 *
 	 * @class       WC_Email_Customer_Invoice
 	 * @version     3.5.0
-	 * @package     WooCommerce/Classes/Emails
+	 * @package     WooCommerce\Classes\Emails
 	 * @extends     WC_Email
 	 */
 	class WC_Email_Customer_Invoice extends WC_Email {
@@ -29,8 +31,8 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 		public function __construct() {
 			$this->id             = 'customer_invoice';
 			$this->customer_email = true;
-			$this->title          = __( 'Customer invoice / Order details', 'woocommerce' );
-			$this->description    = __( 'Customer invoice emails can be sent to customers containing their order information and payment links.', 'woocommerce' );
+			$this->title          = __( 'Order details', 'woocommerce' );
+			$this->description    = __( 'Order detail emails can be sent to customers containing their order information and payment links.', 'woocommerce' );
 			$this->template_html  = 'emails/customer-invoice.php';
 			$this->template_plain = 'emails/plain/customer-invoice.php';
 			$this->placeholders   = array(
@@ -52,11 +54,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 		 * @return string
 		 */
 		public function get_default_subject( $paid = false ) {
-			if ( $paid ) {
-				return __( 'Invoice for order #{order_number} on {site_title}', 'woocommerce' );
-			} else {
-				return __( 'Your latest {site_title} invoice', 'woocommerce' );
-			}
+			return __( 'Details for order #{order_number} on {site_title}', 'woocommerce' );
 		}
 
 		/**
@@ -67,11 +65,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 		 * @return string
 		 */
 		public function get_default_heading( $paid = false ) {
-			if ( $paid ) {
-				return __( 'Invoice for order #{order_number}', 'woocommerce' );
-			} else {
-				return __( 'Your invoice for order #{order_number}', 'woocommerce' );
-			}
+			return __( 'Details for order #{order_number}', 'woocommerce' );
 		}
 
 		/**
@@ -112,7 +106,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 		 * @return string
 		 */
 		public function get_default_additional_content() {
-			return __( 'Thanks for using {site_address}!', 'woocommerce' );
+			return __( 'Thanks for using {site_url}!', 'woocommerce' );
 		}
 
 		/**
@@ -187,7 +181,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 			/* translators: %s: list of placeholders */
 			$placeholder_text  = sprintf( __( 'Available placeholders: %s', 'woocommerce' ), '<code>' . esc_html( implode( '</code>, <code>', array_keys( $this->placeholders ) ) ) . '</code>' );
 			$this->form_fields = array(
-				'subject'      => array(
+				'subject'            => array(
 					'title'       => __( 'Subject', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -195,7 +189,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 					'placeholder' => $this->get_default_subject(),
 					'default'     => '',
 				),
-				'heading'      => array(
+				'heading'            => array(
 					'title'       => __( 'Email heading', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -203,7 +197,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 					'placeholder' => $this->get_default_heading(),
 					'default'     => '',
 				),
-				'subject_paid' => array(
+				'subject_paid'       => array(
 					'title'       => __( 'Subject (paid)', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -211,7 +205,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 					'placeholder' => $this->get_default_subject( true ),
 					'default'     => '',
 				),
-				'heading_paid' => array(
+				'heading_paid'       => array(
 					'title'       => __( 'Email heading (paid)', 'woocommerce' ),
 					'type'        => 'text',
 					'desc_tip'    => true,
@@ -228,7 +222,7 @@ if ( ! class_exists( 'WC_Email_Customer_Invoice', false ) ) :
 					'default'     => $this->get_default_additional_content(),
 					'desc_tip'    => true,
 				),
-				'email_type'   => array(
+				'email_type'         => array(
 					'title'       => __( 'Email type', 'woocommerce' ),
 					'type'        => 'select',
 					'description' => __( 'Choose which format of email to send.', 'woocommerce' ),

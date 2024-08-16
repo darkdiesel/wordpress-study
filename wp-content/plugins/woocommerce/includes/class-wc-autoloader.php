@@ -2,7 +2,7 @@
 /**
  * WooCommerce Autoloader.
  *
- * @package WooCommerce/Classes
+ * @package WooCommerce\Classes
  * @version 2.3.0
  */
 
@@ -69,6 +69,14 @@ class WC_Autoloader {
 			return;
 		}
 
+		// The Legacy REST API was removed in WooCommerce 9.0, but some servers still have
+		// the includes/class-wc-api.php file after they upgrade, which causes a fatal error when executing
+		// "class_exists('WC_API')". This will prevent this error, while still making the class visible
+		// when it's provided by the WooCommerce Legacy REST API plugin.
+		if ( 'wc_api' === $class ) {
+			return;
+		}
+
 		$file = $this->get_file_name_from_class( $class );
 		$path = '';
 
@@ -88,6 +96,10 @@ class WC_Autoloader {
 			$path = $this->include_path . 'payment-tokens/';
 		} elseif ( 0 === strpos( $class, 'wc_log_handler_' ) ) {
 			$path = $this->include_path . 'log-handlers/';
+		} elseif ( 0 === strpos( $class, 'wc_integration' ) ) {
+			$path = $this->include_path . 'integrations/' . substr( str_replace( '_', '-', $class ), 15 ) . '/';
+		} elseif ( 0 === strpos( $class, 'wc_notes_' ) ) {
+			$path = $this->include_path . 'admin/notes/';
 		}
 
 		if ( empty( $path ) || ! $this->load_file( $path . $file ) ) {

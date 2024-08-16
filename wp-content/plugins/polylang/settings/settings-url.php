@@ -19,16 +19,16 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	/**
 	 * The page id of the static front page.
 	 *
-	 * @var int
+	 * @var int|null
 	 */
 	protected $page_on_front;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * @since 1.8
 	 *
-	 * @param object $polylang
+	 * @param object $polylang The Polylang object.
 	 */
 	public function __construct( &$polylang ) {
 		parent::__construct(
@@ -37,7 +37,6 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 				'module'      => 'url',
 				'title'       => __( 'URL modifications', 'polylang' ),
 				'description' => __( 'Decide how your URLs will look like.', 'polylang' ),
-				'configure'   => true,
 			)
 		);
 
@@ -98,7 +97,7 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 		<table id="pll-domains-table" class="form-table" <?php echo 3 == $this->options['force_lang'] ? '' : 'style="display: none;"'; ?>>
 			<?php
 			foreach ( $this->model->get_languages_list() as  $lg ) {
-				$url = isset( $this->options['domains'][ $lg->slug ] ) ? $this->options['domains'][ $lg->slug ] : ( $lg->slug == $this->options['default_lang'] ? $this->links_model->home : '' );
+				$url = isset( $this->options['domains'][ $lg->slug ] ) ? $this->options['domains'][ $lg->slug ] : ( $lg->is_default ? $this->links_model->home : '' );
 				printf(
 					'<tr><td><label for="pll-domain[%1$s]">%2$s</label></td>' .
 					'<td><input name="domains[%1$s]" id="pll-domain[%1$s]" type="text" value="%3$s" class="regular-text code" aria-required="true" /></td></tr>',
@@ -189,7 +188,8 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 			<?php
 			// That's nice to display the right home urls but don't forget that the page on front may have no language yet
 			$lang = $this->model->post->get_language( $this->page_on_front );
-			$lang = $lang ? $lang : $this->model->get_language( $this->options['default_lang'] );
+			/** @var PLL_Language $lang */
+			$lang = $lang ? $lang : $this->model->get_default_language();
 			printf(
 				/* translators: %1$s example url when the option is active. %2$s example url when the option is not active */
 				esc_html__( 'Example: %1$s instead of %2$s', 'polylang' ),
@@ -242,11 +242,11 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 	}
 
 	/**
-	 * Sanitizes the settings before saving
+	 * Sanitizes the settings before saving.
 	 *
 	 * @since 1.8
 	 *
-	 * @param array $options
+	 * @param array $options Unsanitized options to save.
 	 * @return array
 	 */
 	protected function update( $options ) {
@@ -257,13 +257,13 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 		}
 
 		if ( 3 == $options['force_lang'] && isset( $options['domains'] ) && is_array( $options['domains'] ) ) {
+			$newoptions['domains'] = array();
 			foreach ( $options['domains'] as $key => $domain ) {
 				if ( empty( $domain ) ) {
 					$lang = $this->model->get_language( $key );
-					add_settings_error(
-						'general',
-						'pll_invalid_domain',
-						esc_html(
+					pll_add_notice(
+						new WP_Error(
+							sprintf( 'pll_invalid_domain_%s', $key ),
 							sprintf(
 								/* translators: %s is a native language name */
 								__( 'Please enter a valid URL for %s.', 'polylang' ),
@@ -316,10 +316,9 @@ class PLL_Settings_Url extends PLL_Settings_Module {
 			$response_code = wp_remote_retrieve_response_code( $response );
 
 			if ( 200 != $response_code ) {
-				add_settings_error(
-					'general',
-					'pll_invalid_domain',
-					esc_html(
+				pll_add_notice(
+					new WP_Error(
+						sprintf( 'pll_invalid_domain_%s', $lang->slug ),
 						sprintf(
 							/* translators: %s is an url */
 							__( 'Polylang was unable to access the %s URL. Please check that the URL is valid.', 'polylang' ),

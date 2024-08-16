@@ -3,7 +3,7 @@
 Plugin Name: WP Chatbot
 Plugin URI:  https://mobilemonkey.com/wp-chatbot/
 Description: MobileMonkey’s OmniChat™ widget is the fastest and simplest way to add live chat to your website. Enjoy hassle-free chatbot integration with advanced live agent takeover.
-Version:     4.6
+Version:     4.9
 Author:      MobileMonkey
 Author URI:  https://mobilemonkey.com/wp-chatbot/
 License:     GPL2
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Version - define HTCC_VERSION
 if ( ! defined( 'HTCC_VERSION' ) ) {
-	define( 'HTCC_VERSION', '4.6' );
+	define( 'HTCC_VERSION', '4.7' );
 }
 
 

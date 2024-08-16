@@ -6,87 +6,7 @@ class SimpleTags_Client_PostTags {
 	 * SimpleTags_Client_PostTags constructor.
 	 */
 	public function __construct() {
-		// Add adv post tags in post ( all / feedonly / blogonly / homeonly / singularonly / singleonly / pageonly /no )
-		if ( 'no' !== SimpleTags_Plugin::get_option_value( 'tt_embedded' ) || 1 === (int) SimpleTags_Plugin::get_option_value( 'tt_feed' ) ) {
-			add_filter( 'the_content', array( __CLASS__, 'the_content' ), 999992 );
-		}
 
-		add_shortcode( 'st-the-tags', array( __CLASS__, 'shortcode' ) );
-		add_shortcode( 'st_the_tags', array( __CLASS__, 'shortcode' ) );
-	}
-
-	/**
-	 * Replace marker by tags in post content, use ShortCode
-	 *
-	 * @param array $atts
-	 *
-	 * @return string
-	 */
-	public static function shortcode( $atts ) {
-		$atts = shortcode_atts( array( 'param' => '' ), $atts );
-		extract( $atts );
-
-		$param = html_entity_decode( $param );
-		$param = trim( $param );
-
-		if ( empty( $param ) ) {
-			$param = 'title=';
-		}
-
-		return self::extendedPostTags( $param );
-	}
-
-	/**
-	 * Auto add current tags post to post content
-	 *
-	 * @param string $content
-	 *
-	 * @return string
-	 */
-	public static function the_content( $content = '' ) {
-		// Hook already executed ? Check if HTML class exists
-		if ( strpos( $content, 'st-post-tags' ) !== false ) {
-			return $content;
-		}
-
-		// Get option
-		$tt_embedded = SimpleTags_Plugin::get_option_value( 'tt_embedded' );
-
-		$marker = false;
-		if ( is_feed() && 1 === (int) SimpleTags_Plugin::get_option_value( 'tt_feed' ) ) {
-			$marker = true;
-		} elseif ( ! empty( $tt_embedded ) ) {
-			switch ( $tt_embedded ) {
-				case 'blogonly':
-					$marker = ( is_feed() ) ? false : true;
-					break;
-				case 'homeonly':
-					$marker = ( is_home() ) ? true : false;
-					break;
-				case 'singularonly':
-					$marker = ( is_singular() ) ? true : false;
-					break;
-				case 'singleonly':
-					$marker = ( is_single() ) ? true : false;
-					break;
-				case 'pageonly':
-					$marker = ( is_page() ) ? true : false;
-					break;
-				case 'all':
-					$marker = true;
-					break;
-				case 'no':
-				default:
-					$marker = false;
-					break;
-			}
-		}
-
-		if ( true === $marker ) {
-			return ( $content . self::extendedPostTags( '', false ) );
-		}
-
-		return $content;
 	}
 
 	/**
@@ -142,6 +62,8 @@ class SimpleTags_Client_PostTags {
 			$xformat = $defaults['xformat'];
 		}
 
+		$xformat = taxopress_sanitize_text_field($xformat);
+
 		// Choose post ID
 		$object_id = (int) $post_id;
 		if ( 0 === $object_id ) {
@@ -174,8 +96,9 @@ class SimpleTags_Client_PostTags {
 				}
 				wp_cache_add( $object_id, $to_cache, $taxonomy . '_relationships' );
 			}
-
-			$terms = array_map( 'get_term', $taxterms );
+			if ($taxterms && !is_wp_error($taxterms)) {
+				$terms = array_map('get_term', $taxterms);
+			}
 		}
 
 		// Hook
@@ -227,9 +150,6 @@ class SimpleTags_Client_PostTags {
 			$output = $notagtext;
 		}
 
-		// Add container
-		$output = $before . $output . $after;
-
-		return SimpleTags_Client::output_content( 'st-post-tags '.taxopress_format_class($wrap_class).'', 'div', '', $output, $copyright );
+		return SimpleTags_Client::output_content( 'st-post-tags '.taxopress_format_class($wrap_class).'', 'div', '', $output, $copyright, '', '', '', $before, $after );
 	}
 }

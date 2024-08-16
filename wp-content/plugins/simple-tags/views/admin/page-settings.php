@@ -1,3 +1,4 @@
+<div class="taxopress-block-wrap">
 <div class="wrap st_wrap tagcloudui admin-settings">
 	<div id="icon-themes" class="icon32"><br></div>
 	<h2><?php _e( 'TaxoPress: Options', 'simple-tags' ); ?></h2>
@@ -10,12 +11,15 @@
 			$style = '';
 
 			// Deactive tabs if feature not actived
-			if ( isset( $options['active_related_posts'] ) && (int) $options['active_related_posts'] == 0 && $key == 'relatedposts' ) {
+			if ( $key == 'relatedposts' && isset( $options['active_related_posts'] ) && (int) $options['active_related_posts'] == 0 ) {
 				$style = 'style="display:none;"';
 			}
 
-			// Deactive tabs if feature not actived
-			if ( isset( $options['auto_link_tags'] ) && ( (int) $options['auto_link_tags'] == 0 || (int) SimpleTags_Plugin::get_option_value( 'auto_link_tags' ) === 0 )&& $key == 'auto-links' ) {
+			if ( $key == 'auto-links' && isset( $options['auto_link_tags'] ) && ( (int) $options['auto_link_tags'] == 0 || (int) SimpleTags_Plugin::get_option_value( 'auto_link_tags' ) === 0 ) ) {
+				$style = 'style="display:none;"';
+			}
+
+			if ( $key == 'linked_terms' && (!taxopress_is_pro_version() || (isset($options['active_features_linked_terms']) && (int) $options['active_features_linked_terms'] == 0))) {
 				$style = 'style="display:none;"';
 			}
 
@@ -34,10 +38,10 @@
 		<p>
 			<?php wp_nonce_field( 'updateresetoptions-simpletags' ); ?>
 			<input class="button-primary" type="submit" name="updateoptions"
-			       value="<?php _e( 'Update options &raquo;', 'simple-tags' ); ?>"/>
-			<input class="button" type="submit" name="reset_options"
+			       value="<?php _e( 'Save Changes', 'simple-tags' ); ?>"/>
+			<?php /* <input class="button" type="submit" name="reset_options"
 			       onclick="return confirm('<?php _e( 'Do you really want to restore the default options?', 'simple-tags' ); ?>');"
-			       value="<?php _e( 'Reset Options', 'simple-tags' ); ?>"/>
+			       value="<?php _e( 'Reset Options', 'simple-tags' ); ?>"/> */ ?>
 		</p>
 	</form>
 
@@ -46,4 +50,5 @@
 
 <div class="taxopress-right-sidebar admin-settings-sidebar">
 	<?php do_action('taxopress_admin_after_sidebar'); ?>
+</div>
 </div>

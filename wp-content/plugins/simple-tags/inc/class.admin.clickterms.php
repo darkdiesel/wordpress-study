@@ -13,9 +13,9 @@ class SimpleTags_Admin_ClickTags {
 
         if ( 1 === (int) SimpleTags_Plugin::get_option_value( 'active_suggest_terms' )){
 		    // Box for post/page
-		    add_action( 'admin_head', array( __CLASS__, 'admin_head' ), 1 );
+		    //add_action( 'admin_head', array( __CLASS__, 'admin_head' ), 1 );
 		    // Javascript
-		    add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ), 11 );
+		    //add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ), 11 );
         }
 	}
 
@@ -63,9 +63,11 @@ class SimpleTags_Admin_ClickTags {
                 continue;
             }
 
-            if($_taxonomy->name === $click_terms['taxonomy']){
+            if (is_array($click_terms['taxonomy']) && in_array($_taxonomy->name, $click_terms['taxonomy'])) {
                 $click_tags_taxonomy .= '<option value="'.$_taxonomy->name.'" selected="selected">'.$_taxonomy->labels->name.'</option>';
-            }else{
+            } elseif(!is_array($click_terms['taxonomy']) && $_taxonomy->name === $click_terms['taxonomy']) { // backward compatibility
+                $click_tags_taxonomy .= '<option value="'.$_taxonomy->name.'" selected="selected">'.$_taxonomy->labels->name.'</option>';
+            } else {
                 $click_tags_taxonomy .= '<option value="'.$_taxonomy->name.'">'.$_taxonomy->labels->name.'</option>';
             }
         }
@@ -141,6 +143,7 @@ class SimpleTags_Admin_ClickTags {
 			'stHelperClickTagsL10n',
 			array(
 				'show_txt'    => esc_html__( 'Click to display tags', 'simple-tags' ),
+				'arial_label' => esc_html__( 'suggested terms', 'simple-tags' ),
 				'hide_txt'    => sprintf( esc_html__( 'Click terms to add them to this %s', 'simple-tags' ), $post_type_name ),
 				'state'       => 'show',
 				'search_icon' => STAGS_URL . '/assets/images/indicator.gif',
@@ -226,7 +229,7 @@ class SimpleTags_Admin_ClickTags {
 		$post_id = ( isset( $_GET['post_id'] ) ) ? intval( $_GET['post_id'] ) : 0;
 
         if(isset($_GET['click_tags_method']) && !empty($_GET['click_tags_method'])){
-            $order_click_tags = ($_GET['click_tags_method'] === 'random') ? sanitize_text_field($_GET['click_tags_method']) : sanitize_text_field($_GET['click_tags_method']).'-'.sanitize_text_field($_GET['click_tags_order']);
+            $order_click_tags = (sanitize_text_field($_GET['click_tags_method']) === 'random') ? sanitize_text_field($_GET['click_tags_method']) : sanitize_text_field($_GET['click_tags_method']).'-'.sanitize_text_field($_GET['click_tags_order']);
         }else{
 		    // Order tags before selection (count-asc/count-desc/name-asc/name-desc/random)
 		    $order_click_tags = 'random';
@@ -277,7 +280,7 @@ class SimpleTags_Admin_ClickTags {
 
 		foreach ( (array) $terms as $term ) {
 			$class_current = in_array($term->term_id, $post_terms) ? 'used_term' : '';
-			echo '<span data-term_id="'.esc_attr($term->term_id).'" data-taxonomy="'.esc_attr($taxonomy).'" class="local '.esc_attr($taxonomy).' ' . esc_attr( $class_current ) . '">' . esc_html( stripslashes( $term->name ) ) . '</span>' . "\n";
+			echo '<span data-term_id="'.esc_attr($term->term_id).'" data-taxonomy="'.esc_attr($taxonomy).'" class="local '.esc_attr($taxonomy).' ' . esc_attr( $class_current ) . '" tabindex="0" role="button" aria-pressed="false">' . esc_html( stripslashes( $term->name ) ) . '</span>' . "\n";
 		}
 		echo '<div class="clear"></div>';
 

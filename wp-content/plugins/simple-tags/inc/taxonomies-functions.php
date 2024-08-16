@@ -226,6 +226,9 @@ function taxopress_update_taxonomy($data = [])
     if (!isset($data['cpt_custom_tax']['include_in_result'])) {
         $data['cpt_custom_tax']['include_in_result'] = 0;
     }
+    if ( ! isset( $data['cpt_custom_tax']['show_in_filter'] ) ) {
+		$data['cpt_custom_tax']['show_in_filter'] = 0;
+	}
 
     /**
      * Fires before a taxonomy is updated to our saved options.
@@ -253,13 +256,19 @@ function taxopress_update_taxonomy($data = [])
         }
     }
 
+    $sanitized_data = [];
     foreach ($data as $key => $value) {
-        if (is_string($value)) {
-            $data[$key] = sanitize_text_field($value);
+        if (!is_array($value)) {
+            $sanitized_data[$key] = taxopress_sanitize_text_field($value);
         } else {
-            array_map('sanitize_text_field', $data[$key]);
+            $new_value = [];
+            foreach ($data[$key] as $option_key => $option_value) {
+                $new_value[$option_key] = taxopress_sanitize_text_field($option_value);
+            }
+            $sanitized_data[$key] = $new_value;
         }
     }
+    $data = $sanitized_data;
 
     if (false !== strpos($data['cpt_custom_tax']['name'], '\'') ||
         false !== strpos($data['cpt_custom_tax']['name'], '\"') ||
@@ -364,6 +373,7 @@ function taxopress_update_taxonomy($data = [])
             'labels'                => $data['cpt_tax_labels'],
             'meta_box_cb'           => $meta_box_cb,
             'default_term'          => $default_term,
+            'show_in_filter'        => taxopress_disp_boolean( $data['cpt_custom_tax']['show_in_filter'] ),
         ];
 
         $taxonomies[$data['cpt_custom_tax']['name']]['object_types'] = $data['cpt_post_types'];
@@ -415,6 +425,7 @@ function taxopress_update_taxonomy($data = [])
             'labels'                => $data['cpt_tax_labels'],
             'meta_box_cb'           => $meta_box_cb,
             'default_term'          => $default_term,
+            'show_in_filter'        => taxopress_disp_boolean( $data['cpt_custom_tax']['show_in_filter'] ),
         ];
 
         $external_taxonomies[$data['cpt_custom_tax']['name']]['object_types'] = isset($data['cpt_post_types']) ? $data['cpt_post_types'] : [];
@@ -921,8 +932,8 @@ function taxopress_get_taxonomy_data()
  */
 function taxopress_get_extername_taxonomy_data()
 {
-    return apply_filters('taxopress_get_extername_taxonomy_data', get_option('taxopress_external_taxonomies', []),
-        get_current_blog_id());
+    return array_filter((array)apply_filters('taxopress_get_extername_taxonomy_data', get_option('taxopress_external_taxonomies', []),
+        get_current_blog_id()));
 }
 
 
@@ -1364,6 +1375,14 @@ function taxopress_register_single_taxonomy($taxonomy = [])
     $default_term = null;
     if (!empty($taxonomy['default_term'])) {
         $term_parts = explode(',', $taxonomy['default_term']);
+        $term_parts = array_filter($term_parts);
+        if (!empty($term_parts)) {
+            $default_term = [];
+            foreach ($term_parts as $term_part) {
+                $default_term[] = ['name' => $term_part, 'slug' => $term_part];
+            }
+        }
+        /*
         if (!empty($term_parts[0])) {
             $default_term['name'] = trim($term_parts[0]);
         }
@@ -1372,7 +1391,7 @@ function taxopress_register_single_taxonomy($taxonomy = [])
         }
         if (!empty($term_parts[2])) {
             $default_term['description'] = trim($term_parts[2]);
-        }
+        }*/
     }
 
     $args = [
@@ -1621,16 +1640,8 @@ function get_all_taxopress_taxonomies_request()
         ['name' => 'post_tag'],
         'objects');
 
-    $public                = get_taxonomies([
-        '_builtin' => false,
-        'public'   => true,
-    ],
-        'objects');
-    $private               = get_taxonomies([
-        '_builtin' => false,
-        'public'   => false,
-    ],
-        'objects');
+    $public  = get_taxonomies(['public' => true], 'objects');
+    $private = get_taxonomies(['public' => false], 'objects');
 
     if( !array_key_exists('category', $public) && !array_key_exists('category', $public) ){
         $public = array_merge($category, $public);
@@ -1654,23 +1665,7 @@ function get_all_taxopress_taxonomies_request()
 function get_all_taxopress_taxonomies()
 {
 
-    $category              = get_taxonomies(
-        ['name' => 'category'],
-        'objects');
-    $post_tag              = get_taxonomies(
-        ['name' => 'post_tag'],
-        'objects');
-    $public                = get_taxonomies([
-        '_builtin' => false,
-        'public'   => true,
-    ],
-        'objects');
-    $private               = get_taxonomies([
-        '_builtin' => false,
-        'public'   => false,
-    ],
-        'objects');
-    $registered_taxonomies = array_merge($category, $post_tag, $public, $private);
+    $registered_taxonomies = get_taxonomies([], 'objects');
 
     return $registered_taxonomies;
 }
@@ -1678,21 +1673,7 @@ function get_all_taxopress_taxonomies()
 
 function get_all_taxopress_public_taxonomies()
 {
-
-    $category              = get_taxonomies(
-        ['name' => 'category'],
-        'objects');
-    $post_tag              = get_taxonomies(
-        ['name' => 'post_tag'],
-        'objects');
-    $public                = get_taxonomies([
-        '_builtin' => false,
-        'public'   => true,
-    ],
-        'objects');
-    $registered_taxonomies = array_merge($category, $post_tag, $public);
-
-    return $registered_taxonomies;
+    return get_taxonomies(['public' => true], 'objects');
 }
 
 /**
@@ -1916,6 +1897,7 @@ function taxopress_action_delete_taxonomy($term_object)
 
 function unregister_tags()
 {
+    global $remove_current_taxonomy;
 
     $all_taxonomies = (array)get_option('taxopress_deactivated_taxonomies');
     $all_taxonomies = array_unique(array_filter($all_taxonomies));
@@ -1937,7 +1919,7 @@ function unregister_tags()
 function taxopress_remove_taxonomy_from_menus()
 {
     global $remove_current_taxonomy;
-    remove_menu_page('edit-tags.php?taxonomy=post_tag');
+    remove_menu_page('edit-tags.php?taxonomy=' . $remove_current_taxonomy);
 }
 
 
@@ -2174,8 +2156,17 @@ function taxopress_re_register_single_taxonomy($taxonomy)
         $meta_box_cb = (false !== get_taxopress_disp_boolean($taxonomy['meta_box_cb'])) ? $taxonomy['meta_box_cb'] : false;
     }
     $default_term = null;
+    
     if (!empty($taxonomy['default_term'])) {
         $term_parts = explode(',', $taxonomy['default_term']);
+        $term_parts = array_filter($term_parts);
+        if (!empty($term_parts)) {
+            $default_term = [];
+            foreach ($term_parts as $term_part) {
+                $default_term[] = ['name' => $term_part, 'slug' => $term_part];
+            }
+        }
+        /*
         if (!empty($term_parts[0])) {
             $default_term['name'] = trim($term_parts[0]);
         }
@@ -2184,7 +2175,7 @@ function taxopress_re_register_single_taxonomy($taxonomy)
         }
         if (!empty($term_parts[2])) {
             $default_term['description'] = trim($term_parts[2]);
-        }
+        }*/
     }
 
     $args = [
@@ -2223,6 +2214,34 @@ function taxopress_re_register_single_taxonomy($taxonomy)
     return register_taxonomy($taxonomy['name'], $object_type, $args);
 }
 
+/**
+ * Set post taxonomy default term
+ *
+ * @param integer $post_id
+ * @param object $post
+ * @return void
+ */
+function taxopress_set_default_taxonomy_terms($post_id, $post) {
+    if ( 'auto-draft' === $post->post_status ) {
+        $taxonomies = get_object_taxonomies($post->post_type, 'object');
+        foreach ($taxonomies as $taxonomy => $tax_object ) {
+            if (!empty($tax_object->default_term)) {
+                if (is_array($tax_object->default_term)) {
+                    $new_terms = [];
+                    foreach ($tax_object->default_term as $term => $option) {
+                        if (is_array($option) && isset($option['name'])) {
+                            $new_terms[] = trim($option['name']);
+                        }
+                    }
+                    if (!empty($new_terms)) {
+                        wp_set_object_terms($post_id, $new_terms, $taxonomy, true);
+                    }
+                }
+            }
+        }
+    }
+}
+
 function taxopress_show_all_cpt_in_archive_result($request_tax){
 
             $taxonomies = taxopress_get_taxonomy_data();
@@ -2243,3 +2262,90 @@ function taxopress_show_all_cpt_in_archive_result($request_tax){
 
             return $status;
 }
+
+/* Show taxonomy filter on post list */
+function taxopress_filter_dropdown( $taxonomy, $show_filter ) {
+
+    $show_filter   = get_taxopress_disp_boolean( $show_filter );
+
+    if ( $show_filter == true ) {
+
+        wp_dropdown_categories(
+            array(
+                'show_option_all' => sprintf( __( 'All %s', 'simple-tags' ), $taxonomy->label ),
+                'orderby'         => 'name',
+                'order'           => 'ASC',
+                'hide_empty'      => false,
+                'hide_if_empty'   => true,
+                'selected'        => sanitize_text_field(filter_input( INPUT_GET, $taxonomy->query_var, FILTER_UNSAFE_RAW )),
+                'hierarchical'    => true,
+                'name'            => $taxonomy->query_var,
+                'taxonomy'        => $taxonomy->name,
+                'value_field'     => 'slug',
+            )
+        );
+
+    }
+
+}
+
+function taxopress_get_dropdown(){
+
+    global $pagenow;
+
+    if ( is_admin() ) {
+
+        $type = 'post';
+
+        if (isset($_GET['post_type'])) {
+
+            $type = sanitize_text_field($_GET['post_type']);
+        }
+
+        $taxonomies = taxopress_get_taxonomy_data();
+
+        if( !empty($taxonomies) ) {
+
+            $all_taxonomies    = get_all_taxopress_taxonomies();
+
+            foreach ( $all_taxonomies as $taxonomy ) {
+
+                $taxonomy_name = $taxonomy->name;
+
+                if( array_key_exists( $taxonomy_name, $taxonomies ) ){
+
+                    $current = $taxonomies[ $taxonomy_name ];
+
+                    if( is_array($current) && array_key_exists( 'show_in_filter', $current ) ){
+                        if (isset($current['object_types']) && !empty($current['object_types'])) {
+                            foreach ($current['object_types'] as $object_type) {
+
+                                //Media Page
+                                if($pagenow === 'upload.php') {
+
+                                    if($object_type == "attachment") {
+
+                                        taxopress_filter_dropdown($taxonomy, $current['show_in_filter']);
+
+                                    }
+
+                                } else {
+
+                                    if($object_type == $type) {
+
+                                        taxopress_filter_dropdown($taxonomy, $current['show_in_filter']);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+}
+
+add_action( 'restrict_manage_posts' , 'taxopress_get_dropdown' );

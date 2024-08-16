@@ -77,9 +77,9 @@ abstract class MailChimp_WooCommerce_Options
         return $this->version;
     }
 
-    /**
-     * @return string
-     */
+	/**
+	 * @return mixed|string
+	 */
     public function getUniqueStoreID()
     {
         return mailchimp_get_store_id();
@@ -185,7 +185,7 @@ abstract class MailChimp_WooCommerce_Options
     public function getCached($key, $default = null)
     {
         $cached = $this->getData("cached-$key", false);
-        if (empty($cached) || !($cached = unserialize($cached))) {
+	    if (empty($cached) || !($cached = is_string($cached) ? unserialize($cached) : [])) {
             return $default;
         }
 
@@ -278,15 +278,14 @@ abstract class MailChimp_WooCommerce_Options
      */
     public function removePointers($products = true, $orders = true)
     {
+        if ($orders) {
+            $this->removeOrderPointers();
+            $this->removeSyncPointers();
+        }
+
         if ($products) {
             $this->removeProductPointers();
         }
-
-        if ($orders) {
-            $this->removeOrderPointers();
-        }
-
-        $this->removeSyncPointers();
 
         $this->removeMiscPointers();
 
@@ -297,6 +296,7 @@ abstract class MailChimp_WooCommerce_Options
     {
         delete_option('mailchimp-woocommerce-sync.products.completed_at');
         delete_option('mailchimp-woocommerce-sync.products.current_page');
+        mailchimp_flush_specific_resource_pointers('products');
     }
 
     public function removeOrderPointers()

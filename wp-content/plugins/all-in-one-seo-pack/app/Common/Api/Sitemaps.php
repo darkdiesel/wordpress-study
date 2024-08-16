@@ -22,7 +22,7 @@ class Sitemaps {
 	 * @return \WP_REST_Response The response.
 	 */
 	public static function deleteStaticFiles() {
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$files = list_files( get_home_path(), 1 );
 		if ( ! count( $files ) ) {
 			return;
@@ -77,8 +77,7 @@ class Sitemaps {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @param  \WP_REST_Request  $request The REST Request
-	 * @return \WP_REST_Response          The response.
+	 * @return \WP_REST_Response The response.
 	 */
 	public static function deactivateConflictingPlugins() {
 		$error = esc_html__( 'Deactivation failed. Please check permissions and try again.', 'all-in-one-seo-pack' );
@@ -89,18 +88,7 @@ class Sitemaps {
 			], 400 );
 		}
 
-		$plugins = array_merge(
-			aioseo()->conflictingPlugins->getConflictingPlugins( 'seo' ),
-			aioseo()->conflictingPlugins->getConflictingPlugins( 'sitemap' )
-		);
-
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-		foreach ( $plugins as $pluginPath ) {
-			if ( is_plugin_active( $pluginPath ) ) {
-				deactivate_plugins( $pluginPath );
-			}
-		}
+		aioseo()->conflictingPlugins->deactivateConflictingPlugins( [ 'seo', 'sitemap' ] );
 
 		Models\Notification::deleteNotificationByName( 'conflicting-plugins' );
 
@@ -129,19 +117,63 @@ class Sitemaps {
 			], 400 );
 		}
 
-		$pageUrl = wp_parse_url( $pageUrl );
-		if ( empty( $pageUrl['path'] ) ) {
+		$parsedPageUrl = wp_parse_url( $pageUrl );
+		if ( empty( $parsedPageUrl['path'] ) ) {
 			return new \WP_REST_Response( [
 				'success' => false,
 				'message' => 'The given path is invalid.'
 			], 400 );
 		}
 
-		$path   = trim( $pageUrl['path'], '/' );
-		$exists = aioseo()->helpers->pathExists( $path );
+		$isUrl         = aioseo()->helpers->isUrl( $pageUrl );
+		$isInternalUrl = aioseo()->helpers->isInternalUrl( $pageUrl );
+		if ( $isUrl && ! $isInternalUrl ) {
+			return new \WP_REST_Response( [
+				'success' => false,
+				'message' => 'The given URL is not a valid internal URL.'
+			], 400 );
+		}
+
+		$pathExists = self::pathExists( $parsedPageUrl['path'], false );
 
 		return new \WP_REST_Response( [
-			'exists' => $exists
+			'exists' => $pathExists
 		], 200 );
+	}
+
+	/**
+	 * Checks whether the given path is unique or not.
+	 *
+	 * @since   4.1.4
+	 * @version 4.2.6
+	 *
+	 * @param  string  $path The path.
+	 * @param  bool    $path Whether the given path is a URL.
+	 * @return boolean       Whether the path exists.
+	 */
+	private static function pathExists( $path, $isUrl ) {
+		$path = trim( $path, '/' );
+		$url  = $isUrl ? $path : trailingslashit( home_url() ) . $path;
+
+		// Let's do another check here, just to be sure that the domain matches.
+		if ( ! aioseo()->helpers->isInternalUrl( $url ) ) {
+			return false;
+		}
+
+		$response = wp_safe_remote_head( $url );
+		$status   = wp_remote_retrieve_response_code( $response );
+		if ( ! $status ) {
+			// If there is no status code, we might be in a local environment with CURL misconfigured.
+			// In that case we can still check if a post exists for the path by quering the DB.
+			$post = aioseo()->helpers->getPostbyPath(
+				$path,
+				OBJECT,
+				aioseo()->helpers->getPublicPostTypes( true )
+			);
+
+			return is_object( $post );
+		}
+
+		return 200 === $status;
 	}
 }

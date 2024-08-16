@@ -14,19 +14,23 @@ use AIOSEO\Plugin\Common\Traits\Helpers as TraitHelpers;
  * @since 4.0.0
  */
 class Helpers {
-	use TraitHelpers\ActionScheduler;
+	use TraitHelpers\Api;
 	use TraitHelpers\Arrays;
 	use TraitHelpers\Constants;
 	use TraitHelpers\Deprecated;
 	use TraitHelpers\DateTime;
 	use TraitHelpers\Language;
+	use TraitHelpers\PostType;
+	use TraitHelpers\Request;
 	use TraitHelpers\Shortcodes;
 	use TraitHelpers\Strings;
 	use TraitHelpers\Svg;
 	use TraitHelpers\ThirdParty;
+	use TraitHelpers\Url;
 	use TraitHelpers\Vue;
 	use TraitHelpers\Wp;
 	use TraitHelpers\WpContext;
+	use TraitHelpers\WpMultisite;
 	use TraitHelpers\WpUri;
 
 	/**
@@ -79,48 +83,6 @@ class Helpers {
 	}
 
 	/**
-	 * Request the remote URL via wp_remote_post and return a json decoded response.
-	 *
-	 * @since 4.0.0
-	 *
-	 * @param array  $body    The content to retrieve from the remote URL.
-	 * @param array  $headers The headers to send to the remote URL.
-	 *
-	 * @return string|bool Json decoded response on success, false on failure.
-	 */
-	public function sendRequest( $url, $body = [], $headers = [] ) {
-		$body = wp_json_encode( $body );
-
-		// Build the headers of the request.
-		$headers = wp_parse_args(
-			$headers,
-			[
-				'Content-Type' => 'application/json'
-			]
-		);
-
-		// Setup variable for wp_remote_post.
-		$post = [
-			'headers'   => $headers,
-			'body'      => $body,
-			'sslverify' => $this->isDev() ? false : true,
-			'timeout'   => 20
-		];
-
-		// Perform the query and retrieve the response.
-		$response     = wp_remote_post( $url, $post );
-		$responseBody = wp_remote_retrieve_body( $response );
-
-		// Bail out early if there are any errors.
-		if ( is_wp_error( $responseBody ) ) {
-			return false;
-		}
-
-		// Return the json decoded content.
-		return json_decode( $responseBody );
-	}
-
-	/**
 	 * Checks if the server is running on Apache.
 	 *
 	 * @since 4.0.0
@@ -140,7 +102,7 @@ class Helpers {
 	 *
 	 * @since 4.0.0
 	 *
-	 * @return boolean Whether or not it is on apache.
+	 * @return bool Whether or not it is on nginx.
 	 */
 	public function isNginx() {
 		if ( ! isset( $_SERVER['SERVER_SOFTWARE'] ) ) {
@@ -150,13 +112,53 @@ class Helpers {
 		$server = sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) );
 
 		if (
-			stripos( $server, 'Flywheel' ) !== false ||
-			stripos( $server, 'nginx' ) !== false
+			false !== stripos( $server, 'Flywheel' ) ||
+			false !== stripos( $server, 'nginx' )
 		) {
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks if the server is running on LiteSpeed.
+	 *
+	 * @since 4.5.3
+	 *
+	 * @return bool Whether it is on LiteSpeed.
+	 */
+	public function isLiteSpeed() {
+		if ( ! isset( $_SERVER['SERVER_SOFTWARE'] ) ) {
+			return false;
+		}
+
+		$server = strtolower( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) );
+
+		return false !== stripos( $server, 'litespeed' );
+	}
+
+	/**
+	 * Returns the server name: Apache, nginx or LiteSpeed.
+	 *
+	 * @since 4.5.3
+	 *
+	 * @return string The server name. An empty string if it's unknown.
+	 */
+	public function getServerName() {
+		if ( aioseo()->helpers->isApache() ) {
+			return 'apache';
+		}
+
+		if ( aioseo()->helpers->isNginx() ) {
+			return 'nginx';
+		}
+
+		if ( aioseo()->helpers->isLiteSpeed() ) {
+			return 'litespeed';
+		}
+
+		return '';
 	}
 
 	/**
@@ -261,5 +263,74 @@ class Helpers {
 		}
 
 		return $string;
+	}
+
+	/**
+	 * Returns a deep clone of the given object.
+	 * The built-in PHP clone KW provides a shallow clone. This method returns a deep clone that also clones nested object properties.
+	 * You can use this method to sever the reference to nested objects.
+	 *
+	 * @since 4.4.7
+	 *
+	 * @return object The cloned object.
+	 */
+	public function deepClone( $object ) {
+		return unserialize( serialize( $object ) );
+	}
+
+	/**
+	 * Sanitizes a given variable
+	 *
+	 * @since 4.5.6
+	 *
+	 * @param  mixed $variable             The variable.
+	 * @param  bool  $preserveHtml         Whether or not to preserve HTML for ALL fields.
+	 * @param  array $fieldsToPreserveHtml Specific fields to preserve HTML for.
+	 * @param  string $fieldName           The name of the current field (when looping over a list).
+	 * @return mixed                       The sanitized variable.
+	 */
+	public function sanitize( $variable, $preserveHtml = false, $fieldsToPreserveHtml = [], $fieldName = '' ) {
+		$type = gettype( $variable );
+		switch ( $type ) {
+			case 'boolean':
+				return (bool) $variable;
+			case 'string':
+				if ( $preserveHtml || in_array( $fieldName, $fieldsToPreserveHtml, true ) ) {
+					return aioseo()->helpers->decodeHtmlEntities( sanitize_text_field( htmlspecialchars( $variable, ENT_NOQUOTES, 'UTF-8' ) ) );
+				}
+
+				return sanitize_text_field( $variable );
+			case 'integer':
+				return intval( $variable );
+			case 'float':
+			case 'double':
+				return floatval( $variable );
+			case 'array':
+				$array = [];
+				foreach ( (array) $variable as $k => $v ) {
+					$array[ $k ] = $this->sanitize( $v, $preserveHtml, $fieldsToPreserveHtml, $k );
+				}
+
+				return $array;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Return the version number with a filter to enable users to hide the version.
+	 *
+	 * @since 4.3.7
+	 *
+	 * @return string The current version or empty if the filter is active. Using ?aioseo-dev will override the filter.
+	 */
+	public function getAioseoVersion() {
+		$version = aioseo()->version;
+
+		if ( ! $this->isDev() && apply_filters( 'aioseo_hide_version_number', false ) ) {
+			$version = '';
+		}
+
+		return $version;
 	}
 }

@@ -10,6 +10,7 @@ class SimpleTags_Admin_Autocomplete {
 		add_action( 'simpletags-auto_terms', array( __CLASS__, 'auto_terms_js' ) );
 		add_action( 'simpletags-manage_terms', array( __CLASS__, 'manage_terms_js' ) );
 		add_action( 'simpletags-mass_terms', array( __CLASS__, 'mass_terms_js' ) );
+		add_action( 'simpletags-autolinks', array( __CLASS__, 'autolinks_js' ) );
 
 		// Javascript
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'admin_enqueue_scripts' ), 11 );
@@ -38,7 +39,7 @@ class SimpleTags_Admin_Autocomplete {
 		// Declare locations
 		$wp_post_pages = array( 'post.php', 'post-new.php' );
 		$wp_page_pages = array( 'page.php', 'page-new.php' );
-		$st_pages      = array( 'st_autoterms', 'st_mass_terms', 'st_manage' );
+		$st_pages      = array( 'st_autoterms', 'st_mass_terms', 'st_manage', 'st_autolinks' );
 
 		// Helper for posts/pages and for Auto Tags, Mass Edit Tags and Manage tags !
 		if ( ( in_array( $pagenow, $wp_post_pages, true ) || ( in_array( $pagenow, $wp_page_pages, true ) && is_page_have_tags() ) ) || ( isset( $_GET['page'] ) && in_array( $_GET['page'], $st_pages, true ) ) ) {
@@ -67,16 +68,17 @@ class SimpleTags_Admin_Autocomplete {
 		header( 'Content-Type: application/json; charset=' . get_bloginfo( 'charset' ) );
 
 		$taxonomy = 'post_tag';
-		if ( isset( $_REQUEST['taxonomy'] ) && taxonomy_exists( sanitize_text_field($_REQUEST['taxonomy']) ) ) {
+		if ( isset($_REQUEST['taxonomy']) && !empty($_REQUEST['taxonomy']) ) {//  && 
 			$taxonomy = sanitize_text_field($_REQUEST['taxonomy']);
 		}
-		if ( (int) wp_count_terms( $taxonomy, array( 'hide_empty' => false ) ) === 0 ) { // No tags to suggest
+		if (taxonomy_exists($taxonomy) && (int) wp_count_terms( $taxonomy, array( 'hide_empty' => false ) ) === 0 ) { // No tags to suggest
 			echo wp_json_encode( array() );
 			exit();
 		}
 
 		// Prepare search
 		$search = ( isset( $_GET['term'] ) ) ? trim( stripslashes( sanitize_text_field($_GET['term']) )) : '';
+		$exclude_term = isset($_REQUEST['exclude_term']) ? (int) $_REQUEST['exclude_term'] : 0;
 
 		// Get all terms, or filter with search
 		$terms = SimpleTags_Admin::getTermsForAjax( $taxonomy, $search );
@@ -89,13 +91,22 @@ class SimpleTags_Admin_Autocomplete {
 		// Format 
 		$results = array();
 		foreach ( (array) $terms as $term ) {
+			if ((int)$term->term_id === $exclude_term) {
+				continue;
+			}
 			$term->name = stripslashes( $term->name );
+			$original_name = $term->name;
+			if ($taxonomy == 'linked_term_taxonomies') {
+				$term->name = $term->name . ' ('. $term->taxonomy .')';
+			}
 			$term->name = str_replace( array( "\r\n", "\r", "\n" ), '', $term->name );
 
 			$results[] = array(
 				'id'    => $term->term_id,
 				'label' => $term->name,
 				'value' => $term->name,
+				'taxonomy' => $term->taxonomy,
+				'name' => $original_name,
 			);
 		}
 
@@ -186,6 +197,26 @@ class SimpleTags_Admin_Autocomplete {
 		<script type="text/javascript">
           <!--
           st_init_autocomplete('.autocomplete-input', "<?php echo esc_url_raw(admin_url( 'admin-ajax.php?action=simpletags_autocomplete&stags_action=helper_js_collection&taxonomy=' . esc_attr($taxonomy) )); ?>", <?php echo (int)$autocomplete_min; ?>)
+          -->
+		</script>
+		<?php
+	}
+
+	/**
+	 * public static function called on autolinks page
+	 *
+	 * @param string $taxonomy
+	 *
+	 * @return void
+	 * @author ojopaul
+	 */
+	public static function autolinks_js() {
+		// Get option
+		$autocomplete_min = 0
+		?>
+		<script type="text/javascript">
+          <!--
+          st_init_autocomplete('.autocomplete-input', "<?php echo esc_url_raw(admin_url( 'admin-ajax.php?action=simpletags_autocomplete&stags_action=helper_js_collection&taxonomy=')); ?>", <?php echo (int)$autocomplete_min; ?>, '.taxopress-dynamic-taxonomy')
           -->
 		</script>
 		<?php

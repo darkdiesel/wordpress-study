@@ -249,7 +249,8 @@
                type: 'POST',
                url: ajaxurl,
                data: {
-                 action:'notice_'+type
+                 action:'notice_'+type,
+                 _ajax_nonce: '<?php echo wp_create_nonce('htcc_nonce') ?>',
                },
                dataType: 'json',
                success: function (data,response) {
@@ -295,8 +296,8 @@ if ($type!=='promo') {
     <div class="modal_close"><i class="fa fa-times" aria-hidden="true"></i></div>
     <div class="promo-app__wrapper">
         <p>Download App</p>
-        <a target="_blank" class="android_app" href='https://play.google.com/store/apps/details?id=com.mobilemonkey&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
-        <img src="https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2019-10-03&kind=iossoftware&bubble=ios_apps" alt="" class="ios_app">
+        <a target="_blank" class="android_app" href='https://play.google.com/store/apps/details?id=com.mobilemonkey&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='<?php echo plugins_url('admin/assets/img/get_it_on_google_play.png', HTCC_PLUGIN_FILE) ?>'/></a>
+        <img src="<?php echo plugins_url('admin/assets/img/download_app_store.svg', HTCC_PLUGIN_FILE) ?>" alt="" class="ios_app">
     </div>
     <div class="ios-app__wrap">
         <p>Scan on your mobile device to view in the App Store</p>
@@ -305,4 +306,3 @@ if ($type!=='promo') {
 </div>
 <div class="modal-overlays" id="modal-overlay">
 </div>
-

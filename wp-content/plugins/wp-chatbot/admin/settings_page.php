@@ -7,7 +7,7 @@
 
 if (!defined('ABSPATH')) exit;
 $options = get_option('htcc_options');
-$options_as = get_option('htcc_as_options');
+$options_as = get_option('htcc_as_options', array());
 $options_custom = get_option('htcc_custom_options');
 $api = $this->getApi();
 $this->api->logoutMobilemonkey();
@@ -152,10 +152,11 @@ if ($api->getActiveBotId()) {
 			$('.ht-cc-admin-sidebar .dismiss_button').on('click',function (e) {
 				$.ajax({
 				type: 'POST',
-				url: ajaxurl,
+				url: ajax_obj.ajax_url,
 				data: {
-					action:'ht_cc_admin_sidebar__hide_mobile_app_banner'
-				},
+					action:'ht_cc_admin_sidebar__hide_mobile_app_banner',
+          _ajax_nonce: ajax_obj.nonce,
+        },
 				dataType: 'json',
 				success: function (data,response) {
 					$('.ht-cc-admin-sidebar .dismiss_button').parents('.ht-cc-admin-sidebar').fadeOut(300, function(){ 

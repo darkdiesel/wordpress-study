@@ -68,6 +68,16 @@ class Frontend {
 			if ( is_home() ) {
 				$type = 'blog';
 			}
+
+			// Support WC shop page.
+			if ( aioseo()->helpers->isWooCommerceShopPage() ) {
+				$type = 'wcShop';
+			}
+
+			// Support WC products.
+			if ( aioseo()->helpers->isWooCommerceProductPage() ) {
+				$type = 'wcProduct';
+			}
 		}
 
 		if ( is_date() ) {
@@ -81,7 +91,7 @@ class Frontend {
 
 		if ( is_search() ) {
 			$type      = 'search';
-			$reference = get_search_query();
+			$reference = htmlspecialchars( sanitize_text_field( get_search_query() ) );
 		}
 
 		if ( is_404() ) {
@@ -149,7 +159,19 @@ class Frontend {
 	 * @return string|void       A html breadcrumb.
 	 */
 	public function display( $echo = true ) {
-		if ( ! aioseo()->options->breadcrumbs->enable || ! apply_filters( 'aioseo_breadcrumbs_output', true ) ) {
+		if (
+			in_array( 'breadcrumbsEnable', aioseo()->internalOptions->deprecatedOptions, true ) &&
+			! aioseo()->options->deprecated->breadcrumbs->enable
+		) {
+			return;
+		}
+
+		if ( ! apply_filters( 'aioseo_breadcrumbs_output', true ) ) {
+			return;
+		}
+
+		// We can only run after this action because we need all post types loaded.
+		if ( ! did_action( 'init' ) ) {
 			return;
 		}
 
@@ -162,7 +184,7 @@ class Frontend {
 
 		$display = '<div class="aioseo-breadcrumbs">';
 		foreach ( $breadcrumbs as $breadcrumb ) {
-			-- $breadcrumbsCount;
+			--$breadcrumbsCount;
 
 			$breadcrumbDisplay = $this->breadcrumbToDisplay( $breadcrumb );
 
@@ -203,7 +225,6 @@ class Frontend {
 	 */
 	protected function breadcrumbToDisplay( $item ) {
 		$templateItem = $this->getCrumbTemplate( $item );
-
 		if ( empty( $templateItem['template'] ) ) {
 			return;
 		}

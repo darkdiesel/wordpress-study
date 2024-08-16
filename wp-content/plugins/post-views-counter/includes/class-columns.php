@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) )
 
 /**
  * Post_Views_Counter_Columns class.
- * 
+ *
  * @class Post_Views_Counter_Columns
  */
 class Post_Views_Counter_Columns {
@@ -25,9 +25,7 @@ class Post_Views_Counter_Columns {
 		add_action( 'bulk_edit_custom_box', [ $this, 'quick_edit_custom_box' ], 10, 2 );
 		add_action( 'quick_edit_custom_box', [ $this, 'quick_edit_custom_box' ], 10, 2 );
 		add_action( 'wp_ajax_save_bulk_post_views', [ $this, 'save_bulk_post_views' ] );
-		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
-		add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
-		add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
+		add_action( 'wp_loaded', [ $this, 'maybe_load_admin_bar_menu' ] );
 	}
 
 	/**
@@ -35,7 +33,7 @@ class Post_Views_Counter_Columns {
 	 *
 	 * @global object $post
 	 *
-	 * @return void 
+	 * @return void
 	 */
 	public function submitbox_views() {
 		global $post;
@@ -94,27 +92,27 @@ class Post_Views_Counter_Columns {
 	 *
 	 * @param int $post_id
 	 * @param object $post
-	 * @return int
+	 * @return void
 	 */
 	public function save_post( $post_id, $post = null ) {
 		// break if doing autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			return $post_id;
+			return;
 
 		// break if current user can't edit this post
 		if ( ! current_user_can( 'edit_post', $post_id ) )
-			return $post_id;
+			return;
 
 		// is post views set
 		if ( ! isset( $_POST['post_views'] ) )
-			return $post_id;
+			return;
 
 		// cast numeric post views
 		$post_views = (int) $_POST['post_views'];
 
 		// unchanged post views value?
 		if ( isset( $_POST['current_post_views'] ) && $post_views === (int) $_POST['current_post_views'] )
-			return $post_id;
+			return;
 
 		// get main instance
 		$pvc = Post_Views_Counter();
@@ -130,15 +128,15 @@ class Post_Views_Counter_Columns {
 
 		// invalid post type?
 		if ( ! in_array( $post_type, $post_types, true ) )
-			return $post_id;
+			return;
 
 		// break if views editing is restricted
 		if ( (bool) $pvc->options['general']['restrict_edit_views'] === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
-			return $post_id;
+			return;
 
 		// validate data
 		if ( ! isset( $_POST['pvc_nonce'] ) || ! wp_verify_nonce( $_POST['pvc_nonce'], 'post_views_count' ) )
-			return $post_id;
+			return;
 
 		// update post views
 		pvc_update_post_views( $post_id, $post_views );
@@ -312,19 +310,22 @@ class Post_Views_Counter_Columns {
 	 * @return void
 	 */
 	function save_bulk_post_views() {
-		$count = null;
-		
-		if ( isset( $_POST['post_views'] ) ) {
-			if ( is_numeric( trim( $_POST['post_views'] ) ) ) {
-				$count = (int) $_POST['post_views'];
+		global $wpdb;
 
-				if ( $count < 0 )
-					$count = 0;
-			} else
-				$count = null;
+		// check nonce
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'pvc_save_bulk_post_views' ) )
+			exit;
+
+		$count = null;
+
+		if ( isset( $_POST['post_views'] ) && is_numeric( trim( $_POST['post_views'] ) ) ) {
+			$count = (int) $_POST['post_views'];
+
+			if ( $count < 0 )
+				$count = 0;
 		}
 
-		// check post IDs
+		// check post ids
 		$post_ids = ( ! empty( $_POST['post_ids'] ) && is_array( $_POST['post_ids'] ) ) ? array_map( 'absint', $_POST['post_ids'] ) : [];
 
 		if ( is_null( $count ) )
@@ -336,28 +337,46 @@ class Post_Views_Counter_Columns {
 		if ( $restrict === true && ! current_user_can( apply_filters( 'pvc_restrict_edit_capability', 'manage_options' ) ) )
 			exit;
 
-		// any post IDs?
+		// any post ids?
 		if ( ! empty( $post_ids ) ) {
 			foreach ( $post_ids as $post_id ) {
-
 				// break if current user can't edit this post
 				if ( ! current_user_can( 'edit_post', $post_id ) )
 					continue;
 
-				global $wpdb;
-
 				// insert or update db post views count
-				$wpdb->query(
-					$wpdb->prepare( "
-						INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count)
-						VALUES (%d, %d, %s, %d)
-						ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count
-					)
-				);
+				$wpdb->query( $wpdb->prepare( "INSERT INTO " . $wpdb->prefix . "post_views (id, type, period, count) VALUES (%d, %d, %s, %d) ON DUPLICATE KEY UPDATE count = %d", $post_id, 4, 'total', $count, $count ) );
 			}
 		}
 
 		exit;
+	}
+
+	/**
+	 * Add admin bar stats to a post.
+	 *
+	 * @return void
+	 */
+	public function maybe_load_admin_bar_menu() {
+		// get main instance
+		$pvc = Post_Views_Counter();
+
+		// statistics disabled?
+		if ( ! apply_filters( 'pvc_display_toolbar_statistics', $pvc->options['display']['toolbar_statistics'] ) )
+			return;
+
+		// skip for not logged in users
+		if ( ! is_user_logged_in() )
+			return;
+
+		// skip users with turned off admin bar at frontend
+		if ( ! is_admin() && get_user_option( 'show_admin_bar_front' ) !== 'true' )
+			return;
+
+		if ( is_admin() )
+			add_action( 'admin_init', [ $this, 'admin_bar_maybe_add_style' ] );
+		else
+			add_action( 'wp', [ $this, 'admin_bar_maybe_add_style' ] );
 	}
 
 	/**
@@ -373,23 +392,22 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// statistics enabled?
-		if ( ! apply_filters( 'pvc_display_toolbar_statistics', $pvc->options['display']['toolbar_statistics'] ) )
-			return;
-
+		// set empty post
 		$post = null;
 
+		// admin?
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			global $pagenow;
 
-			$post = $pagenow == 'post.php' && ! empty( $_GET['post'] ) ? get_post( (int) $_GET['post'] ) : $post;
+			$post = ( $pagenow === 'post.php' && ! empty( $_GET['post'] ) ) ? get_post( (int) $_GET['post'] ) : $post;
+		// frontend?
 		} elseif ( is_singular() )
 			global $post;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to count this post type or not
+		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 
@@ -467,31 +485,34 @@ class Post_Views_Counter_Columns {
 		// get main instance
 		$pvc = Post_Views_Counter();
 
-		// statistics enabled?
-		if ( ! $pvc->options['display']['toolbar_statistics'] )
-			return;
-
+		// set empty post
 		$post = null;
 
+		// admin?
 		if ( is_admin() && ! wp_doing_ajax() ) {
 			global $pagenow;
 
 			$post = ( $pagenow === 'post.php' && ! empty( $_GET['post'] ) ) ? get_post( (int) $_GET['post'] ) : $post;
+		// frontend?
 		} elseif ( is_singular() )
 			global $post;
 
 		// get countable post types
 		$post_types = $pvc->options['general']['post_types_count'];
 
-		// whether to count this post type or not
+		// whether to allow this post type or not
 		if ( empty( $post_types ) || empty( $post ) || ! in_array( $post->post_type, $post_types, true ) )
 			return;
 
-		// on backend area
-		add_action( 'admin_head', [ $this, 'admin_bar_css' ] );
+		// add admin bar
+		add_action( 'admin_bar_menu', [ $this, 'admin_bar_menu' ], 100 );
 
-		// on frontend area
-		add_action( 'wp_head', [ $this, 'admin_bar_css' ] );
+		// backend
+		if ( current_action() === 'admin_init' )
+			add_action( 'admin_head', [ $this, 'admin_bar_css' ] );
+		// frontend
+		elseif ( current_action() === 'wp' )
+			add_action( 'wp_head', [ $this, 'admin_bar_css' ] );
 	}
 
 	/**
@@ -521,6 +542,6 @@ class Post_Views_Counter_Columns {
 		$html .= '
 		</style>';
 
-		echo wp_kses( $html, array( 'style' => array() ) );
+		echo wp_kses( $html, [ 'style' => [] ] );
 	}
 }

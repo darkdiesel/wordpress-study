@@ -7,31 +7,7 @@ class SimpleTags_Client_TagCloud {
 	 * SimpleTags_Client_TagCloud constructor.
 	 */
 	public function __construct() {
-		if ( 1 === (int) SimpleTags_Plugin::get_option_value( 'allow_embed_tcloud' ) ) {
-			add_shortcode( 'st_tag_cloud', array( __CLASS__, 'shortcode' ) );
-			add_shortcode( 'st-tag-cloud', array( __CLASS__, 'shortcode' ) );
-		}
-	}
 
-	/**
-	 * Replace marker by a tag cloud in post content, use ShortCode
-	 *
-	 * @param array $atts
-	 *
-	 * @return string
-	 */
-	public static function shortcode( $atts ) {
-        $atts = shortcode_atts( array( 'param' => '' ), $atts );
-		extract( $atts );
-
-		$param = html_entity_decode( $param );
-		$param = trim( $param );
-
-		if ( empty( $param ) ) {
-			$param = 'title=';
-		}
-
-		return self::extendedTagCloud( $param, false );
 	}
 
 	/**
@@ -85,6 +61,8 @@ class SimpleTags_Client_TagCloud {
 			'post_type'   => '',
 			'wrap_class'  => '',
 			'link_class'  => '',
+			'before'      => '',
+			'after'       => '',
 		);
 
 		// Get options
@@ -150,6 +128,8 @@ class SimpleTags_Client_TagCloud {
 		if ( empty( $xformat ) ) {
 			$xformat = $defaults['xformat'];
 		}
+
+		$xformat = taxopress_sanitize_text_field($xformat);
 
         //remove title if in settings
         if((int)$hide_title > 0){
@@ -226,7 +206,7 @@ class SimpleTags_Client_TagCloud {
 
 		$order = strtolower( $order );
 		if ( $order == 'desc' && $orderby != 'random' ) {
-			$counts = array_reverse( $counts );
+			$counts = array_reverse( $counts, true );
 		}
 
 		$output = array();
@@ -247,7 +227,7 @@ class SimpleTags_Client_TagCloud {
 			$output[]     = SimpleTags_Client::format_internal_tag( $xformat, $term, $rel, $scale_result, $scale_max, $scale_min, $largest, $smallest, $unit, $maxcolor, $mincolor );
 		}
 
-		return SimpleTags_Client::output_content( 'st-tag-cloud', $format, $title, $output, $copyright, '', $wrap_class, $link_class );
+		return SimpleTags_Client::output_content( 'st-tag-cloud', $format, $title, $output, $copyright, '', $wrap_class, $link_class, $before, $after );
 	}
 
 
@@ -482,6 +462,7 @@ class SimpleTags_Client_TagCloud {
 			return array();
 		}
 
+		$cache = [];
 		$cache[ $key ] = $terms;
 		wp_cache_set( 'st_get_tags', $cache, 'simple-tags' );
 
@@ -841,7 +822,7 @@ class SimpleTags_Client_TagCloud {
 		// don't limit the query results when we have to descend the family tree
 		if ( ! empty( $number ) && ! $hierarchical && empty( $child_of ) && '' == $parent ) {
 			if ( $offset ) {
-                $query = $wpdb->prepare("SELECT $select_this
+                $query = $wpdb->prepare("SELECT DISTINCT $select_this
 			FROM $wpdb->terms AS t
 			INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
 			$join_relation
@@ -853,7 +834,7 @@ class SimpleTags_Client_TagCloud {
             $offset,
             $number );
 			} else {
-                $query = $wpdb->prepare("SELECT $select_this
+                $query = $wpdb->prepare("SELECT DISTINCT $select_this
 			FROM $wpdb->terms AS t
 			INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
 			$join_relation
@@ -865,7 +846,7 @@ class SimpleTags_Client_TagCloud {
             $number );
 			}
 		} else {
-            $query = $wpdb->prepare("SELECT $select_this
+            $query = $wpdb->prepare("SELECT DISTINCT $select_this
 			FROM $wpdb->terms AS t
 			INNER JOIN $wpdb->term_taxonomy AS tt ON t.term_id = tt.term_id
 			$join_relation

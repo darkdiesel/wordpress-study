@@ -1,4 +1,136 @@
 == Changelog ==
+= 4.2.1 =
+* Bug fix for product variations
+* Front end optimizations
+= 4.2 =
+* Remote diagnostics setting maintenance 
+* Adds support for syncing Wordpress user/customer account language to Mailchimp contact 
+* Fix for WooCommerce coupons date_expires not syncing to Mailchimp 
+* Design update for disconnect modal 
+* Fix for issue with setting logging preference to none
+* Enhances syncing orders by starting from newest to oldest 
+* Adds WooCommerce plugin dependency feature 
+* Bump braces from 3.0.2 to 3.0.3 in /blocks
+= 4.1 =
+* Introduced a new filter for coupons (details available in the Wiki).
+* Restored the "Resync Now" button.
+* Reinstated the Mailchimp icon in the WordPress admin sidebar.
+* Updated the design of the Mailchimp account creation user experience.
+* Fix for duplicated parent products when variation's info is edited. 
+* Tested up to Woocommerce v9.0
+* Support for customization of the cookie options being set
+= 4.0.2 =
+* Adds the Changelog back to the UI
+* Tested up to Woocommerce v8.9
+* Fixed connection issue when disconnecting and reconnecting
+= 4.0.1 =
+* Log changes
+* Add audience name to overview
+= 4.0 =
+* Allow orders to be sent to Mailchimp even if a Wordpress user role isn't set
+* Support for custom order IDs
+* Updated dependabot issues related to block-based checkouts
+* Refreshed plugin interface 
+= 3.7 =
+* Allow orders to be sent to Mailchimp even if a Wordpress user role isn't set
+* Support for custom order IDs
+* Updated dependabot issues related to block-based checkouts
+= 3.6 =
+* Add support for product image size changes
+* Add sync filter for order post types
+* Fix for double order issue w/ Woo subscription plugin 
+* Support for changing variable products to simple products 
+* Enhancement in Webhook handling due to permalink structures 
+= 3.5 =
+* Support for updated Mailchimp attribution methods
+* Adds a Continue to Mailchimp CTA to Woo Dashboard UI
+* Tested for WooCommerce v8.4 compatibility
+= 3.4 =
+* Fix rest_url function for installs that are not using wp_rewrite
+* Strict type-checks before calling unserialize
+* Better wp-cli detection for support
+* Fix webhook validation during plugin updates
+= 3.3 =
+* Performance enhancement: Removing excessive double opt-in api calls during initial sync 
+* Fix for translated product issue
+* Fix for ongoing sync settings failing when double opt-in enabled 
+* Fix for permalink conflicting with Webhook creation
+* Fix for GDPR Marketing Preferences not captured on checkout 
+* Word-wrap version update to 1.2.3 in blocks 
+= 3.2 =
+* Released: 08-21-2023
+* fix for too few arguments to function MailChimp_Service::handleOrderUpdate()
+* update to lateset version of core blocks for the site editor
+* adds the plugin icon back to wp-admin menu
+* adds automatic webhook cleaning
+= 3.1 =
+* Adds support for new product editor
+* Includes tough-cookie v4.1.3
+* Fixed fatal error while updating orders via API & subscription renewals
+= 3.0 =
+* Adds support for High Performance Order Storage (HPOS)
+* Fix for campaign reports showing data from older orders
+* Fix for GDPR selections updating on each checkout
+* Fix for DOI enabled audience customers not syncing
+* Implemented webhook cleaner function during uninstall
+= 2.8.3 =
+* back-end updates for support
+= 2.8.2 =
+* enhancements to logic for setting campaign ids on orders
+* updates to WP CLI deployment automations
+* patch for text encoding issue impacting abandoned carts
+* fix for PHP warnings non-numeric value encountered 
+= 2.8.1 =
+* Surfaces Archived status for customers accounts in admin
+* Updates to translation filenames 
+* support for populating usermeta on initial sync
+* fix for REST API caching issues 
+* Initial sync interface enchancements
+* Action Scheduler updates 
+= 2.8 =
+* Added transient to help sync manager finish
+* Adds cookie enhancement filter
+* Support for previous unsubscribes to be resubscribed
+* Fixes the my account subscription status
+* Adds option to remove the my account opt-in checkbox
+* Adds ability to ignore campaign data reporting for admins
+* Support for Woocommerce Blocks options
+* Fix for Askew opt-in checkbox on Default Wordpress Theme
+* Adds ability to use "last clicked campaign" from the API as a fallback if cookies aren't capturing revenue
+= 2.7.7 =
+* Added transient to help sync manager finish
+= 2.7.6 =
+* deprecated ExtendRestAPI filling logs
+* update action scheduler version
+* fix for saving profile unsubscribes
+= 2.7.5 =
+* fix admin subscription status checkbox flow
+* remove support flag on plugin uninstall
+= 2.7.4 =
+* wiki article for webhook setup issues
+* new filter for my account newsletter field with wiki
+* add filter for products to be pushed or not
+* add filter for orders to be pushed or not
+= 2.7.3 =
+* updates for WPCS recommendations
+= 2.7.2 =
+* fix for mailchimp account creation credentials
+* updates to PHP warning handling
+* patches bug related to WPScan
+= 2.7.1 =
+* Fixes the outgoing IP address defaults
+* Fixes webhook creation on plugin install
+* Enhancements to the support tool
+= 2.7 =
+* adds support for WooCommerce Checkout block
+* adds support for the tracking url from Mailchimp API
+* adds update function to register webhook for store 
+* support for new WooCommerce admin navigation
+* adds opt-in preference on My Account page
+* adds subscriber status to user (customer) in Wordpress 
+* now assigns double opt-in to all re-subscribers   
+* now support for loading plugin files from absolute path
+* adds two way sync check for webhooks on unsubscribes to and from Mailchimp
 = 2.6.2 =
 * compatibility for woocommerce 6.3
 * UI/UX updates for situations where Action Scheduler is missing during composer installs (via .gitignore)
@@ -8,8 +140,8 @@
 * better error handling with Google Analytics
 * fixed bug related to Mailchimp API submission when someone was already a list member
 = 2.6 =
-* adds support for selectively syncing subscribers only 
-* updates to action scheduler dependency 
+* adds support for selectively syncing subscribers only
+* updates to action scheduler dependency
 = 2.5.4 =
 * enhanced api error parsing
 * adds site transient for tracking cart
@@ -25,7 +157,7 @@
 * tested for wordpress v5.7
 * fix for cookies.js samesite error
 * adds sync completion email sent to admin
-* resolves php error for mailchimp_set_user_by_email on checkout page 
+* resolves php error for mailchimp_set_user_by_email on checkout page
 * additional database error handling
 = 2.5 =
 * interface reskin
@@ -37,7 +169,7 @@
 * fix for errors on installs with RTL Site Languages
 * adds GDPR fields for GDPR enabled audiences
 * locale settings from WooCommerce or WP are now auto-selected
-* support for notices in the wc-admin inbox 
+* support for notices in the wc-admin inbox
 * moves Mailchimp plugin link to bottom of Woocommerce sub navigation
 = 2.4.5 =
 * fixed disconnect/reconnect list issue
@@ -66,11 +198,11 @@
 * adds Mailchimp support form
 * moves navigation to WooCommerce nav as a sub-item
 * removes bubble h1 title element
-* log tab ui enhancements 
+* log tab ui enhancements
 * next button for setup wizard moved to bottom of page
-* required field ui enhancement 
+* required field ui enhancement
 * adds a banner for setup completion in Wordpress
-* overview tab ui enhancements 
+* overview tab ui enhancements
 * audience settings tab ux improvements
 * fix for cart non-numeric error
 * fix for woocommerce setup wizard redirect
@@ -84,10 +216,10 @@
 * update for latest version of Action Scheduler v3.1.4
 * documentation updates
 * fix for errors on activation following deactivation
-* fix for PHP notice on Woocommerce Import Tax rate page 
-* adds error handling on store add/update 
-* use denormalized order items values in initial sync 
-* adds function allowing tags for specific users  
+* fix for PHP notice on Woocommerce Import Tax rate page
+* adds error handling on store add/update
+* use denormalized order items values in initial sync
+* adds function allowing tags for specific users
 * adds include/exclude Mailchimp script
 * fix for double opt-in issues on saved settings
 * fixes transactionals on guest checkout
@@ -121,9 +253,9 @@
 * fix for orders with deleted products
 * support for orders with 0 line items
 = 2.3.1 =
-* adds fallback for mb_strpos if extension is not installed 
+* adds fallback for mb_strpos if extension is not installed
 * implements communications box on sync page
-* adds account create for Mailchimp 
+* adds account create for Mailchimp
 * fixes Pending Payment and On-hold status orders passed to Mailchimp
 * fixes for WooCommerce Fatal-errors
 * support for WooCommerce vendor feature
@@ -132,40 +264,40 @@
 * adds banner to review plugin after audience is synced
 * support for user language based on wp get_locale() at order placement
 = 2.3 =
-* adds action scheduler queue system 
-* documentation for Custom Merge Tags 
-* adds more specific installation requirements 
+* adds action scheduler queue system
+* documentation for Custom Merge Tags
+* adds more specific installation requirements
 * fixes PHP Error in class-mailchimp-order.php
 * fixes pop up blocks on connection
 * fixes unable to sync without accepting to auto subscribe existing customers
 * documentation for wp-cli class queue-command
 = 2.2 =
-* plugin reskin 
-* support for oauth to Mailchimp  
+* plugin reskin
+* support for oauth to Mailchimp
 * fixes sync issues with altered order IDs
-* fixes issues with trashed coupons 
+* fixes issues with trashed coupons
 = 2.1.17 =
 * re add resync button to sync tab, after sync finishes
 * renamed 'merge_vars' to 'merge_fields' as per new Mailchimp naming convention
 * fixes issues with cloudflare
-* honors woo currency settings 
+* honors woo currency settings
 * fix for failing custom coupon type
 = 2.1.16 =
 * support for HTML in opt-in checkbox
-* support for language translation 
+* support for language translation
 * fixes abandoned_cart.error
-* support for audience tags 
+* support for audience tags
 * adds responsive checkboxes for newsletter settings
 * adds sanitizing function to order ids
 * copy change from List terminology to Audience
 = 2.1.15 =
-* adds optional feedback survey on deactivate 
-* updates syncing engine to use REST API 
-* fixes edited orders syncing old and new products into Mailchimp 
-* adds support for remove_action 
+* adds optional feedback survey on deactivate
+* updates syncing engine to use REST API
+* fixes edited orders syncing old and new products into Mailchimp
+* adds support for remove_action
 = 2.1.14 =
-* Adds support for filter on newsletter field 
-* fixes inactive log delete button 
+* Adds support for filter on newsletter field
+* fixes inactive log delete button
 * fixes Mailchimp option page flow and displays list defaults tab
 * fixes resource not found error on logs
 * fixes API Key Request errors
@@ -193,8 +325,8 @@
 * Add Initial sync label on Sync Tab
 * Multisite Delete and deactivate improvements
 * Mailchimp Order Notification issues support for downloadable and virtual products
-* http worker lock improvement 
-* Add documentation about Multisite setup 
+* http worker lock improvement
+* Add documentation about Multisite setup
 * Add documentaiton for on-demand syncing
 = 2.1.9 =
 * Improved UI feedback when API key is invalid

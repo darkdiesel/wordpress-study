@@ -71,22 +71,20 @@ class Post_Views_Counter_Dashboard {
 		$pvc = Post_Views_Counter();
 
 		// styles
-		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.css', [], $pvc->defaults['version'] );
+		wp_enqueue_style( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/css/admin-dashboard.min.css', [], $pvc->defaults['version'] );
 		wp_enqueue_style( 'pvc-microtip', POST_VIEWS_COUNTER_URL . '/assets/microtip/microtip.min.css', [], '1.0.0' );
 
 		// scripts
-		wp_register_script( 'pvc-chartjs', POST_VIEWS_COUNTER_URL . '/assets/chartjs/chart.min.js', [ 'jquery' ], '3.7.0', true );
 		wp_enqueue_script( 'pvc-admin-dashboard', POST_VIEWS_COUNTER_URL . '/js/admin-dashboard.js', [ 'jquery', 'pvc-chartjs' ], $pvc->defaults['version'], true );
 
-		wp_localize_script(
-			'pvc-admin-dashboard',
-			'pvcArgs',
-			[
-				'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
-				'nonce'		=> wp_create_nonce( 'pvc-dashboard-widget' ),
-				'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
-			]
-		);
+		// prepare script data
+		$script_data = [
+			'ajaxURL'	=> admin_url( 'admin-ajax.php' ),
+			'nonce'		=> wp_create_nonce( 'pvc-dashboard-widget' ),
+			'nonceUser'	=> wp_create_nonce( 'pvc-dashboard-user-options' )
+		];
+
+		wp_add_inline_script( 'pvc-admin-dashboard', 'var pvcArgs = ' . wp_json_encode( $script_data ) . ";\n", 'before' );
 	}
 
 	/**
@@ -100,14 +98,16 @@ class Post_Views_Counter_Dashboard {
 			[
 				'id'			=> 'post-views',
 				'title'			=> __( 'Post Views', 'post-views-counter' ),
-				'description'	=> __( 'Displays the chart of most viewed post types for a selected time period.', 'post-views-counter' ),
-				'content'		=> '<canvas id="pvc-post-views-chart" height="' . $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>'
+				'description'	=> __( 'Displays a chart of most viewed post types.', 'post-views-counter' ),
+				'content'		=> '<canvas id="pvc-post-views-chart" height="' . (int) $this->calculate_canvas_size( Post_Views_Counter()->options['general']['post_types_count'] ) . '"></canvas>',
+				'position'		=> 2
 			],
 			[
 				'id'			=> 'post-most-viewed',
 				'title'			=> __( 'Top Posts', 'post-views-counter' ),
-				'description'	=> __( 'Displays the list of most viewed posts and pages on your website.', 'post-views-counter' ),
-				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>'
+				'description'	=> __( 'Displays a list of most viewed single posts or pages.', 'post-views-counter' ),
+				'content'		=> '<div id="pvc-post-most-viewed-content" class="pvc-table-responsive"></div>',
+				'position'		=> 3
 			]
 		];
 
@@ -121,6 +121,9 @@ class Post_Views_Counter_Dashboard {
 				array_push( $items, $item );
 			}
 		}
+
+		// sort dashboard items by position
+		array_multisort( array_column( $items, 'position' ), SORT_ASC, SORT_NUMERIC, $items );
 
 		// set widget items
 		$this->widget_items = $items;
@@ -176,6 +179,7 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		$html .= '
+			<div class="pvc-dashboard-block"><span>' . esc_html__( 'Powered by', 'post-views-counter' ) . ' <a href="https://postviewscounter.com/?utm_source=post-views-counter-lite&utm_medium=link&utm_campaign=powered-by" target="_blank">Post Views Counter</a></span></div>
 		</div>';
 
 		echo $html;
@@ -190,13 +194,13 @@ class Post_Views_Counter_Dashboard {
 	 * @return string
 	 */
 	public function generate_dashboard_widget_item( $item, $menu_items, $esc_months_html ) {
-		// allows a list of HTML Entities such as  
+		// get allowed html tags
 		$allowed_html = wp_kses_allowed_html( 'post' );
 		$allowed_html['canvas'] = [
 			'id' => [],
 			'height' => []
 		];
-		
+
 		return '
 		<div id="pvc-' . esc_attr( $item['id'] ) . '" class="pvc-accordion-item' . ( in_array( $item['id'], $menu_items, true ) ? ' pvc-collapsed' : '' ) . '">
 			<div class="pvc-accordion-header">
@@ -222,19 +226,14 @@ class Post_Views_Counter_Dashboard {
 	/**
 	 * Render dashboard widget with post views.
 	 *
-	 * @global array $_wp_admin_css_colors
-	 *
 	 * @return void
 	 */
 	public function dashboard_post_views_chart() {
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
-
-		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) || ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
 		// get period
-		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
 
 		// get post types
 		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
@@ -245,39 +244,21 @@ class Post_Views_Counter_Dashboard {
 		// get current date
 		$now = getdate( current_time( 'timestamp', get_option( 'gmt_offset' ) ) );
 
-		// get color schemes
-		global $_wp_admin_css_colors;
-
-		// set default color;
-		$color = [
-			'r'	=> 105,
-			'g'	=> 168,
-			'b'	=> 187
-		];
-
-		if ( ! empty( $_wp_admin_css_colors ) ) {
-			// get current admin color scheme name
-			$current_color_scheme = get_user_option( 'admin_color' );
-
-			if ( empty( $current_color_scheme ) )
-				$current_color_scheme = 'fresh';
-
-			if ( isset( $_wp_admin_css_colors[$current_color_scheme] ) )
-				$color = $this->hex2rgb( $_wp_admin_css_colors[$current_color_scheme]->colors[2] );
-		}
+		// get colors
+		$colors = Post_Views_Counter()->functions->get_colors();
 
 		// set chart labels
 		switch ( $period ) {
 			case 'this_week':
-				//@TODO
+//TODO
 				$data = [
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -319,11 +300,11 @@ class Post_Views_Counter_Dashboard {
 				$data = [
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -388,7 +369,7 @@ class Post_Views_Counter_Dashboard {
 				}
 
 				// this month all days
-				for ( $i = 1; $i <= 12; $i ++ ) {
+				for ( $i = 1; $i <= 12; $i++ ) {
 					// generate chart data
 					$data['data']['labels'][] = $i;
 					$data['data']['dates'][] = date_i18n( 'F Y', strtotime( date( 'Y' ) . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) . '-01' ) );
@@ -408,11 +389,11 @@ class Post_Views_Counter_Dashboard {
 					'months'	=> $this->generate_months( $time ),
 					'design'	=> [
 						'fill'					=> true,
-						'backgroundColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 0.2)',
-						'borderColor'			=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'backgroundColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 0.2)',
+						'borderColor'			=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'borderWidth'			=> 1.2,
 						'borderDash'			=> [],
-						'pointBorderColor'		=> 'rgba(' . $color['r'] . ',' . $color['g'] . ',' . $color['b'] . ', 1)',
+						'pointBorderColor'		=> 'rgba(' . $colors['r'] . ',' . $colors['g'] . ',' . $colors['b'] . ', 1)',
 						'pointBackgroundColor'	=> 'rgba(255, 255, 255, 1)',
 						'pointBorderWidth'		=> 1.2
 					]
@@ -478,7 +459,7 @@ class Post_Views_Counter_Dashboard {
 				}
 
 				// this month all days
-				for ( $i = 1; $i <= $date[2]; $i ++ ) {
+				for ( $i = 1; $i <= $date[2]; $i++ ) {
 					// generate chart data
 					$data['data']['labels'][] = ( $i % 2 === 0 ? '' : $i );
 					$data['data']['dates'][] = date_i18n( get_option( 'date_format' ), strtotime( $date[1] . '-' . $date[0] . '-' . str_pad( $i, 2, '0', STR_PAD_LEFT ) ) );
@@ -487,7 +468,7 @@ class Post_Views_Counter_Dashboard {
 				break;
 		}
 
-		echo json_encode( $data );
+		echo wp_json_encode( $data );
 
 		exit;
 	}
@@ -498,17 +479,17 @@ class Post_Views_Counter_Dashboard {
 	 * @return void
 	 */
 	public function dashboard_post_most_viewed() {
-		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) )
-			wp_die( _( 'You do not have permission to access this page.', 'post-views-counter' ) );
-
-		if ( ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
+		if ( ! apply_filters( 'pvc_user_can_see_stats', current_user_can( 'publish_posts' ) ) || ! check_ajax_referer( 'pvc-dashboard-widget', 'nonce' ) )
 			wp_die( __( 'You do not have permission to access this page.', 'post-views-counter' ) );
 
+		// get main instance
+		$pvc = Post_Views_Counter();
+
 		// get post types
-		$post_types = Post_Views_Counter()->options['general']['post_types_count'];
+		$post_types = $pvc->options['general']['post_types_count'];
 
 		// get period
-		$period = isset( $_POST['period'] ) ? sanitize_text_field( $_POST['period'] ) : 'this_month';
+		$period = isset( $_POST['period'] ) ? preg_replace( '/[^a-z0-9_|]/', '', $_POST['period'] ) : 'this_month';
 
 		// convert period
 		$time = $this->period2timestamp( $period );
@@ -543,7 +524,7 @@ class Post_Views_Counter_Dashboard {
 				<tr>
 					<th scope="col">#</th>
 					<th scope="col">' . esc_html__( 'Post', 'post-views-counter' ) . '</th>
-					<th scope="col">' . esc_html__( 'Post Views', 'post-views-counter' ) . '</th>
+					<th scope="col">' . esc_html__( 'Views', 'post-views-counter' ) . '</th>
 				</tr>
 			</thead>
 			<tbody>';
@@ -559,17 +540,25 @@ class Post_Views_Counter_Dashboard {
 				<tr>
 					<th scope="col">' . ( $index + 1 ) . '</th>';
 
+				// check post type existence
 				if ( array_key_exists( $post->post_type, $active_post_types ) )
 					$post_type_exists = $active_post_types[$post->post_type];
 				else
 					$post_type_exists = $active_post_types[$post->post_type] = post_type_exists( $post->post_type );
 
-				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) )
+				$title = get_the_title( $post );
+
+				if ( $title === '' )
+					$title = __( '(no title)' );
+
+				// edit post link
+				if ( $post_type_exists && current_user_can( 'edit_post', $post->ID ) ) {
 					$html .= '
-					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></td>';
-				else
+					<td><a href="' . esc_url( get_edit_post_link( $post->ID ) ) . '">' . esc_html( $title ) . '</a></td>';
+				} else {
 					$html .= '
-					<td>' . esc_html( get_the_title( $post ) ). '</td>';
+					<td>' . esc_html( $title ). '</td>';
+				}
 
 				$html .= '
 					<td>' . number_format_i18n( $post->post_views ) . '</td>
@@ -578,7 +567,7 @@ class Post_Views_Counter_Dashboard {
 		} else {
 			$html .= '
 				<tr class="no-posts">
-					<td colspan="3">' . esc_html__( 'No most viewed posts found', 'post-views-counter' ) . '</td>
+					<td colspan="3">' . esc_html__( 'No most viewed posts found.', 'post-views-counter' ) . '</td>
 				</tr>';
 		}
 
@@ -588,7 +577,7 @@ class Post_Views_Counter_Dashboard {
 
 		$data['html'] = $html;
 
-		echo json_encode( $data );
+		echo wp_json_encode( $data );
 
 		exit;
 	}
@@ -736,25 +725,5 @@ class Post_Views_Counter_Dashboard {
 		}
 
 		return $timestamp;
-	}
-
-	/**
-	 * Convert HEX to RGB color.
-	 *
-	 * @param string $color
-	 * @return bool|array
-	 */
-	public function hex2rgb( $color ) {
-		if ( $color[0] === '#' )
-			$color = substr( $color, 1 );
-
-		if ( strlen( $color ) == 6 )
-			list( $r, $g, $b ) = [ $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] ];
-		elseif ( strlen( $color ) == 3 )
-			list( $r, $g, $b ) = [ $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] ];
-		else
-			return false;
-
-		return [ 'r' => hexdec( $r ), 'g' => hexdec( $g ), 'b' => hexdec( $b ) ];
 	}
 }

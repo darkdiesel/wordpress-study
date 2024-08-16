@@ -191,7 +191,8 @@
                 type: 'POST',
                 url: ajaxurl,
                 data: {
-                    action: 'main_notice'
+                    action: 'main_notice',
+                    _ajax_nonce: '<?php echo wp_create_nonce('htcc_nonce') ?>',
                 },
                 dataType: 'json',
                 success: function (data,response) {

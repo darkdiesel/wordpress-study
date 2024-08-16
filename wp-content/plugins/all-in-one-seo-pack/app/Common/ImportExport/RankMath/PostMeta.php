@@ -47,7 +47,7 @@ class PostMeta {
 	 * @return void
 	 */
 	public function importPostMeta() {
-		$postsPerAction  = 100;
+		$postsPerAction  = apply_filters( 'aioseo_import_rank_math_posts_per_action', 100 );
 		$publicPostTypes = implode( "', '", aioseo()->helpers->getPublicPostTypes( true ) );
 		$timeStarted     = gmdate( 'Y-m-d H:i:s', aioseo()->core->cache->get( 'import_post_meta_rank_math' ) );
 
@@ -60,6 +60,7 @@ class PostMeta {
 			->whereRaw( "( p.post_type IN ( '$publicPostTypes' ) )" )
 			->whereRaw( "( ap.post_id IS NULL OR ap.updated < '$timeStarted' )" )
 			->orderBy( 'p.ID DESC' )
+			->groupBy( 'p.ID' )
 			->limit( $postsPerAction )
 			->run()
 			->result();
@@ -84,7 +85,8 @@ class PostMeta {
 			'rank_math_twitter_title'        => 'twitter_title',
 			'rank_math_twitter_description'  => 'twitter_description',
 			'rank_math_twitter_image'        => 'twitter_image_custom_url',
-			'rank_math_twitter_card_type'    => 'twitter_card'
+			'rank_math_twitter_card_type'    => 'twitter_card',
+			'rank_math_primary_category'     => 'primary_term',
 		];
 
 		foreach ( $posts as $post ) {
@@ -96,13 +98,18 @@ class PostMeta {
 				->run()
 				->result();
 
-			if ( ! $postMeta || ! count( $postMeta ) ) {
-				continue;
-			}
-
 			$meta = [
 				'post_id' => $post->ID,
 			];
+
+			if ( ! $postMeta || ! count( $postMeta ) ) {
+				$aioseoPost = Models\Post::getPost( (int) $post->ID );
+				$aioseoPost->set( $meta );
+				$aioseoPost->save();
+
+				aioseo()->migration->meta->migrateAdditionalPostMeta( $post->ID );
+				continue;
+			}
 
 			foreach ( $postMeta as $record ) {
 				$name  = $record->meta_key;
@@ -132,11 +139,17 @@ class PostMeta {
 
 				switch ( $name ) {
 					case 'rank_math_focus_keyword':
-						$keyphrase = [
-							'focus'      => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $value ) ],
+						$keyphrases     = array_map( 'trim', explode( ',', $value ) );
+						$keyphraseArray = [
+							'focus'      => [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $keyphrases[0] ) ],
 							'additional' => []
 						];
-						$meta['keyphrases'] = wp_json_encode( $keyphrase );
+						unset( $keyphrases[0] );
+						foreach ( $keyphrases as $keyphrase ) {
+							$keyphraseArray['additional'][] = [ 'keyphrase' => aioseo()->helpers->sanitizeOption( $keyphrase ) ];
+						}
+
+						$meta['keyphrases'] = $keyphraseArray;
 						break;
 					case 'rank_math_robots':
 						$value = aioseo()->helpers->maybeUnserialize( $value );
@@ -152,7 +165,7 @@ class PostMeta {
 						if ( ! empty( $value['max-snippet'] ) && intval( $value['max-snippet'] ) ) {
 							$meta['robots_max_snippet'] = intval( $value['max-snippet'] );
 						}
-						if ( ! empty( $value['max-video-preview'] ) && intval( $value['max-video-preview'] ) ) {
+						if ( isset( $value['max-video-preview'] ) && is_numeric( $value['max-video-preview'] ) ) {
 							$meta['robots_max_videopreview'] = intval( $value['max-video-preview'] );
 						}
 						if ( ! empty( $value['max-image-preview'] ) ) {
@@ -174,6 +187,12 @@ class PostMeta {
 					case 'rank_math_twitter_use_facebook':
 						$meta[ $mappedMeta[ $name ] ] = 'on' === $value;
 						break;
+					case 'rank_math_primary_category':
+						$taxonomy                     = 'category';
+						$options                      = new \stdClass();
+						$options->$taxonomy           = (int) $value;
+						$meta[ $mappedMeta[ $name ] ] = wp_json_encode( $options );
+						break;
 					case 'rank_math_title':
 					case 'rank_math_description':
 						if ( 'page' === $post->post_type ) {
@@ -190,6 +209,11 @@ class PostMeta {
 			$aioseoPost = Models\Post::getPost( $post->ID );
 			$aioseoPost->set( $meta );
 			$aioseoPost->save();
+
+			aioseo()->migration->meta->migrateAdditionalPostMeta( $post->ID );
+
+			// Clear the Overview cache.
+			aioseo()->postSettings->clearPostTypeOverviewCache( $post->ID );
 		}
 
 		if ( count( $posts ) === $postsPerAction ) {

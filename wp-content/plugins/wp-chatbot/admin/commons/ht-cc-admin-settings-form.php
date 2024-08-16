@@ -125,7 +125,7 @@ $tabs[$curren] .= ' current';
                         <div class="pro_button">
                             <div class="pro_button__content">
                                 <p><?php _e('Upgrade to unlock this feature') ?></p>
-								<h3><?php _e('Get <b>50% off</b> when you upgrade today.') ?></h3>
+								<h3><?php _e('Get 50% off when you upgrade today.') ?></h3>
                             </div>
                             <div class="pro_button__action">
                                 <span class="pro_button_action__text"><?php _e('Upgrade') ?></span>
@@ -277,7 +277,7 @@ $tabs[$curren] .= ' current';
         <div class="modal_close"><i class="fa fa-times" aria-hidden="true"></i></div>
         <div class="mm__wrapper">
             <form class="checkout-form" id="checkout-form">
-                <input type="hidden" data-recurly="token" name="recurly-token">
+                <input type="hidden" data-recurly="token" name="recurly-token" />
                 <div class="billing-modal-header">
                     <div class="billing-modal-header__logo">
                         <div class="logo"></div>
@@ -319,32 +319,64 @@ $tabs[$curren] .= ' current';
                     </div>
                     <?php
 					}else{?>
-                        <label for="email"><?php _e('EMAIL') ?></label>
-                        <input type="email" id="email" required>
                         <div class="name__wrap">
                             <div class="firstname__wrap">
                                 <label for="firstname"><?php _e('FIRST NAME') ?></label>
-                                <input type="text" id="firstname" data-recurly="first_name" required>
+                                <input type="text" id="firstname" data-recurly="first_name" required />
                             </div>
                             <div class="lastname__wrap">
                                 <label for="lastname"><?php _e('LAST NAME') ?></label>
-                                <input type="text" id="lastname" data-recurly="last_name" required>
+                                <input type="text" id="lastname" data-recurly="last_name" required />
                             </div>
                         </div>
-                        <label for="country"><?php _e('COUNTRY')?></label>
-                        <select name="country" id="country" data-recurly="country" required>
-                            <?php foreach (HTCC_Countries::$contries as $k=>$v){
-                                echo "<option value=".$v[0].">".$v[1]."</option>";
-                            } ?>
-                        </select>
+                        <label for="email"><?php _e('EMAIL') ?></label>
+                        <input type="email" id="email" required />
+                        <div class="separator"></div>
+                        <div class="form-field-wrap">
                         <label for="card_number"><?php _e('CARD INFO') ?></label>
                         <div class="card__wrap">
-                            <div id="card_number" data-recurly="card" name="card"></div>
+                            <div id="card_number" data-recurly="card"></div>
+                        </div>
+                        </div>
+                        <div class="form-field-wrap">
+                            <label for="country"><?php _e('COUNTRY')?></label>
+                            <select name="country" id="country" data-recurly="country" required>
+                            <?php foreach (HTCC_Countries::$contries as $k=>$v){
+                                echo "<option value=".$v[0].">".$v[1]."</option>";
+                            }?>
+                            </select>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="form-field-wrap">
+                            <label for="address1"><?php _e('ADDRESS LINE 1') ?></label>
+                            <input type="text" id="address1" placeholder="Street address, P.O box, company name" data-recurly="address1" required />
+                        </div>
+                        <div class="form-field-wrap">
+                            <label for="address2"><?php _e('ADDRESS LINE 2') ?></label>
+                            <input type="text" id="address2"  placeholder="Apartment, suite, unit, building, floor, etc." data-recurly="address2" />
+                        </div>
+                        <div class="name__wrap">
+                            <div class="form-field-wrap">
+                                 <label for="city"><?php _e('CITY') ?></label>
+                                 <input type="text" id="city"  data-recurly="city" required />
+                            </div>
+                            <div class="form-field-wrap">
+                                 <label for="state"><?php _e('STATE') ?></label>
+                                 <input type="text" id="state"  data-recurly="state" class="states-input"/>
+                                 <select name="state" id="state" data-recurly="state" class="states-select" required>
+                                  <?php foreach (HTCC_States::$states as $k=>$v){
+                                  echo "<option value=".$v[1].">".$v[0]."</option>";
+                                  } ?>
+                               </select>
+                            </div>
+                            <div class="form-field-wrap">
+                                 <label for="postal_code"><?php _e('ZIP CODE') ?></label>
+                                 <input type="text" id="postal_code"  data-recurly="postal_code" required />
+                            </div>
                         </div>
                     <?php
                     }
                     ?>
-
                 </div>
                 <div class="billing-modal-footer">
 					<?php
@@ -370,8 +402,8 @@ $tabs[$curren] .= ' current';
         <div class="modal_close"><i class="fa fa-times" aria-hidden="true"></i></div>
             <div class="promo-app__wrapper">
                 <p>Download App</p>
-                <a target="_blank" class="android_app" href='https://play.google.com/store/apps/details?id=com.mobilemonkey&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
-                <img src="https://linkmaker.itunes.apple.com/en-us/badge-lrg.svg?releaseDate=2019-10-03&kind=iossoftware&bubble=ios_apps" alt="" class="ios_app">
+              <a target="_blank" class="android_app" href='https://play.google.com/store/apps/details?id=com.mobilemonkey&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='<?php echo plugins_url('admin/assets/img/get_it_on_google_play.png', HTCC_PLUGIN_FILE) ?>'/></a>
+              <img src="<?php echo plugins_url('admin/assets/img/download_app_store.svg', HTCC_PLUGIN_FILE) ?>" alt="" class="ios_app">
             </div>
             <div class="ios-app__wrap">
                 <p>Scan on your mobile device to view in the App Store</p>

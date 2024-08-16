@@ -27,7 +27,7 @@ if ( ! function_exists( 'icl_get_languages' ) ) {
 	 * Used for building custom language selectors
 	 * available only on frontend
 	 *
-	 * List of paramaters accepted in $args:
+	 * List of parameters accepted in $args:
 	 *
 	 * skip_missing  => whether to skip missing translation or not, 0 or 1, defaults to 0
 	 * orderby       => 'id', 'code', 'name', defaults to 'id'
@@ -359,10 +359,13 @@ if ( ! function_exists( 'wpml_get_copied_fields_for_post_edit' ) ) {
 
 		$arr = array( 'original_post_id' => (int) $_GET['from_post'] ); // phpcs:ignore WordPress.Security.NonceVerification
 
-		// Don't know what WPML does but Polylang does copy all public meta keys by default
-		foreach ( $keys = array_unique( array_keys( get_post_custom( $arr['original_post_id'] ) ) ) as $k => $meta_key ) {
-			if ( is_protected_meta( $meta_key ) ) {
-				unset( $keys[ $k ] );
+		// Don't know what WPML does but Polylang does copy all public meta keys by default.
+		$keys = get_post_custom_keys( $arr['original_post_id'] );
+		if ( is_array( $keys ) ) {
+			foreach ( $keys as $k => $meta_key ) {
+				if ( is_protected_meta( $meta_key ) ) {
+					unset( $keys[ $k ] );
+				}
 			}
 		}
 

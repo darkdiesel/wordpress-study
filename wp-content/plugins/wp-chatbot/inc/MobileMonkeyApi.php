@@ -76,6 +76,7 @@ class MobileMonkeyApi
 	}
 	public function getActiveRemotePageId(){
 		$data = get_option($this->option_prefix . 'active_page_info');
+		if ($data == false) { return $data; }
 		return $data['remote_id'];
 	}
 
@@ -98,14 +99,14 @@ class MobileMonkeyApi
 
     public function getActiveBotId()
     {
-		$data = get_option($this->option_prefix . 'active_page_info');
-		return $data['bot_id'];
+		$data = get_option($this->option_prefix . 'active_page_info', array());
+	    return $data['bot_id'];
     }
 
 
     public function getActivePageId()
     {
-		$data = get_option($this->option_prefix . 'active_page_info');
+		$data = get_option($this->option_prefix . 'active_page_info', array());
 		return $data['id'];
     }
 
@@ -304,6 +305,11 @@ class MobileMonkeyApi
 	}
 
 	public function create_subscribe(){
+		check_ajax_referer('htcc_nonce');
+		if(!current_user_can('manage_options')) {
+			wp_die('Unauthorized', 403);
+		}
+
 		$data = $_POST;
 		$args = [
 			'timeout' => 10,
@@ -338,6 +344,11 @@ class MobileMonkeyApi
 	}
 
 	public function cancel_subscribe(){
+		check_ajax_referer('htcc_nonce');
+		if(!current_user_can('manage_options')) {
+			wp_die('Unauthorized', 403);
+		}
+
 		$args = [
 			'timeout' => 10,
 			'headers' => [
@@ -1357,6 +1368,10 @@ class MobileMonkeyApi
 		echo $type;
 	}
 	public function csv(){
+		check_ajax_referer('htcc_nonce');
+		if(!current_user_can('manage_options')) {
+			wp_die('Unauthorized', 403);
+		}
 		$contacts = $this->getContacts();
 		$header_row = array(
 			'Name',

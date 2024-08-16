@@ -2,8 +2,8 @@
 /**
  * Plugin Name: TaxoPress
  * Plugin URI: https://wordpress.org/plugins/simple-tags/
- * Description: Extended Tag Manager. Terms suggestion, Mass Edit Terms, Auto link Terms, Ajax Autocompletion, Click Terms, Advanced manage terms, etc.
- * Version: 3.6.0
+ * Description: TaxoPress allows you to create and manage Tags, Categories, and all your WordPress taxonomy terms.
+ * Version: 3.23.0
  * Author: TaxoPress
  * Author URI: https://taxopress.com
  * Text Domain: simple-tags
@@ -13,12 +13,6 @@
  * License: GPLv3
  *
  * Copyright (c) 2022 Taxopress
- *
- * ------------------------------------------------------------------------------
- * Based on Organize Series
- * Author: Darren Ethier
- * Copyright (c) 2007, 2011 Darren Ethier
- * ------------------------------------------------------------------------------
  *
  * @package 	simple-tags
  * @author		TaxoPress
@@ -57,7 +51,7 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('STAGS_VERSION')) {
-define('STAGS_VERSION', '3.6.0');
+define('STAGS_VERSION', '3.23.0');
 }
 
 
@@ -107,7 +101,7 @@ if (defined('TAXOPRESS_FILE') || $pro_active) {
 
 define ( 'TAXOPRESS_FILE', __FILE__ );
 
-define('STAGS_MIN_PHP_VERSION', '5.6');
+define('STAGS_MIN_PHP_VERSION', '7.2.5');
 define('STAGS_OPTIONS_NAME', 'simpletags'); // Option name for save settings
 define('STAGS_OPTIONS_NAME_AUTO', 'simpletags-auto'); // Option name for save settings auto terms
 

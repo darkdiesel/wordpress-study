@@ -13,9 +13,11 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 		 * @var string
 		 */
 		private $plugin_name = 'mailchimp-woocommerce';
-		
+
 		/**
-		 * Start the full sync process
+		 * @throws MailChimp_WooCommerce_Error
+		 * @throws MailChimp_WooCommerce_RateLimitError
+		 * @throws MailChimp_WooCommerce_ServerError
 		 */
 		public function start_sync() {
 			
@@ -44,6 +46,9 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 			update_option("{$this->plugin_name}-sync.syncing", true);
 			update_option("{$this->plugin_name}-sync.started_at", time());
 
+			// let this happen if they start the sync again.
+			mailchimp_delete_transient('stop_sync');
+
 			if (! get_option("{$this->plugin_name}-sync.completed_at")) {
 				update_option("{$this->plugin_name}-sync.initial_sync", 1);
 			} else delete_option("{$this->plugin_name}-sync.initial_sync");
@@ -53,8 +58,8 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 				$wpdb->show_errors(false);
 				mailchimp_delete_as_jobs();
 				mailchimp_flush_sync_job_tables();
-				$wpdb->show_errors(true);
-			} catch (\Exception $e) {}
+				$wpdb->show_errors();
+			} catch (Exception $e) {}
 
 			mailchimp_log("{$this->plugin_name}-sync.started", "Starting Sync :: ".date('D, M j, Y g:i A'));
 
@@ -65,7 +70,9 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 		}
 
 		/**
-		 * 
+		 * @throws MailChimp_WooCommerce_Error
+		 * @throws MailChimp_WooCommerce_RateLimitError
+		 * @throws MailChimp_WooCommerce_ServerError
 		 */
 		function flag_stop_sync()
 		{
@@ -96,9 +103,17 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 
 		}
 
+		/**
+		 * @throws MailChimp_WooCommerce_Error
+		 * @throws MailChimp_WooCommerce_RateLimitError
+		 * @throws MailChimp_WooCommerce_ServerError
+		 */
 		public function handle(){
-			// Trigger respawn
-			$this->recreate();
+			// if we have a transient telling us to stop this sync, just break out here instead of
+			// respawn and try to delete.
+			if (mailchimp_get_transient('stop_sync', false)) {
+				return;
+			}
 			
 			// get started queueing processes
 			$started = array(
@@ -152,12 +167,20 @@ if ( ! class_exists( 'MailChimp_WooCommerce_Process_Full_Sync_Manager' ) ) {
 
 			if ($completed['orders']) {
 				if (mailchimp_get_remaining_jobs_count('MailChimp_WooCommerce_Single_Order') <= 0 && mailchimp_get_remaining_jobs_count('MailChimp_WooCommerce_Process_Orders') <= 0) {
+					mailchimp_set_transient('stop_sync', 600);
 					$this->flag_stop_sync();
+					mailchimp_log('sync', "Sync manager has finished queuing jobs and flagged the store as not syncing.");
                     try {
                         as_unschedule_action('MailChimp_WooCommerce_Process_Full_Sync_Manager', array(), 'mc-woocommerce' );
-                    } catch (\Exception $e) {}
-				}	
+                    } catch (Exception $e) {
+                    	mailchimp_error('sync.unschedule.error', $e->getMessage());
+                    }
+					return true;
+				}
 			}
+
+			// Trigger respawn
+			$this->recreate();
 		}
 
 		/**

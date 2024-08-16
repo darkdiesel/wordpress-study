@@ -19,9 +19,9 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 	 */
 	public function __construct() {
 		parent::__construct( array(
-			'singular'  => __( 'Customer', 'woocommerce-subscriptions' ),
-			'plural'    => __( 'Customers', 'woocommerce-subscriptions' ),
-			'ajax'      => false,
+			'singular' => __( 'Customer', 'woocommerce-subscriptions' ),
+			'plural'   => __( 'Customers', 'woocommerce-subscriptions' ),
+			'ajax'     => false,
 		) );
 	}
 
@@ -41,11 +41,13 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 		echo '<div id="poststuff" class="woocommerce-reports-wide">';
 		echo '	<div id="postbox-container-1" class="postbox-container" style="width: 280px;"><div class="postbox" style="padding: 10px;">';
 		echo '	<h3>' . esc_html__( 'Customer Totals', 'woocommerce-subscriptions' ) . '</h3>';
-		echo '	<p><strong>' . esc_html__( 'Total Subscribers', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->total_customers ) . wcs_help_tip( __( 'The number of unique customers with a subscription of any status other than pending or trashed.', 'woocommerce-subscriptions' ) ) . '<br />';
-		echo '	<strong>' . esc_html__( 'Active Subscriptions', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->active_subscriptions ) . wcs_help_tip( __( 'The total number of subscriptions with a status of active or pending cancellation.', 'woocommerce-subscriptions' ) ) . '<br />';
-		echo '	<strong>' . esc_html__( 'Total Subscriptions', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->total_subscriptions ) . wcs_help_tip( __( 'The total number of subscriptions with a status other than pending or trashed.', 'woocommerce-subscriptions' ) ) . '<br />';
-		echo '	<strong>' . esc_html__( 'Total Subscription Orders', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->initial_order_count + $this->totals->renewal_switch_count ) . wcs_help_tip( __( 'The total number of sign-up, switch and renewal orders placed with your store with a paid status (i.e. processing or complete).', 'woocommerce-subscriptions' ) ) . '<br />';
-		echo '	<strong>' . esc_html__( 'Average Lifetime Value', 'woocommerce-subscriptions' ) . '</strong>: ' . wp_kses_post( wc_price( ( $this->totals->initial_order_total + $this->totals->renewal_switch_total ) / $this->totals->total_customers ) ) . wcs_help_tip( __( 'The average value of all customers\' sign-up, switch and renewal orders.', 'woocommerce-subscriptions' ) ) . '</p>';
+		echo '	<p><strong>' . esc_html__( 'Total Subscribers', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->total_customers ) . wc_help_tip( __( 'The number of unique customers with a subscription of any status other than pending or trashed.', 'woocommerce-subscriptions' ) ) . '<br />';
+		echo '	<strong>' . esc_html__( 'Active Subscriptions', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->active_subscriptions ) . wc_help_tip( __( 'The total number of subscriptions with a status of active or pending cancellation.', 'woocommerce-subscriptions' ) ) . '<br />';
+		echo '	<strong>' . esc_html__( 'Total Subscriptions', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->total_subscriptions ) . wc_help_tip( __( 'The total number of subscriptions with a status other than pending or trashed.', 'woocommerce-subscriptions' ) ) . '<br />';
+		echo '	<strong>' . esc_html__( 'Total Subscription Orders', 'woocommerce-subscriptions' ) . '</strong>: ' . esc_html( $this->totals->initial_order_count + $this->totals->renewal_switch_count ) . wc_help_tip( __( 'The total number of sign-up, switch and renewal orders placed with your store with a paid status (i.e. processing or complete).', 'woocommerce-subscriptions' ) ) . '<br />';
+		echo '	<strong>' . esc_html__( 'Average Lifetime Value', 'woocommerce-subscriptions' ) . '</strong>: ';
+		echo wp_kses_post( wc_price( $this->totals->total_customers > 0 ? ( ( $this->totals->initial_order_total + $this->totals->renewal_switch_total ) / $this->totals->total_customers ) : 0 ) );
+		echo wc_help_tip( __( 'The average value of all customers\' sign-up, switch and renewal orders.', 'woocommerce-subscriptions' ) ) . '</p>';
 		echo '</div></div>';
 		$this->display();
 		echo '</div>';
@@ -64,20 +66,20 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 
 		switch ( $column_name ) {
 
-			case 'customer_name' :
+			case 'customer_name':
 				$user_info = get_userdata( $user->customer_id );
-				return '<a href="' . get_edit_user_link( $user->customer_id ) . '">' . $user_info->user_email  . '</a>';
+				return '<a href="' . get_edit_user_link( $user->customer_id ) . '">' . $user_info->user_email . '</a>';
 
-			case 'active_subscription_count' :
+			case 'active_subscription_count':
 				return $user->active_subscriptions;
 
-			case 'total_subscription_count' :
+			case 'total_subscription_count':
 				return sprintf( '<a href="%s%d">%d</a>', admin_url( 'edit.php?post_type=shop_subscription&_customer_user=' ), $user->customer_id, $user->total_subscriptions );
 
-			case 'total_subscription_order_count' :
+			case 'total_subscription_order_count':
 				return sprintf( '<a href="%s%d">%d</a>', admin_url( 'edit.php?post_type=shop_order&_paid_subscription_orders_for_customer_user=' ), $user->customer_id, $user->initial_order_count + $user->renewal_switch_count );
 
-			case 'customer_lifetime_value' :
+			case 'customer_lifetime_value':
 				return wc_price( $user->initial_order_total + $user->renewal_switch_total );
 
 		}
@@ -93,10 +95,14 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 	public function get_columns() {
 		$columns = array(
 			'customer_name'                  => __( 'Customer', 'woocommerce-subscriptions' ),
-			'active_subscription_count'      => sprintf( __( 'Active Subscriptions %s', 'woocommerce-subscriptions' ), wcs_help_tip( __( 'The number of subscriptions this customer has with a status of active or pending cancellation.', 'woocommerce-subscriptions' ) ) ),
-			'total_subscription_count'       => sprintf( __( 'Total Subscriptions %s', 'woocommerce-subscriptions' ), wcs_help_tip( __( 'The number of subscriptions this customer has with a status other than pending or trashed.', 'woocommerce-subscriptions' ) ) ),
-			'total_subscription_order_count' => sprintf( __( 'Total Subscription Orders %s', 'woocommerce-subscriptions' ), wcs_help_tip( __( 'The number of sign-up, switch and renewal orders this customer has placed with your store with a paid status (i.e. processing or complete).', 'woocommerce-subscriptions' ) ) ),
-			'customer_lifetime_value'        => sprintf( __( 'Lifetime Value from Subscriptions %s', 'woocommerce-subscriptions' ), wcs_help_tip( __( 'The total value of this customer\'s sign-up, switch and renewal orders.', 'woocommerce-subscriptions' ) ) ),
+			// translators: %s: help tip.
+			'active_subscription_count'      => sprintf( __( 'Active Subscriptions %s', 'woocommerce-subscriptions' ), wc_help_tip( __( 'The number of subscriptions this customer has with a status of active or pending cancellation.', 'woocommerce-subscriptions' ) ) ),
+			// translators: %s: help tip.
+			'total_subscription_count'       => sprintf( __( 'Total Subscriptions %s', 'woocommerce-subscriptions' ), wc_help_tip( __( 'The number of subscriptions this customer has with a status other than pending or trashed.', 'woocommerce-subscriptions' ) ) ),
+			// translators: %s: help tip.
+			'total_subscription_order_count' => sprintf( __( 'Total Subscription Orders %s', 'woocommerce-subscriptions' ), wc_help_tip( __( 'The number of sign-up, switch and renewal orders this customer has placed with your store with a paid status (i.e. processing or complete).', 'woocommerce-subscriptions' ) ) ),
+			// translators: %s: help tip.
+			'customer_lifetime_value'        => sprintf( __( 'Lifetime Value from Subscriptions %s', 'woocommerce-subscriptions' ), wc_help_tip( __( 'The total value of this customer\'s sign-up, switch and renewal orders.', 'woocommerce-subscriptions' ) ) ),
 		);
 
 		return $columns;
@@ -185,9 +191,9 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 		 * Pagination.
 		 */
 		$this->set_pagination_args( array(
-			 'total_items' => $this->totals->total_customers,
-			 'per_page'    => $per_page,
-			 'total_pages' => ceil( $this->totals->total_customers / $per_page ),
+			'total_items' => $this->totals->total_customers,
+			'per_page'    => $per_page,
+			'total_pages' => ceil( $this->totals->total_customers / $per_page ),
 		) );
 
 	}
@@ -210,13 +216,12 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 			"SELECT COUNT( DISTINCT customer_ids.meta_value) as total_customers,
 					COUNT(subscription_posts.ID) as total_subscriptions,
 					COALESCE( SUM(parent_total.meta_value), 0) as initial_order_total,
-					COALESCE( SUM(parent_total.meta_value), 0) as initial_order_total,
 					COUNT(DISTINCT parent_order.ID) as initial_order_count,
-					SUM(CASE
+					COALESCE(SUM(CASE
 							WHEN subscription_posts.post_status
 								IN  ( 'wc-" . implode( "','wc-", apply_filters( 'wcs_reports_active_statuses', array( 'active', 'pending-cancel' ) ) ) . "' ) THEN 1
 							ELSE 0
-							END) AS active_subscriptions
+							END), 0) AS active_subscriptions
 				FROM {$wpdb->posts} subscription_posts
 				INNER JOIN {$wpdb->postmeta} customer_ids
 					ON customer_ids.post_id = subscription_posts.ID
@@ -234,7 +239,12 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 		$cached_results = get_transient( strtolower( __CLASS__ ) );
 		$query_hash     = md5( $total_query );
 
-		if ( $args['no_cache'] || false === $cached_results || ! isset( $cached_results[ $query_hash ] ) ) {
+		// Set a default value for cached results for PHP 8.2+ compatibility.
+		if ( empty( $cached_results ) ) {
+			$cached_results = [];
+		}
+
+		if ( $args['no_cache'] || ! isset( $cached_results[ $query_hash ] ) ) {
 			// Enable big selects for reports
 			$wpdb->query( 'SET SESSION SQL_BIG_SELECTS=1' );
 			$cached_results[ $query_hash ] = apply_filters( 'wcs_reports_customer_total_data', $wpdb->get_row( $total_query ) );
@@ -263,7 +273,7 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 
 		$query_hash = md5( $renewal_switch_total_query );
 
-		if ( $args['no_cache'] || false === $cached_results || ! isset( $cached_results[ $query_hash ] ) ) {
+		if ( $args['no_cache'] || ! isset( $cached_results[ $query_hash ] ) ) {
 			// Enable big selects for reports
 			$wpdb->query( 'SET SESSION SQL_BIG_SELECTS=1' );
 			$cached_results[ $query_hash ] = apply_filters( 'wcs_reports_customer_total_renewal_switch_data', $wpdb->get_row( $renewal_switch_total_query ) );
@@ -274,5 +284,14 @@ class WCS_Report_Subscription_By_Customer extends WP_List_Table {
 		$customer_totals->renewal_switch_count = $cached_results[ $query_hash ]->renewal_switch_count;
 
 		return $customer_totals;
+	}
+
+	/**
+	 * Clears the cached report data.
+	 *
+	 * @since 3.0.10
+	 */
+	public static function clear_cache() {
+		delete_transient( strtolower( __CLASS__ ) );
 	}
 }

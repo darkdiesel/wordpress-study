@@ -40,13 +40,22 @@ function mailchimp_woocommerce_uninstall() {
             if (isset($options['mailchimp_api_key'])) {
                 $store_id = get_option('mailchimp-woocommerce-store_id', false);
                 if (!empty($store_id)) {
+                	// disable support if they had it enabled
+                	$tower = new MailChimp_WooCommerce_Tower($store_id);
+                	$tower->toggle(false);
+                	// delete the store if it's in Mailchimp
                     $api = new MailChimp_WooCommerce_MailChimpApi($options['mailchimp_api_key']);
                     $result = $api->deleteStore($store_id) ? 'has been deleted' : 'did not delete';
                     error_log("store id {$store_id} {$result} MailChimp");
                 }
+
+				$webhooks = new MailChimp_WooCommerce_WebHooks_Sync;
+				$webhooks->cleanHooks(true);
             }
         }
-    } catch (\Exception $e) {
+        delete_option('mc-woocommerce-waiting-for-login');
+
+    } catch (Exception $e) {
         error_log($e->getMessage().' on '.$e->getLine().' in '.$e->getFile());
     }
     mailchimp_remove_communication_status();
@@ -64,7 +73,7 @@ if (!is_multisite()) {
             mailchimp_woocommerce_uninstall();
         }
         restore_current_blog();
-    } catch (\Exception $e) {}
+    } catch (Exception $e) {}
 }
 
 
